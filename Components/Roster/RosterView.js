@@ -14,39 +14,31 @@ export default function RosterView() {
   const [roster, setRoster] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
 
-  const { isSubscribed, setIsSubscribed, offerings } = useSubscription();
+  const { isSubscribed, offerings } = useSubscription();
 
+  // Abrir selector de PDF
   const handlePickPdf = async () => {
-    if (!isSubscribed) {
-      Toast.show({
-        type: "error",
-        text1: "Suscripción requerida",
-        text2: "Necesitas estar suscripto para usar esta función.",
-      });
-      return;
-    }
+    if (!isSubscribed) return; // Seguridad extra
 
     const base64 = await pickPdfFile();
     if (base64) setPdfData(base64);
   };
 
+  // Suscribirse
   const handleSubscribe = async () => {
-    try {
-      if (!offerings || !offerings.availablePackages.length) {
-        Toast.show({
-          type: "error",
-          text1: "Error",
-          text2: "No hay suscripciones disponibles.",
-        });
-        return;
-      }
+    if (!offerings || !offerings.availablePackages.length) {
+      Toast.show({
+        type: "error",
+        text1: "Error",
+        text2: "No hay suscripciones disponibles.",
+      });
+      return;
+    }
 
-      const purchaseInfo = await Purchases.purchasePackage(
-        offerings.availablePackages[0]
-      );
+    try {
+      const purchaseInfo = await Purchases.purchasePackage(offerings.availablePackages[0]);
 
       if (purchaseInfo.customerInfo.entitlements.active["Roster access"]) {
-        setIsSubscribed(true);
         Toast.show({ type: "success", text1: "¡Suscripción activa!" });
       }
     } catch (e) {
@@ -60,6 +52,7 @@ export default function RosterView() {
     }
   };
 
+  // Mostrar PDF si ya fue seleccionado
   if (pdfData) {
     return (
       <WebView
@@ -85,8 +78,7 @@ export default function RosterView() {
                     for (let i = 1; i <= pdf.numPages; i++) {
                       const page = await pdf.getPage(i);
                       const textContent = await page.getTextContent();
-                      const pageText = textContent.items.map(item => item.str).join(" ");
-                      fullText += pageText + "\\n";
+                      fullText += textContent.items.map(item => item.str).join(" ") + "\\n";
                     }
                     window.ReactNativeWebView.postMessage(fullText);
                   }).catch(err => {
@@ -137,12 +129,7 @@ export default function RosterView() {
       {isSubscribed ? (
         <PrimaryButton title="Adjuntar PDF" onPress={handlePickPdf} />
       ) : (
-        <>
-          <Text style={{ textAlign: "center", marginBottom: 10 }}>
-            🚫 Necesitás una suscripción para usar esta función.
-          </Text>
-          <PrimaryButton title="Suscribirse" onPress={handleSubscribe} />
-        </>
+        <PrimaryButton title="Suscribirse" onPress={handleSubscribe} />
       )}
 
       <RosterModal

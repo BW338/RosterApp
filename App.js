@@ -15,6 +15,7 @@ export default function App() {
   useEffect(() => {
     const initRevenueCat = async () => {
       try {
+        // Configuración inicial
         await Purchases.configure({
           apiKey: Platform.select({
             ios: "appl_xxx_tuApiKeyDeRevenueCat", // 👈 reemplazar con tu API key
@@ -22,9 +23,10 @@ export default function App() {
           }),
         });
 
-        // Info del usuario
+        // Obtener info del usuario
         const customerInfo = await Purchases.getCustomerInfo();
-        setIsSubscribed(!!customerInfo.entitlements.active["Roster access"]);
+        const active = customerInfo.entitlements.active["Roster access"];
+        setIsSubscribed(!!active);
 
         // Obtener planes disponibles
         const availableOfferings = await Purchases.getOfferings();
@@ -37,6 +39,16 @@ export default function App() {
     };
 
     initRevenueCat();
+
+    // 🔄 Listener que mantiene actualizado el estado de la suscripción
+    const listener = Purchases.addCustomerInfoUpdateListener((customerInfo) => {
+      const active = customerInfo.entitlements.active["Roster access"];
+      setIsSubscribed(!!active);
+    });
+
+    return () => {
+      listener.remove();
+    };
   }, []);
 
   if (loading) {

@@ -12,3 +12,4 @@ Se añade la libreria "ract-native-purchases"
 4| IAP Android payment succesfull:
 Se agrega la logica para realizar el pago, el mismo se realiza con exito. Falta trabajar la logica para 
 que reconozca la suscripcion y permita usar el sistema.
+
