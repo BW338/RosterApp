@@ -18,7 +18,7 @@ export default function App() {
         // Configuración inicial
         await Purchases.configure({
           apiKey: Platform.select({
-            ios: "appl_xxx_tuApiKeyDeRevenueCat", // 👈 reemplazar con tu API key
+            ios: "appl_xxx_tuApiKeyDeRevenueCat", // 👈 reemplazar con API KEY IOS
             android: "goog_VthLntOZIMTTEsBySxJZRsHZVco",
           }),
         });

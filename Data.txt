@@ -13,3 +13,6 @@ Se añade la libreria "ract-native-purchases"
 Se agrega la logica para realizar el pago, el mismo se realiza con exito. La logica para 
 que reconozca la suscripcion y permita usar el sistema ya funciona correctamente.
 
+6| HomeStack:
+Se crea la navegacion para sumar la barra inferior tipica de mobile. 
+(no probe si sigue funcionando IAP ya que para eso tengo que compilar)
