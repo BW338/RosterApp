@@ -1,0 +1,29 @@
+App.js
+ ├─ useEffect: initRevenueCat
+ │    ├─ Purchases.configure(apiKey)
+ │    ├─ customerInfo = Purchases.getCustomerInfo()
+ │    │    └─ isSubscribed = customerInfo.entitlements.active["Roster access"]
+ │    ├─ offerings = Purchases.getOfferings()
+ │    └─ loading = false
+ └─ SubscriptionContext.Provider
+      └─ pasa {isSubscribed, offerings} a todos los componentes hijos
+
+RosterView.js
+ ├─ recibe {isSubscribed, offerings} del context/hook
+ ├─ render:
+ │    ├─ si pdfData -> muestra PDF en WebView
+ │    └─ si pdfData null -> muestra botones según suscripción
+ │         ├─ isSubscribed = true  -> botón "Adjuntar PDF"
+ │         └─ isSubscribed = false -> botón "Suscribirse"
+ │
+ ├─ handlePickPdf()
+ │    └─ verifica isSubscribed
+ │         └─ si true -> abre selector de PDF -> setPdfData
+ │
+ └─ handleSubscribe()
+      ├─ verifica que offerings.current.availablePackages.length > 0
+      ├─ Purchases.purchasePackage(offerings.current.availablePackages[0])
+      ├─ al completarse compra:
+      │    └─ si customerInfo.entitlements.active["Roster access"] = true
+      │         └─ setIsSubscribed(true) -> botón cambia a "Adjuntar PDF"
+      └─ si error -> muestra Toast

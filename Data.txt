@@ -1,18 +1,26 @@
 Commits:
 
 1|
-1er commit para comenzar el repositorio.
+-1er commit para comenzar el repositorio.
 
 2|
-Se trabaja en refact de estilos y estilos basicos
+-Se trabaja en refact de estilos y estilos basicos.
 
 3| IAP implementation:
-Se añade la libreria "ract-native-purchases"
+-Se añade la libreria "ract-native-purchases".
 
 5| IAP Android payment succesfull:
-Se agrega la logica para realizar el pago, el mismo se realiza con exito. La logica para 
+-Se agrega la logica para realizar el pago, el mismo se realiza con exito. La logica para 
 que reconozca la suscripcion y permita usar el sistema ya funciona correctamente.
 
 6| HomeStack:
-Se crea la navegacion para sumar la barra inferior tipica de mobile. 
+-Se crea la navegacion para sumar la barra inferior tipica de mobile. 
 (no probe si sigue funcionando IAP ya que para eso tengo que compilar)
+
+7| NavigationBar:
+-Se suma la barra de navegacion para 4 pantallas.
+(no probe si sigue funcionando IAP ya que para eso tengo que compilar)
+
+8| UseSuscription.js MOCKUP:
+-Seteamos el componente para que ande con el emulador y poder trabajar el roster, tuvimos que anular 
+toda la validacion de IAP.

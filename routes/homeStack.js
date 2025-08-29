@@ -1,34 +1,25 @@
-// routes/homeStack.js
-import { NavigationContainer } from "@react-navigation/native";
-import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import RosterView from "../screens/RosterView";
+import ScreenA from "../Screens/ScreenA";
+import ScreenB from "../screens/ScreenB";
+import ScreenC from "../screens/ScreenC";
 
-import RosterView from "../Components/Roster/RosterView";
-import ProfileScreen from "../Components/Profile/ProfileScreen";
-import SettingsScreen from "../Components/Settings/SettingsScreen";
-
-const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
-function HomeTabs() {
+export default function HomeStack() {
   return (
-    <Tab.Navigator screenOptions={{ headerShown: false }}>
+    <Tab.Navigator
+      screenOptions={{
+        headerShown: false,
+        tabBarActiveTintColor: "#3983f1",
+        tabBarInactiveTintColor: "#888",
+      }}
+    >
       <Tab.Screen name="Roster" component={RosterView} />
-      <Tab.Screen name="Perfil" component={ProfileScreen} />
-      <Tab.Screen name="Ajustes" component={SettingsScreen} />
+      <Tab.Screen name="Screen A" component={ScreenA} />
+      <Tab.Screen name="Screen B" component={ScreenB} />
+      <Tab.Screen name="Screen C" component={ScreenC} />
     </Tab.Navigator>
   );
 }
-
-const HomeStack = () => {
-  return (
-    <NavigationContainer>
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
-        {/* Podés agregar Splash/Login acá si querés */}
-        <Stack.Screen name="Main" component={HomeTabs} />
-      </Stack.Navigator>
-    </NavigationContainer>
-  );
-};
-
-export default HomeStack;

@@ -1,20 +1,20 @@
 import React, { useState } from "react";
 import { View, Alert, Text } from "react-native";
 import { WebView } from "react-native-webview";
-import { useSubscription } from "../../App";
+import { useSubscription } from "../hooks/useSubscription";
 import Purchases from "react-native-purchases";
-import { parseRosterText } from "../../Functions/parseRosterText";
-import { pickPdfFile } from "../../Functions/pickPdf";
-import PrimaryButton from "../Buttons/PrimaryButton";
-import RosterModal from "../RosterModal/RosterModal";
+import { parseRosterText } from "../Functions/parseRosterText";
+import { pickPdfFile } from "../Functions/pickPdf";
+import PrimaryButton from "../Components/Buttons/PrimaryButton";
+import RosterModal from "../Components/RosterModal/RosterModal";
 import Toast from "react-native-toast-message";
 
-export default function RosterView() {
+export default function RosterView({ isSubscribed, offerings }) {
   const [pdfData, setPdfData] = useState(null);
   const [roster, setRoster] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
 
-  const { isSubscribed, offerings } = useSubscription();
+  // const { isSubscribed, offerings } = useSubscription();
 
   // Abrir selector de PDF
   const handlePickPdf = async () => {

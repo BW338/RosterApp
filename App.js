@@ -1,55 +1,19 @@
-import React, { useEffect, useState, createContext, useContext } from "react";
-import { SafeAreaView, ActivityIndicator, Platform } from "react-native";
-import Purchases from "react-native-purchases";
-import RosterView from "./Components/Roster/RosterView";
+// App.js
+import React from "react";
+import { SafeAreaView, ActivityIndicator } from "react-native";
+import { NavigationContainer } from "@react-navigation/native";
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import RosterView from "./Screens/RosterView";
+import ScreenA from "./Screens/ScreenA";
+import ScreenB from "./Screens/ScreenB";
+import ScreenC from "./Screens/ScreenC";
+import { useSubscription } from "./hooks/useSubscription";
+import Toast from "react-native-toast-message";
 
-// Contexto de suscripción
-const SubscriptionContext = createContext();
-export const useSubscription = () => useContext(SubscriptionContext);
+const Tab = createBottomTabNavigator();
 
 export default function App() {
-  const [loading, setLoading] = useState(true);
-  const [isSubscribed, setIsSubscribed] = useState(false);
-  const [offerings, setOfferings] = useState(null);
-
-  useEffect(() => {
-    const initRevenueCat = async () => {
-      try {
-        // Configuración inicial
-        await Purchases.configure({
-          apiKey: Platform.select({
-            ios: "appl_xxx_tuApiKeyDeRevenueCat", // 👈 reemplazar con API KEY IOS
-            android: "goog_VthLntOZIMTTEsBySxJZRsHZVco",
-          }),
-        });
-
-        // Obtener info del usuario
-        const customerInfo = await Purchases.getCustomerInfo();
-        const active = customerInfo.entitlements.active["Roster access"];
-        setIsSubscribed(!!active);
-
-        // Obtener planes disponibles
-        const availableOfferings = await Purchases.getOfferings();
-        setOfferings(availableOfferings.current);
-      } catch (error) {
-        console.log("❌ Error inicializando RevenueCat:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    initRevenueCat();
-
-    // 🔄 Listener que mantiene actualizado el estado de la suscripción
-    const listener = Purchases.addCustomerInfoUpdateListener((customerInfo) => {
-      const active = customerInfo.entitlements.active["Roster access"];
-      setIsSubscribed(!!active);
-    });
-
-    return () => {
-      listener.remove();
-    };
-  }, []);
+  const { isSubscribed, offerings, loading } = useSubscription();
 
   if (loading) {
     return (
@@ -60,10 +24,22 @@ export default function App() {
   }
 
   return (
-    <SubscriptionContext.Provider value={{ isSubscribed, setIsSubscribed, offerings }}>
-      <SafeAreaView style={{ flex: 1 }}>
-        <RosterView />
-      </SafeAreaView>
-    </SubscriptionContext.Provider>
+    <NavigationContainer>
+      <Tab.Navigator
+        screenOptions={{
+          headerShown: false,
+          tabBarActiveTintColor: "#3983f1",
+          tabBarInactiveTintColor: "#888",
+        }}
+      >
+        <Tab.Screen name="Roster">
+          {() => <RosterView isSubscribed={isSubscribed} offerings={offerings} />}
+        </Tab.Screen>
+        <Tab.Screen name="Screen A" component={ScreenA} />
+        <Tab.Screen name="Screen B" component={ScreenB} />
+        <Tab.Screen name="Screen C" component={ScreenC} />
+      </Tab.Navigator>
+      <Toast />
+    </NavigationContainer>
   );
 }
