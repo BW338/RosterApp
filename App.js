@@ -1,23 +1,48 @@
-// App.js
 import React from "react";
 import { SafeAreaView, ActivityIndicator } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import Toast from "react-native-toast-message";
+import { useSubscription } from "./hooks/useSubscription";
 import RosterView from "./Screens/RosterView";
+import RosterScreen from "./Screens/RosterScreen";
 import ScreenA from "./Screens/ScreenA";
 import ScreenB from "./Screens/ScreenB";
 import ScreenC from "./Screens/ScreenC";
-import { useSubscription } from "./hooks/useSubscription";
-import Toast from "react-native-toast-message";
 
 const Tab = createBottomTabNavigator();
+const Stack = createNativeStackNavigator();
+
+function RosterStack({ isSubscribed, offerings }) {
+  return (
+    <Stack.Navigator>
+      <Stack.Screen name="RosterView" options={{ title: "Roster" }}>
+        {(props) => (
+          <RosterView
+            {...props}
+            isSubscribed={isSubscribed}
+            offerings={offerings}
+          />
+        )}
+      </Stack.Screen>
+      <Stack.Screen
+        name="RosterScreen"
+        component={RosterScreen}
+        options={{ title: "Actualizar plan de vuelo" }}
+      />
+    </Stack.Navigator>
+  );
+}
 
 export default function App() {
   const { isSubscribed, offerings, loading } = useSubscription();
 
   if (loading) {
     return (
-      <SafeAreaView style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+      <SafeAreaView
+        style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+      >
         <ActivityIndicator size="large" />
       </SafeAreaView>
     );
@@ -33,7 +58,9 @@ export default function App() {
         }}
       >
         <Tab.Screen name="Roster">
-          {() => <RosterView isSubscribed={isSubscribed} offerings={offerings} />}
+          {() => (
+            <RosterStack isSubscribed={isSubscribed} offerings={offerings} />
+          )}
         </Tab.Screen>
         <Tab.Screen name="Screen A" component={ScreenA} />
         <Tab.Screen name="Screen B" component={ScreenB} />

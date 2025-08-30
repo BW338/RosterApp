@@ -24,3 +24,6 @@ que reconozca la suscripcion y permita usar el sistema ya funciona correctamente
 8| UseSuscription.js MOCKUP:
 -Seteamos el componente para que ande con el emulador y poder trabajar el roster, tuvimos que anular 
 toda la validacion de IAP.
+
+9| Roster from Modal to Screen:
+-Se pasa el roster de modal a Screen para un mejor ux/ui.

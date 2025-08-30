@@ -1,25 +1,21 @@
 import React, { useState } from "react";
-import { View, Alert, Text } from "react-native";
+import { View } from "react-native";
 import { WebView } from "react-native-webview";
-import { useSubscription } from "../hooks/useSubscription";
 import Purchases from "react-native-purchases";
+import { useNavigation } from "@react-navigation/native";
 import { parseRosterText } from "../Functions/parseRosterText";
 import { pickPdfFile } from "../Functions/pickPdf";
 import PrimaryButton from "../Components/Buttons/PrimaryButton";
-import RosterModal from "../Components/RosterModal/RosterModal";
 import Toast from "react-native-toast-message";
 
 export default function RosterView({ isSubscribed, offerings }) {
   const [pdfData, setPdfData] = useState(null);
   const [roster, setRoster] = useState([]);
-  const [modalVisible, setModalVisible] = useState(false);
-
-  // const { isSubscribed, offerings } = useSubscription();
+  const navigation = useNavigation();
 
   // Abrir selector de PDF
   const handlePickPdf = async () => {
     if (!isSubscribed) return; // Seguridad extra
-
     const base64 = await pickPdfFile();
     if (base64) setPdfData(base64);
   };
@@ -36,7 +32,9 @@ export default function RosterView({ isSubscribed, offerings }) {
     }
 
     try {
-      const purchaseInfo = await Purchases.purchasePackage(offerings.availablePackages[0]);
+      const purchaseInfo = await Purchases.purchasePackage(
+        offerings.availablePackages[0]
+      );
 
       if (purchaseInfo.customerInfo.entitlements.active["Roster access"]) {
         Toast.show({ type: "success", text1: "¡Suscripción activa!" });
@@ -110,7 +108,7 @@ export default function RosterView({ isSubscribed, offerings }) {
             const parsed = parseRosterText(data);
             setRoster(parsed);
             setPdfData(null);
-            setModalVisible(true);
+            navigation.navigate("RosterScreen", { roster: parsed });
           } catch (err) {
             console.error("Error procesando mensaje WebView:", err);
             Toast.show({
@@ -131,12 +129,6 @@ export default function RosterView({ isSubscribed, offerings }) {
       ) : (
         <PrimaryButton title="Suscribirse" onPress={handleSubscribe} />
       )}
-
-      <RosterModal
-        visible={modalVisible}
-        onClose={() => setModalVisible(false)}
-        roster={roster}
-      />
     </View>
   );
 }

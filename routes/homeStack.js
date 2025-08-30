@@ -1,9 +1,9 @@
 import React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import RosterView from "../screens/RosterView";
+import RosterView from "../Screens/RosterView";
 import ScreenA from "../Screens/ScreenA";
-import ScreenB from "../screens/ScreenB";
-import ScreenC from "../screens/ScreenC";
+import ScreenB from "../Screens/ScreenB";
+import ScreenC from "../Screens/ScreenC";
 
 const Tab = createBottomTabNavigator();
 
