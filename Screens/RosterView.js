@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { View } from "react-native";
+import React, { useState, useEffect } from "react";
+import { View, Button, Alert } from "react-native";
 import { WebView } from "react-native-webview";
 import Purchases from "react-native-purchases";
 import { useNavigation } from "@react-navigation/native";
@@ -7,12 +7,51 @@ import { parseRosterText } from "../Functions/parseRosterText";
 import { pickPdfFile } from "../Functions/pickPdf";
 import PrimaryButton from "../Components/Buttons/PrimaryButton";
 import Toast from "react-native-toast-message";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function RosterView({ isSubscribed, offerings }) {
   const [pdfData, setPdfData] = useState(null);
   const [roster, setRoster] = useState([]);
   const navigation = useNavigation();
 
+   // 🔹 Al iniciar, intentar recuperar el roster guardado
+  useEffect(() => {
+    const loadRoster = async () => {
+      try {
+        const saved = await AsyncStorage.getItem("roster");
+        if (saved) setRoster(JSON.parse(saved));
+      } catch (err) {
+        console.error("Error cargando roster guardado:", err);
+      }
+    };
+    loadRoster();
+  }, []);
+
+  // 🔹 Guardar roster cada vez que cambie
+  useEffect(() => {
+    const saveRoster = async () => {
+      try {
+        if (roster && roster.length > 0) {
+          await AsyncStorage.setItem("roster", JSON.stringify(roster));
+        }
+      } catch (err) {
+        console.error("Error guardando roster:", err);
+      }
+    };
+    saveRoster();
+  }, [roster]);
+
+   // 📌 Borrar roster del storage
+const handleClearStorage = async () => {
+  try {
+    await AsyncStorage.removeItem("roster");
+    setRoster([]); // limpiamos el estado también
+    Alert.alert("✅ Storage borrado", "Los datos se eliminaron correctamente.");
+  } catch (error) {
+    console.error("Error borrando storage:", error);
+    Alert.alert("❌ Error", "No se pudo borrar el storage.");
+  }
+};
   // Abrir selector de PDF
   const handlePickPdf = async () => {
     if (!isSubscribed) return; // Seguridad extra
@@ -125,10 +164,24 @@ export default function RosterView({ isSubscribed, offerings }) {
   return (
     <View style={{ flex: 1, padding: 10, marginTop: 50 }}>
       {isSubscribed ? (
-        <PrimaryButton title="Adjuntar PDF" onPress={handlePickPdf} />
+        <PrimaryButton title="Cargar PDF" onPress={handlePickPdf} />
       ) : (
         <PrimaryButton title="Suscribirse" onPress={handleSubscribe} />
       )}
+     <View style={{ marginTop: 20 }}>
+  <View style={{ marginTop: 20 }}>
+  <PrimaryButton
+    title="Ver Roster"
+    onPress={() => navigation.navigate("RosterScreen", { roster })}
+    disabled={roster.length === 0} // 👈 si no hay datos, se bloquea
+  />
+</View>
+
+</View>
+
+      
+    <Button title="Borrar Storage" onPress={handleClearStorage} />
+
     </View>
   );
 }

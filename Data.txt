@@ -27,3 +27,9 @@ toda la validacion de IAP.
 
 9| Roster from Modal to Screen:
 -Se pasa el roster de modal a Screen para un mejor ux/ui.
+
+10| RosterView.js
+-Se añade navegacion Roster / carga de pdf
+-Boton "ver roster" funciona si hay datos
+-Roster en el Storage.
+-Boton de testeo para borrar asycstorage
