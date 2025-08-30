@@ -16,7 +16,12 @@ const Stack = createNativeStackNavigator();
 
 function RosterStack({ isSubscribed, offerings }) {
   return (
-    <Stack.Navigator>
+    <Stack.Navigator initialRouteName="RosterScreen">
+      <Stack.Screen
+        name="RosterScreen"
+        component={RosterScreen}
+        options={{ title: "Actualizar plan de vuelo" }}
+      />
       <Stack.Screen name="RosterView" options={{ title: "Roster" }}>
         {(props) => (
           <RosterView
@@ -26,14 +31,10 @@ function RosterStack({ isSubscribed, offerings }) {
           />
         )}
       </Stack.Screen>
-      <Stack.Screen
-        name="RosterScreen"
-        component={RosterScreen}
-        options={{ title: "Actualizar plan de vuelo" }}
-      />
     </Stack.Navigator>
   );
 }
+
 
 export default function App() {
   const { isSubscribed, offerings, loading } = useSubscription();

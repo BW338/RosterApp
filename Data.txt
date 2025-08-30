@@ -33,3 +33,7 @@ toda la validacion de IAP.
 -Boton "ver roster" funciona si hay datos
 -Roster en el Storage.
 -Boton de testeo para borrar asycstorage
+
+11| RosterScree.js Initial Route:
+-Se agregama la funcionalidad de que se inicie RosterScreen cuando haya datos, y a su vez, arriba, en el navegador,
+ se puede ir a RosterView para cargar datos, cargar el plan de vuelo, o lo que sea.
