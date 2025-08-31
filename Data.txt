@@ -37,3 +37,7 @@ toda la validacion de IAP.
 11| RosterScree.js Initial Route:
 -Se agregama la funcionalidad de que se inicie RosterScreen cuando haya datos, y a su vez, arriba, en el navegador,
  se puede ir a RosterView para cargar datos, cargar el plan de vuelo, o lo que sea.
+
+ 12| parseRosterText.js:
+ -Finalmente se logra formatear el 1er tramo de cada dia. 
+ Seguimos ajustando ya que falta organizar varios datos aun.

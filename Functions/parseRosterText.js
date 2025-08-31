@@ -1,5 +1,3 @@
-import { Platform } from "react-native";
-
 // Función que parsea el roster (Android e iOS)
 export const parseRosterText = (text) => {
   if (!text) return [];
@@ -42,7 +40,12 @@ export const parseRosterText = (text) => {
       const flightTokens = details.split(/ (?=OP|ESM|\*|D\/L|REST|LAYOVER|STBY|OFF|AR\d+)/g);
 
       flightTokens.forEach((ft) => {
-        const tokens = ft.trim().split(" ");
+        let tokens = ft.trim().split(" ");
+
+        // 🔧 FIX: limpiar fecha/día al inicio (ej: "03THU")
+        if (/^\d{1,2}[A-Z]{3}$/i.test(tokens[0])) {
+          tokens.shift();
+        }
 
         // Notas especiales
         if (/REST|LAYOVER|STBY|OFF/.test(tokens[0])) {
@@ -68,12 +71,40 @@ export const parseRosterText = (text) => {
           const flightNumber = isOP ? tokens[1] : tokens[0];
           if (!flightNumber || !/^AR\d+/.test(flightNumber)) return;
 
-          // En iOS algunos tiempos/aircraft vienen desalineados, ajustamos
-          const origin = isOP ? tokens[2] : tokens[1];
-          const depTime = isOP ? tokens[3] : tokens[2];
-          const destination = isOP ? tokens[4] : tokens[3];
-          const arrTime = isOP ? tokens[5] : tokens[4];
-          const aircraft = tokens[tokens.length - 1];
+          let origin, depTime, destination, arrTime, aircraft;
+
+          if (isOP) {
+            // Vuelos con prefijo OP
+            origin = tokens[2];
+            depTime = tokens[3];
+            destination = tokens[4];
+            arrTime = tokens[5];
+            aircraft = tokens[tokens.length - 1];
+          } else {
+            // Vuelos ARxxxx
+            if (/^\d{2}:\d{2}$/.test(tokens[1])) {
+              // 👇 Caso especial: primer tramo del día
+              depTime = tokens[1];
+              origin = tokens[2];
+              arrTime = tokens[3];
+              destination = tokens[4];
+
+              // A veces hay horarios extra → tomamos el último válido
+              if (/^\d{2}:\d{2}$/.test(tokens[5])) {
+                arrTime = tokens[5];
+                aircraft = tokens[6];
+              } else {
+                aircraft = tokens[5];
+              }
+            } else {
+              // 👇 Tramos normales
+              origin = tokens[1];
+              depTime = tokens[2];
+              destination = tokens[3];
+              arrTime = tokens[4];
+              aircraft = tokens[tokens.length - 1];
+            }
+          }
 
           day.flights.push({
             type: "OP",
