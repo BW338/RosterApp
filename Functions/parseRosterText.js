@@ -25,6 +25,10 @@ export const parseRosterText = (text) => {
     return `${dayNum}${engDay}`;
   };
 
+  // Helpers de detección
+  const isTime = (t) => /^\d{1,2}:\d{2}$/.test(t);
+  const isAirport = (t) => /^[A-Z]{3}$/.test(t);
+
   // Dividir texto por días
   const dayRegex = /(\d{1,2}[A-Z]{3})/g;
   const parts = clean.split(dayRegex).filter(Boolean);
@@ -36,92 +40,92 @@ export const parseRosterText = (text) => {
       const day = { date: normalizedDate, flights: [], note: null };
       const details = parts[i + 1] ? parts[i + 1].trim() : "";
 
-      // Separar tokens por posibles vuelos o notas
+      // Separar por posibles inicios de tramo / actividad
       const flightTokens = details.split(/ (?=OP|ESM|\*|D\/L|REST|LAYOVER|STBY|OFF|AR\d+)/g);
 
       flightTokens.forEach((ft) => {
-        let tokens = ft.trim().split(" ");
+        let tokens = ft.trim().split(" ").filter(Boolean);
 
-        // 🔧 FIX: limpiar fecha/día al inicio (ej: "03THU")
-        if (/^\d{1,2}[A-Z]{3}$/i.test(tokens[0])) {
-          tokens.shift();
-        }
+        // Limpio prefijo "03THU", "11MON", etc. si aparece en el tramo
+        if (/^\d{1,2}[A-Z]{3}$/i.test(tokens[0])) tokens.shift();
 
         // Notas especiales
-        if (/REST|LAYOVER|STBY|OFF/.test(tokens[0])) {
+        if (/^REST|LAYOVER|STBY|OFF$/.test(tokens[0])) {
           day.note = tokens[0];
           return;
         }
 
-        // Tipos especiales (*, D/L, ESM, GUA, ELD, TOF)
+        // Tipos especiales con ruta/horarios simples
         if (["*", "D/L", "ESM", "GUA", "ELD", "TOF"].includes(tokens[0])) {
           day.flights.push({
             type: tokens[0],
-            origin: tokens[1],
-            depTime: tokens[2],
-            destination: tokens[3],
-            arrTime: tokens[4],
+            origin: tokens[1] || null,
+            depTime: tokens[2] || null,
+            destination: tokens[3] || null,
+            arrTime: tokens[4] || null,
           });
           return;
         }
 
-        // Vuelos OP o ARxxxx
-        if (tokens[0] === "OP" || /^AR\d+/.test(tokens[0])) {
-          const isOP = tokens[0] === "OP";
-          const flightNumber = isOP ? tokens[1] : tokens[0];
-          if (!flightNumber || !/^AR\d+/.test(flightNumber)) return;
+        // Vuelos
+        const startsWithOP = tokens[0] === "OP";
+        const idxFlight = startsWithOP ? 1 : 0;
+        const flightNumber = tokens[idxFlight];
 
-          let origin, depTime, destination, arrTime, aircraft;
+        if (!/^AR\d+/.test(flightNumber)) return; // no es un tramo de vuelo válido
 
-          if (isOP) {
-            // Vuelos con prefijo OP
-            origin = tokens[2];
-            depTime = tokens[3];
-            destination = tokens[4];
-            arrTime = tokens[5];
-            aircraft = tokens[tokens.length - 1];
-          } else {
-            // Vuelos ARxxxx
-            if (/^\d{2}:\d{2}$/.test(tokens[1])) {
-              // 👇 Caso especial: primer tramo del día
-              depTime = tokens[1];
-              origin = tokens[2];
-              arrTime = tokens[3];
-              destination = tokens[4];
+        // Resto de tokens después del número de vuelo
+        const rest = tokens.slice(idxFlight + 1);
 
-              // A veces hay horarios extra → tomamos el último válido
-              if (/^\d{2}:\d{2}$/.test(tokens[5])) {
-                arrTime = tokens[5];
-                aircraft = tokens[6];
-              } else {
-                aircraft = tokens[5];
-              }
-            } else {
-              // 👇 Tramos normales
-              origin = tokens[1];
-              depTime = tokens[2];
-              destination = tokens[3];
-              arrTime = tokens[4];
-              aircraft = tokens[tokens.length - 1];
-            }
-          }
-
-          day.flights.push({
-            type: "OP",
-            flightNumber,
-            origin,
-            depTime,
-            destination,
-            arrTime,
-            aircraft,
-          });
+        // Buscar origen y destino (primeros 2 aeropuertos AAA)
+        const airportIdxs = [];
+        for (let k = 0; k < rest.length; k++) {
+          if (isAirport(rest[k])) airportIdxs.push(k);
+          if (airportIdxs.length === 2) break;
         }
+
+        let origin = null;
+        let destination = null;
+        let depTime = null;
+        let arrTime = null;
+
+        if (airportIdxs.length >= 1) origin = rest[airportIdxs[0]];
+        if (airportIdxs.length >= 2) destination = rest[airportIdxs[1]];
+
+        // depTime = primer HH:MM DESPUÉS del origen
+        if (airportIdxs.length >= 1) {
+          for (let k = airportIdxs[0] + 1; k < rest.length; k++) {
+            if (isTime(rest[k])) { depTime = rest[k]; break; }
+          }
+        }
+
+        // arrTime = primer HH:MM DESPUÉS del destino
+        if (airportIdxs.length >= 2) {
+          for (let k = airportIdxs[1] + 1; k < rest.length; k++) {
+            if (isTime(rest[k])) { arrTime = rest[k]; break; }
+          }
+        }
+
+        // aircraft = último token que NO sea hora ni aeropuerto
+        let aircraft = null;
+        for (let k = rest.length - 1; k >= 0; k--) {
+          const tk = rest[k];
+          if (!isTime(tk) && !isAirport(tk)) { aircraft = tk; break; }
+        }
+
+        // Si no encontramos destino/arrTime (ej. cruza día), igual guardamos lo que haya
+        day.flights.push({
+          type: "OP",                 // mantenemos "OP" para que FlightCard no muestre texto "OP"
+          flightNumber,               // ARxxxx
+          origin,
+          depTime,
+          destination,
+          arrTime,
+          aircraft,
+        });
       });
 
-      // Solo agregar días con actividad real
-      if (day.flights.length > 0 || day.note) {
-        parsed.push(day);
-      }
+      if (day.flights.length > 0 || day.note) parsed.push(day);
     }
   }
 

@@ -41,3 +41,6 @@ toda la validacion de IAP.
  12| parseRosterText.js:
  -Finalmente se logra formatear el 1er tramo de cada dia. 
  Seguimos ajustando ya que falta organizar varios datos aun.
+ 
+ 13| parseRosterText.js:
+ -Se corrije "equipo:" en el ultimo tramo.
