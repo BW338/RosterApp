@@ -44,3 +44,6 @@ toda la validacion de IAP.
  
  13| parseRosterText.js:
  -Se corrije "equipo:" en el ultimo tramo.
+
+ 14| parseRosterText.js:
+ -Se ajusta el valor de "equipo" del ultimo tramo, para esto se corrije la parte de isAircraft....

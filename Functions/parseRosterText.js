@@ -106,12 +106,25 @@ export const parseRosterText = (text) => {
           }
         }
 
-        // aircraft = último token que NO sea hora ni aeropuerto
-        let aircraft = null;
-        for (let k = rest.length - 1; k >= 0; k--) {
-          const tk = rest[k];
-          if (!isTime(tk) && !isAirport(tk)) { aircraft = tk; break; }
-        }
+   // aircraft = buscar desde el final evitando basura de pie de página
+// válidos: 738, 73M, E90, A330, etc. (no acepta solo letras tipo AEP/REL)
+const isAircraft = (tk) => /^(?:\d{3}|\d{2}[A-Z]|[A-Z]\d{2,3})$/.test(tk);
+
+let aircraft = null;
+for (let k = rest.length - 1; k >= 0; k--) {
+  const tk = (rest[k] || "").trim();
+
+  // ignorar cosas que no son equipo
+  if (isTime(tk)) continue;                       // 06:10, 10:55, 19:00, etc.
+  if (isAirport(tk)) continue;                    // AEP, REL, MDQ, etc.
+  if (/^(?:TSV:|TV:|Crew|Web|Portal)$/i.test(tk)) continue; // pies de página
+  if (/^\d+(?:\.\d+){2,}$/.test(tk)) continue;    // versiones tipo 10.2.1.50325
+
+  if (isAircraft(tk)) {                           // 738 | 73M | E90 | A330...
+    aircraft = tk.toUpperCase();
+    break;
+  }
+}
 
         // Si no encontramos destino/arrTime (ej. cruza día), igual guardamos lo que haya
         day.flights.push({
