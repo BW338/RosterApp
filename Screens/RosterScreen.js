@@ -3,8 +3,9 @@ import { View, Text, SectionList, SafeAreaView, Button, TouchableOpacity } from 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import FlightCard from "../Components/FlightCard/FlightCard";
 import { formatDateShort } from "../Helpers/date";
-import { subtractMinutes, isToday } from "../Helpers/dateUtils";
-import styles from "../Styles/RosterScreenStyles"; // <- estilos separados
+import { scrollToToday } from "../Helpers/scrollHelpers";
+import TodayButton from "../Components/Buttons/TodayButton";
+import styles from "../Styles/RosterScreenStyles"; 
 
 export default function RosterScreen({ route, navigation }) {
   const [roster, setRoster] = useState([]);
@@ -12,19 +13,6 @@ export default function RosterScreen({ route, navigation }) {
 
   const sectionListRef = useRef(null);
   // ⬆️ Configurar encabezado con botón
-
-  const scrollToToday = () => {
-  const todayIndex = roster.findIndex(d => isToday(d.date));
-  if (todayIndex !== -1 && sectionListRef.current) {
-    sectionListRef.current.scrollToLocation({
-      sectionIndex: todayIndex,
-      itemIndex: 0,
-      animated: true,
-      viewPosition: 0, // 0 = arriba, 0.5 = centrado
-    });
-  }
-};
-
   
   useEffect(() => {
     navigation.setOptions({
@@ -154,12 +142,8 @@ renderItem={({ item, index, section }) => (
             );
           }}
         />
-     <TouchableOpacity
-          onPress={scrollToToday}
-          style={styles.todayButton}
-        >
-          <Text style={styles.todayButtonText}>Hoy</Text>
-        </TouchableOpacity>
+<TodayButton onPress={() => scrollToToday(roster, sectionListRef)} />
+
 
       </View>
     </SafeAreaView>

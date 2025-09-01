@@ -80,3 +80,7 @@ toda la validacion de IAP.
 
 24| DinamicStyle fix
 -Se corrige error de estilo dinamico de TE:
+
+25| Refacting:
+-Se envia la logica de posicion "hoy" a /Helpers
+-Se ennvia el boton "Hoy" a /Componentes/Buttons
