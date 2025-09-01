@@ -1,5 +1,5 @@
 // /Helpers/scrollHelpers.js
-import { isToday } from "./dateUtils";
+import { isToday } from "./today";
 
 /**
  * Posiciona la SectionList en el día actual

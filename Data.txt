@@ -91,3 +91,5 @@ toda la validacion de IAP.
 27| Refact:
 -Se refactoriza aun mas el componente RosterScreen.
 -Se ajusta estilo de TE:
+
+28| Se Agrega la screen Calendar.js

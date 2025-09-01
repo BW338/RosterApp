@@ -7,6 +7,7 @@ import Toast from "react-native-toast-message";
 import { useSubscription } from "./hooks/useSubscription";
 import RosterPannel from "./Screens/RosterPannel";
 import RosterScreen from "./Screens/RosterScreen";
+import Calendar from "./Screens/Calendar";
 import ScreenA from "./Screens/ScreenA";
 import ScreenB from "./Screens/ScreenB";
 import ScreenC from "./Screens/ScreenC";
@@ -63,9 +64,12 @@ export default function App() {
             <RosterStack isSubscribed={isSubscribed} offerings={offerings} />
           )}
         </Tab.Screen>
+                        <Tab.Screen name="Calendar" component={Calendar} />
+
         <Tab.Screen name="Screen A" component={ScreenA} />
         <Tab.Screen name="Screen B" component={ScreenB} />
         <Tab.Screen name="Screen C" component={ScreenC} />
+
       </Tab.Navigator>
       <Toast />
     </NavigationContainer>
