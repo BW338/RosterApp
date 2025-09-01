@@ -74,3 +74,6 @@ toda la validacion de IAP.
 
 22| TodayScroll Button
 -Se crea boton que mediante useReff te lleva al dia de hoy.
+
+23| Today Button to TouchableOpacity:
+-Se transforma el estilo del boton para que quede mas discreto.

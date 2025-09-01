@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import { View, Text, SectionList, SafeAreaView, Button } from "react-native";
+import { View, Text, SectionList, SafeAreaView, Button, TouchableOpacity } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import FlightCard from "../Components/FlightCard/FlightCard";
 import { formatDateShort } from "../Helpers/date";
@@ -149,10 +149,27 @@ renderItem={({ item, index, section }) => (
             );
           }}
         />
-        <Button
-  title="Ir al día de hoy"
+    <TouchableOpacity
   onPress={scrollToToday}
-/>
+  style={{
+    position: "absolute",
+    bottom: 20,
+    right: 20,
+    backgroundColor: "rgba(50, 150, 250, 0.7)", // semitransparente
+    borderRadius: 30, // redondo
+    width: 60,
+    height: 60,
+    justifyContent: "center",
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 5,
+  }}
+>
+  <Text style={{ color: "white", fontWeight: "bold" }}>Hoy</Text>
+</TouchableOpacity>
 
       </View>
     </SafeAreaView>
