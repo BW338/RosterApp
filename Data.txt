@@ -68,3 +68,6 @@ toda la validacion de IAP.
 
 20| date.js time.js:
 -Se envia a /Helpers las funciones que formatean las fechas.
+
+21| Refactorizacion de date y time a /Helpers.
+-Se refactoriza y ademas se resalta el dia de "Hoy"

@@ -13,6 +13,10 @@ export default StyleSheet.create({
         paddingVertical: 6,
         borderRadius: 6,
     },
+    todaySection: {
+  backgroundColor: "#FFD54F", // Amarillo suave
+},
+
     sectionHeaderEven: { backgroundColor: "#2f285a22" },
     sectionHeaderOdd: { backgroundColor: "#00d66f22" },
     sectionHeaderText: { fontSize: 16, fontWeight: "bold", color: "#222" },

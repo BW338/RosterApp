@@ -2,8 +2,8 @@ import React, { useEffect, useState } from "react";
 import { View, Text, SectionList, SafeAreaView, Button } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import FlightCard from "../Components/FlightCard/FlightCard";
-import { subtractMinutes, getDynamicStyle } from "../Helpers/time";
 import { formatDateShort } from "../Helpers/date";
+import { subtractMinutes, isToday } from "../Helpers/dateUtils";
 import styles from "../Styles/RosterScreenStyles"; // <- estilos separados
 
 export default function RosterScreen({ route, navigation }) {
@@ -31,6 +31,17 @@ export default function RosterScreen({ route, navigation }) {
     const mm = date.getMinutes().toString().padStart(2, "0");
     return `${hh}:${mm}`;
   };
+
+  const isToday = (title) => {
+  if (!title || title.length < 5) return false;
+
+  // 🔹 title viene así: "01MON"
+  const day = parseInt(title.slice(0, 2), 10);
+  const month = new Date().getMonth(); // 0-based
+  const today = new Date().getDate();
+
+  return day === today; // 🚀 match por día
+};
 
   // Cargar roster
   useEffect(() => {
@@ -97,56 +108,27 @@ renderItem={({ item, index, section }) => (
     te={section.te}
   />
 )}
-          renderSectionHeader={({ section: { title, tv, tsv }, index }) => {
-            const te = subtractMinutes(tsv, 30);
+   renderSectionHeader={({ section: { title, tv, tsv }, index }) => {
+  const te = subtractMinutes(tsv, 30);
+  const today = isToday(title);
 
-            return (
-              <View
-                style={[
-                  styles.sectionHeader,
-                  index % 2 === 0
-                    ? styles.sectionHeaderEven
-                    : styles.sectionHeaderOdd,
-                ]}
-              >
-                {/* Fecha a la izquierda */}
-<Text style={styles.sectionHeaderText}>{formatDateShort(title)}</Text>
-
-                {/* TE | TSV | TV a la derecha */}
-             <View style={styles.totalsContainer}>
-  {te && (
-    <Text
+  return (
+    <View
       style={[
-        styles.sectionHeaderTotals,
-        getDynamicStyle(te) // 🔹 aplicamos el color dinámico
+        styles.sectionHeader,
+        index % 2 === 0 ? styles.sectionHeaderEven : styles.sectionHeaderOdd,
+        today && styles.todaySection // 🔹 estilo para hoy
       ]}
     >
-      TTEE: {te}
-    </Text>
-  )}
-  {/* {tsv && (
-    <Text
-      style={[
-        styles.sectionHeaderTotals,
-        getDynamicStyle(tsv)
-      ]}
-    >
-      TSV: {tsv}
-    </Text>
-  )}
-  {tv && (
-    <Text
-      style={[
-        styles.sectionHeaderTotals,
-        getDynamicStyle(tv)
-      ]}
-    >
-      TV: {tv}
-    </Text>
-  )} */}
-</View>
+      <Text style={styles.sectionHeaderText}>
+        {formatDateShort(title)}
+      </Text>
 
-              </View>
+      <View style={styles.totalsContainer}>
+        {te && <Text style={styles.sectionHeaderTotals}>TE: {te}</Text>}
+      </View>
+    </View>
+
             );
           }}
         />
