@@ -23,26 +23,55 @@ function getDuration(dep, arr) {
   }
 }
 
-export default function FlightCard({ flight }) {
-  // Si es un vuelo tipo OP
+export default function FlightCard({ flight, isLastOfDay, tv, tsv, te }) {
+  // Vuelo normal
   if (flight.type === "OP") {
     return (
       <View style={styles.card}>
+        {/* Ruta */}
         <Text style={styles.route}>
           {flight.origin} ➡ {flight.destination}
         </Text>
+
+        {/* Nro de vuelo */}
         <Text style={styles.flightNumber}>{flight.flightNumber}</Text>
+
+        {/* Horarios + duración */}
         <View style={styles.timeRow}>
           <Text style={styles.time}>
             {flight.depTime} - {flight.arrTime}
           </Text>
-          <Text style={styles.duration}>{getDuration(flight.depTime, flight.arrTime)}</Text>
+          <Text style={styles.duration}>
+            {getDuration(flight.depTime, flight.arrTime)}
+          </Text>
         </View>
-        {flight.aircraft && <Text style={styles.aircraft}>Equipo: {flight.aircraft}</Text>}
+
+      {/* Último tramo del día: equipo + totales */}
+{isLastOfDay ? (
+  <View style={styles.lastRow}>
+    {flight.aircraft && (
+      <Text style={styles.aircraft}>Equipo: {flight.aircraft}</Text>
+    )}
+
+    <View style={styles.totalsRow}>
+      {/* {te && <Text style={styles.totals}>TE: {te}</Text>} */}
+      {tsv && <Text style={styles.totals}>TSV: {tsv}</Text>}
+      {tv && <Text style={styles.totals}>TV: {tv}</Text>}
+    </View>
+  </View>
+) : (
+  // Para tramos intermedios solo mostramos el equipo normal
+  flight.aircraft && (
+    <Text style={styles.aircraft}>Equipo: {flight.aircraft}</Text>
+  )
+)}
+
       </View>
     );
-  } else if (flight.type) {
-    // Para actividades especiales (*, D/L, GUA, ESM, etc.)
+  }
+
+  // Actividades especiales
+  if (flight.type) {
     return (
       <View style={styles.card}>
         <Text style={styles.activity}>{flight.type}</Text>
@@ -54,14 +83,16 @@ export default function FlightCard({ flight }) {
         )}
       </View>
     );
-  } else if (flight.note) {
-    // Notas especiales
+  }
+
+  // Notas
+  if (flight.note) {
     return (
       <View style={styles.card}>
         <Text style={styles.note}>{flight.note}</Text>
       </View>
     );
-  } else {
-    return null;
   }
+
+  return null;
 }

@@ -64,6 +64,17 @@ export default function RosterScreen({ route, navigation }) {
     );
   }
 
+  const getDynamicStyle = (timeString) => {
+  // Si viene en formato "HH:MM"
+  const [hours, minutes] = timeString.split(':').map(Number);
+  const totalMinutes = hours * 60 + (minutes || 0);
+
+  return {
+    color: totalMinutes >= 480 ? "#6959C2" : "#333", // verde si >= 8h
+  };
+};
+
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.listContainer}>
@@ -75,7 +86,15 @@ export default function RosterScreen({ route, navigation }) {
             data: d.flights.length > 0 ? d.flights : [{ note: d.note }],
           }))}
           keyExtractor={(item, index) => index.toString()}
-          renderItem={({ item }) => <FlightCard flight={item} />}
+renderItem={({ item, index, section }) => (
+  <FlightCard
+    flight={item}
+    isLastOfDay={index === section.data.length - 1} // 👉 último tramo del día
+    tv={section.tv}
+    tsv={section.tsv}
+    te={section.te}
+  />
+)}
           renderSectionHeader={({ section: { title, tv, tsv }, index }) => {
             const te = subtractMinutes(tsv, 30);
 
@@ -92,11 +111,39 @@ export default function RosterScreen({ route, navigation }) {
                 <Text style={styles.sectionHeaderText}>{title}</Text>
 
                 {/* TE | TSV | TV a la derecha */}
-                <View style={styles.totalsContainer}>
-                  {te && <Text style={styles.sectionHeaderTotals}>TE: {te}</Text>}
-                  {tsv && <Text style={styles.sectionHeaderTotals}>TSV: {tsv}</Text>}
-                  {tv && <Text style={styles.sectionHeaderTotals}>TV: {tv}</Text>}
-                </View>
+             <View style={styles.totalsContainer}>
+  {te && (
+    <Text
+      style={[
+        styles.sectionHeaderTotals,
+        getDynamicStyle(te) // 🔹 aplicamos el color dinámico
+      ]}
+    >
+      TTEE: {te}
+    </Text>
+  )}
+  {/* {tsv && (
+    <Text
+      style={[
+        styles.sectionHeaderTotals,
+        getDynamicStyle(tsv)
+      ]}
+    >
+      TSV: {tsv}
+    </Text>
+  )}
+  {tv && (
+    <Text
+      style={[
+        styles.sectionHeaderTotals,
+        getDynamicStyle(tv)
+      ]}
+    >
+      TV: {tv}
+    </Text>
+  )} */}
+</View>
+
               </View>
             );
           }}

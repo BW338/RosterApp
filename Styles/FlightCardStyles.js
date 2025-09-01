@@ -3,7 +3,7 @@ import { StyleSheet } from "react-native";
 export default StyleSheet.create({
   card: {
     backgroundColor: "white",
-    padding: 12,
+    padding: 8,
     marginVertical: 6,
     borderRadius: 10,
     shadowColor: "#000",
@@ -13,13 +13,14 @@ export default StyleSheet.create({
     elevation: 2,
   },
   route: {
-    fontSize: 16,
-    fontWeight: "600",
+    fontSize: 18,
+    fontWeight: "700",
     color: "#2f285a",
   },
   flightNumber: {
-    fontSize: 14,
+    fontSize: 18,
     color: "#333",
+    fontWeight:"700",
     marginVertical: 2,
   },
   timeRow: {
@@ -29,22 +30,38 @@ export default StyleSheet.create({
     marginTop: 4,
   },
   time: {
-    fontSize: 14,
-    color: "#555",
+    fontSize: 16,
+    color: "#161616ff",
   },
   duration: {
     fontSize: 14,
     fontWeight: "600",
-    color: "#00d66f",
+    color: "#0032d6ff",
   },
   aircraft: {
-    fontSize: 13,
+    fontSize: 14,
     color: "#777",
-    marginTop: 4,
+    marginTop: 0,
   },
   note: {
     fontSize: 14,
     fontStyle: "italic",
     color: "#999",
   },
+lastRow: {
+  flexDirection: "row",
+  justifyContent: "space-between",
+  alignItems: "center",
+  marginTop: 6,
+},
+
+totalsRow: {
+  flexDirection: "row",   
+  alignItems: "center",
+  gap: 12,               
+},
+totals:{
+  fontSize:13,
+}
+
 });

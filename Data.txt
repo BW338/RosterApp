@@ -51,3 +51,6 @@ toda la validacion de IAP.
 15| TSV, TV y TE:
 -Se agregan estos datos.
 -Se separan los estilos en RosterScreenStyles.js
+
+16| Styles:
+-Se posicionan datos y ajustan estilos.
