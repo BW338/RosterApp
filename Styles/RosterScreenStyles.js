@@ -28,4 +28,25 @@ export default StyleSheet.create({
         fontWeight: 'bold',
         fontStyle: 'italic'
     },
+    todayButton: {
+  position: "absolute",
+  bottom: 20,
+  right: 20,
+  backgroundColor: "rgba(50,150,250,0.7)",
+  borderRadius: 30,
+  width: 60,
+  height: 60,
+  justifyContent: "center",
+  alignItems: "center",
+  shadowColor: "#000",
+  shadowOpacity: 0.3,
+  shadowRadius: 4,
+  shadowOffset: { width: 0, height: 2 },
+  elevation: 5,
+},
+todayButtonText: {
+  color: "white",
+  fontWeight: "bold",
+},
+
 });

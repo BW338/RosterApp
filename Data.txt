@@ -77,3 +77,6 @@ toda la validacion de IAP.
 
 23| Today Button to TouchableOpacity:
 -Se transforma el estilo del boton para que quede mas discreto.
+
+24| DinamicStyle fix
+-Se corrige error de estilo dinamico de TE:

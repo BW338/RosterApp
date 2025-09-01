@@ -141,35 +141,25 @@ renderItem={({ item, index, section }) => (
         {formatDateShort(title)}
       </Text>
 
-      <View style={styles.totalsContainer}>
-        {te && <Text style={styles.sectionHeaderTotals}>TE: {te}</Text>}
-      </View>
+     <View style={styles.totalsContainer}>
+  {te && (
+    <Text style={[styles.sectionHeaderTotals, getDynamicStyle(te)]}>
+      TE: {te}
+    </Text>
+  )}
+</View>
+
     </View>
 
             );
           }}
         />
-    <TouchableOpacity
-  onPress={scrollToToday}
-  style={{
-    position: "absolute",
-    bottom: 20,
-    right: 20,
-    backgroundColor: "rgba(50, 150, 250, 0.7)", // semitransparente
-    borderRadius: 30, // redondo
-    width: 60,
-    height: 60,
-    justifyContent: "center",
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    shadowOffset: { width: 0, height: 2 },
-    elevation: 5,
-  }}
->
-  <Text style={{ color: "white", fontWeight: "bold" }}>Hoy</Text>
-</TouchableOpacity>
+     <TouchableOpacity
+          onPress={scrollToToday}
+          style={styles.todayButton}
+        >
+          <Text style={styles.todayButtonText}>Hoy</Text>
+        </TouchableOpacity>
 
       </View>
     </SafeAreaView>
