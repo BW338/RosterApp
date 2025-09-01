@@ -13,6 +13,14 @@ export default function RosterScreen({ route, navigation }) {
 
   const sectionListRef = useRef(null);
   // ⬆️ Configurar encabezado con botón
+
+    useEffect(() => {
+    if (roster.length > 0) {
+      setTimeout(() => {
+        scrollToToday(roster, sectionListRef);
+      }, 300); // pequeño delay para que el SectionList monte
+    }
+  }, [roster]);
   
   useEffect(() => {
     navigation.setOptions({
