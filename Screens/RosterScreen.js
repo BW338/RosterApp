@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { View, Text, SectionList, SafeAreaView, Button } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import FlightCard from "../Components/FlightCard/FlightCard";
@@ -9,7 +9,23 @@ import styles from "../Styles/RosterScreenStyles"; // <- estilos separados
 export default function RosterScreen({ route, navigation }) {
   const [roster, setRoster] = useState([]);
 
+
+  const sectionListRef = useRef(null);
   // ⬆️ Configurar encabezado con botón
+
+  const scrollToToday = () => {
+  const todayIndex = roster.findIndex(d => isToday(d.date));
+  if (todayIndex !== -1 && sectionListRef.current) {
+    sectionListRef.current.scrollToLocation({
+      sectionIndex: todayIndex,
+      itemIndex: 0,
+      animated: true,
+      viewPosition: 0, // 0 = arriba, 0.5 = centrado
+    });
+  }
+};
+
+  
   useEffect(() => {
     navigation.setOptions({
       headerRight: () => (
@@ -91,13 +107,14 @@ export default function RosterScreen({ route, navigation }) {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.listContainer}>
-        <SectionList
-          sections={roster.map((d) => ({
-            title: d.date,
-            tv: d.tv,
-            tsv: d.tsv,
-            data: d.flights.length > 0 ? d.flights : [{ note: d.note }],
-          }))}
+      <SectionList
+  ref={sectionListRef}
+  sections={roster.map(d => ({
+    title: d.date,
+    tv: d.tv,
+    tsv: d.tsv,
+    data: d.flights.length > 0 ? d.flights : [{ note: d.note }],
+  }))}
           keyExtractor={(item, index) => index.toString()}
 renderItem={({ item, index, section }) => (
   <FlightCard
@@ -132,6 +149,11 @@ renderItem={({ item, index, section }) => (
             );
           }}
         />
+        <Button
+  title="Ir al día de hoy"
+  onPress={scrollToToday}
+/>
+
       </View>
     </SafeAreaView>
   );

@@ -71,3 +71,6 @@ toda la validacion de IAP.
 
 21| Refactorizacion de date y time a /Helpers.
 -Se refactoriza y ademas se resalta el dia de "Hoy"
+
+22| TodayScroll Button
+-Se crea boton que mediante useReff te lleva al dia de hoy.
