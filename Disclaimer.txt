@@ -1,0 +1,24 @@
+🔹 1. El disclaimer más friendly y “de cara al usuario”
+
+En lugar de sonar jurídico y frío, puede sonar como un mensaje claro, transparente y cercano, pero que igualmente te cubra legalmente:
+
+Aviso Importante
+Esta aplicación fue creada de manera independiente para ayudarte a organizar tu trabajo de forma más simple.
+
+No pertenece ni está vinculada a ninguna aerolínea ni compañía aérea.
+
+Toda la información que ves en la app proviene únicamente de los archivos que vos mismo cargás (por ejemplo, tu plan de vuelo en PDF).
+
+Los datos se procesan y guardan sólo en tu dispositivo: no se comparten ni almacenan en servidores externos.
+
+El uso de la app es voluntario y queda bajo tu responsabilidad.
+
+👉 En resumen: la app es tuya, para vos, y nadie más accede a tu información.
+
+-------------------------------
+
+Disclaimer
+Esta aplicación es una herramienta independiente desarrollada para ayudar a los usuarios a organizar sus horarios y actividades de manera práctica.
+No está asociada, afiliada ni respaldada por ninguna aerolínea ni compañía aérea.
+
+El uso de la aplicación es voluntario y bajo responsabilidad del usuario. Toda la información procesada proviene de los archivos que el propio usuario carga en el dispositivo.

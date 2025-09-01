@@ -30,6 +30,27 @@ export default function RosterScreen({ route, navigation }) {
     return `${hh}:${mm}`;
   };
 
+  const dayMap = {
+  MON: "Lunes",
+  TUE: "Martes",
+  WED: "Miércoles",
+  THU: "Jueves",
+  FRI: "Viernes",
+  SAT: "Sábado",
+  SUN: "Domingo",
+};
+
+// 🔹 Función que convierte "01MON" → "01 Lun"
+const formatDateShort = (title) => {
+  if (!title || title.length < 5) return title;
+
+  const day = title.slice(0, 2);      // "01"
+  const dayEng = title.slice(2, 5);   // "MON"
+  const dayEsp = dayMap[dayEng] || dayEng;
+
+  return `${day} ${dayEsp}`; // 👉 "01 Lun"
+};
+
   // Cargar roster
   useEffect(() => {
     const loadRoster = async () => {
@@ -108,7 +129,7 @@ renderItem={({ item, index, section }) => (
                 ]}
               >
                 {/* Fecha a la izquierda */}
-                <Text style={styles.sectionHeaderText}>{title}</Text>
+<Text style={styles.sectionHeaderText}>{formatDateShort(title)}</Text>
 
                 {/* TE | TSV | TV a la derecha */}
              <View style={styles.totalsContainer}>
