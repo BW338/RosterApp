@@ -33,9 +33,15 @@ export default StyleSheet.create({
     fontSize: 16,
     color: "#161616ff",
   },
+  checkout: {
+  fontSize: 14,
+  color: "#555",
+  marginLeft: 6, // 🔹 separa del arrTime
+},
+
   duration: {
-    fontSize: 14,
-    fontWeight: "600",
+    fontSize: 16,
+    fontWeight: "700",
     color: "#0032d6ff",
   },
   aircraft: {

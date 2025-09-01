@@ -17,7 +17,10 @@ function getDuration(dep, arr) {
     const diffH = Math.floor(diffMs / (1000 * 60 * 60));
     const diffM = Math.floor((diffMs / (1000 * 60)) % 60);
 
-    return `${diffH}h ${diffM}m`;
+    // Aseguramos que los minutos tengan 2 dígitos (ej: "2:05hs")
+    const formattedM = diffM.toString().padStart(2, "0");
+
+    return `${diffH}:${formattedM}hs`;
   } catch {
     return "";
   }
@@ -36,15 +39,24 @@ export default function FlightCard({ flight, isLastOfDay, tv, tsv, te }) {
         {/* Nro de vuelo */}
         <Text style={styles.flightNumber}>{flight.flightNumber}</Text>
 
-        {/* Horarios + duración */}
-        <View style={styles.timeRow}>
-          <Text style={styles.time}>
-            {flight.depTime} - {flight.arrTime}
-          </Text>
-          <Text style={styles.duration}>
-            {getDuration(flight.depTime, flight.arrTime)}
-          </Text>
-        </View>
+{/* Horarios + duración */}
+<View style={styles.timeRow}>
+  <View style={{ flexDirection: "row", alignItems: "center" }}>
+    <Text style={styles.time}>
+      {flight.depTime} - {flight.arrTime}
+    </Text>
+    {flight.checkout && (
+      <Text style={styles.checkout}> | Fin: {flight.checkout}</Text>
+    )}
+  </View>
+  <Text style={styles.duration}>
+    {getDuration(flight.depTime, flight.arrTime)}
+  </Text>
+</View>
+
+
+
+
 
       {/* Último tramo del día: equipo + totales */}
 {isLastOfDay ? (

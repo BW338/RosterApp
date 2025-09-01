@@ -54,3 +54,11 @@ toda la validacion de IAP.
 
 16| Styles:
 -Se posicionan datos y ajustan estilos.
+
+17| Styles:
+-Se agrega valor "checkout".
+-Se formatea duracion de vuelos.
+
+18| RosterView => RosterPannel:
+-Se reemplaza RosterView por RosterPannel de manera definitiva
+*El screen RosterPannel quizas lo termine borrando y adjuntando el PDF directamente desde RosterScreen.

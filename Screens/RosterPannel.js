@@ -9,7 +9,7 @@ import PrimaryButton from "../Components/Buttons/PrimaryButton";
 import Toast from "react-native-toast-message";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-export default function RosterView({ isSubscribed, offerings }) {
+export default function RosterPannel({ isSubscribed, offerings }) {
   const [pdfData, setPdfData] = useState(null);
   const [roster, setRoster] = useState([]);
   const navigation = useNavigation();

@@ -5,7 +5,7 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import Toast from "react-native-toast-message";
 import { useSubscription } from "./hooks/useSubscription";
-import RosterView from "./Screens/RosterView";
+import RosterPannel from "./Screens/RosterPannel";
 import RosterScreen from "./Screens/RosterScreen";
 import ScreenA from "./Screens/ScreenA";
 import ScreenB from "./Screens/ScreenB";
@@ -22,9 +22,9 @@ function RosterStack({ isSubscribed, offerings }) {
         component={RosterScreen}
         options={{ title: "Actualizar plan de vuelo" }}
       />
-      <Stack.Screen name="RosterView" options={{ title: "Roster" }}>
+      <Stack.Screen name="RosterPannel" options={{ title: "Roster" }}>
         {(props) => (
-          <RosterView
+          <RosterPannel
             {...props}
             isSubscribed={isSubscribed}
             offerings={offerings}

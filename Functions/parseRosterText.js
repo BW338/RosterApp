@@ -74,16 +74,25 @@ export const parseRosterText = (text) => {
 
         let depTime = null;
         let arrTime = null;
+        let checkout = null;
+        
         if (airportIdxs.length >= 1) {
-          for (let k = airportIdxs[0] + 1; k < rest.length; k++) {
-            if (isTime(rest[k])) { depTime = rest[k]; break; }
-          }
-        }
-        if (airportIdxs.length >= 2) {
-          for (let k = airportIdxs[1] + 1; k < rest.length; k++) {
-            if (isTime(rest[k])) { arrTime = rest[k]; break; }
-          }
-        }
+  for (let k = airportIdxs[0] + 1; k < rest.length; k++) {
+    if (isTime(rest[k])) { depTime = rest[k]; break; }
+  }
+}
+if (airportIdxs.length >= 2) {
+  // buscamos arrTime y checkout
+  let foundTimes = [];
+  for (let k = airportIdxs[1] + 1; k < rest.length; k++) {
+    if (isTime(rest[k])) {
+      foundTimes.push(rest[k]);
+      if (foundTimes.length === 2) break; // llegada + checkout
+    }
+  }
+  arrTime = foundTimes[0] || null;
+  checkout = foundTimes[1] || null;
+}
 
         const isAircraft = (tk) => /^(?:\d{3}|\d{2}[A-Z]|[A-Z]\d{2,3})$/.test(tk);
         let aircraft = null;
@@ -100,7 +109,17 @@ export const parseRosterText = (text) => {
         const timeMatches = rest.filter(isTime);
         if (timeMatches.length >= 3) lastFlightExtraTimes = timeMatches.slice(-3);
 
-        day.flights.push({ type: "OP", flightNumber, origin, depTime, destination, arrTime, aircraft });
+        day.flights.push({
+  type: "OP",
+  flightNumber,
+  origin,
+  depTime,
+  destination,
+  arrTime,
+  checkout,   // 👈 lo nuevo
+  aircraft
+});
+
       });
 
       // Asignamos TV y TSV según los últimos horarios del último vuelo del día

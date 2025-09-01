@@ -1,6 +1,6 @@
   import React from "react";
   import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-  import RosterView from "../Screens/RosterView";
+  import RosterPannel from "../Screens/RosterPannel";
   import ScreenA from "../Screens/ScreenA";
   import ScreenB from "../Screens/ScreenB";
   import ScreenC from "../Screens/ScreenC";
@@ -16,7 +16,7 @@
           tabBarInactiveTintColor: "#888",
         }}
       >
-        <Tab.Screen name="Roster" component={RosterView} />
+        <Tab.Screen name="Pannel" component={RosterPannel} />
         <Tab.Screen name="Screen A" component={ScreenA} />
         <Tab.Screen name="Screen B" component={ScreenB} />
         <Tab.Screen name="Screen C" component={ScreenC} />

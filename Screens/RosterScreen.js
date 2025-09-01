@@ -13,7 +13,7 @@ export default function RosterScreen({ route, navigation }) {
       headerRight: () => (
         <Button
           title="Actualizar roster"
-          onPress={() => navigation.navigate("RosterView")}
+          onPress={() => navigation.navigate("RosterPannel")}
         />
       ),
     });
