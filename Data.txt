@@ -65,3 +65,6 @@ toda la validacion de IAP.
 
 19| Dias en español:
 -Se pasa el formato "01MON" a "01 Lunes"
+
+20| date.js time.js:
+-Se envia a /Helpers las funciones que formatean las fechas.

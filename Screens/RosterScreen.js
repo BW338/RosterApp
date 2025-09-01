@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { View, Text, SectionList, SafeAreaView, Button } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import FlightCard from "../Components/FlightCard/FlightCard";
+import { subtractMinutes, getDynamicStyle } from "../Helpers/time";
+import { formatDateShort } from "../Helpers/date";
 import styles from "../Styles/RosterScreenStyles"; // <- estilos separados
 
 export default function RosterScreen({ route, navigation }) {
@@ -29,27 +31,6 @@ export default function RosterScreen({ route, navigation }) {
     const mm = date.getMinutes().toString().padStart(2, "0");
     return `${hh}:${mm}`;
   };
-
-  const dayMap = {
-  MON: "Lunes",
-  TUE: "Martes",
-  WED: "Miércoles",
-  THU: "Jueves",
-  FRI: "Viernes",
-  SAT: "Sábado",
-  SUN: "Domingo",
-};
-
-// 🔹 Función que convierte "01MON" → "01 Lun"
-const formatDateShort = (title) => {
-  if (!title || title.length < 5) return title;
-
-  const day = title.slice(0, 2);      // "01"
-  const dayEng = title.slice(2, 5);   // "MON"
-  const dayEsp = dayMap[dayEng] || dayEng;
-
-  return `${day} ${dayEsp}`; // 👉 "01 Lun"
-};
 
   // Cargar roster
   useEffect(() => {
