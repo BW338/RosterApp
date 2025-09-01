@@ -87,3 +87,7 @@ toda la validacion de IAP.
 
 26| useEffect:
 -Se agrega useEffect para cuando se monte el componente, se posiciona en actividad de hoy
+
+27| Refact:
+-Se refactoriza aun mas el componente RosterScreen.
+-Se ajusta estilo de TE:
