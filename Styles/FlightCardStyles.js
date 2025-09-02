@@ -20,7 +20,7 @@ export default StyleSheet.create({
   flightNumber: {
     fontSize: 18,
     color: "#333",
-    fontWeight:"700",
+    fontWeight: "700",
     marginVertical: 2,
   },
   timeRow: {
@@ -34,11 +34,10 @@ export default StyleSheet.create({
     color: "#161616ff",
   },
   checkout: {
-  fontSize: 14,
-  color: "#555",
-  marginLeft: 6, // 🔹 separa del arrTime
-},
-
+    fontSize: 14,
+    color: "#555",
+    marginLeft: 6, // 🔹 separa del arrTime
+  },
   duration: {
     fontSize: 16,
     fontWeight: "700",
@@ -54,20 +53,35 @@ export default StyleSheet.create({
     fontStyle: "italic",
     color: "#999",
   },
-lastRow: {
-  flexDirection: "row",
-  justifyContent: "space-between",
-  alignItems: "center",
-  marginTop: 6,
-},
+  lastRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginTop: 6,
+  },
+  totalsRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+  },
+  totals: {
+    fontSize: 13,
+  },
 
-totalsRow: {
-  flexDirection: "row",   
-  alignItems: "center",
-  gap: 12,               
-},
-totals:{
-  fontSize:13,
-}
-
+  // 🔹 estilos para actividades especiales
+  specialActivity: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "black",
+  },
+  guaActivity: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#ff0000ff",
+  },
+  dlActivity:{
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#00813aff",
+  }
 });

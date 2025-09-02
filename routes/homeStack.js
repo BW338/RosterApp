@@ -17,6 +17,8 @@
           tabBarInactiveTintColor: "#888",
         }}
       >
+                <Tab.Screen name="Calendar" component={Calendar} />
+
         <Tab.Screen name="Pannel" component={RosterPannel} />
         <Tab.Screen name="Screen A" component={ScreenA} />
         <Tab.Screen name="Screen B" component={ScreenB} />

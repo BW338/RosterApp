@@ -93,3 +93,6 @@ toda la validacion de IAP.
 -Se ajusta estilo de TE:
 
 28| Se Agrega la screen Calendar.js
+
+29| Special activity styles:
+-Se ajustan los estilos de las actividades que no son vuelo.
