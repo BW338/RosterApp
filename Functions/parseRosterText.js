@@ -46,7 +46,7 @@ export const parseRosterText = (text) => {
           return;
         }
 
-        if (["*", "D/L", "ESM", "GUA", "ELD", "TOF"].includes(tokens[0])) {
+        if (["*", "D/L", "ESM", "GUA", "ELD", "TOF", "VAC", "MED", "HTL", "VOP"].includes(tokens[0])) {
           day.flights.push({
             type: tokens[0],
             origin: tokens[1] || null,

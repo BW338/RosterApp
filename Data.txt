@@ -96,3 +96,6 @@ toda la validacion de IAP.
 
 29| Special activity styles:
 -Se ajustan los estilos de las actividades que no son vuelo.
+
+30| Adding SpecialActivity:
+-Agregamos las que faltaban: HTL, MED, VOP, VAC

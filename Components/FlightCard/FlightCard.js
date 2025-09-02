@@ -28,7 +28,7 @@ function getDuration(dep, arr) {
 
 export default function FlightCard({ flight, isLastOfDay, tv, tsv, te }) {
   // --- Actividades especiales ---
-  const isSpecial = ["*", "ELD", "ESM", "GUA", "TOF", "D/L", "VAC"].includes(
+  const isSpecial = ["*", "ELD", "ESM", "GUA", "TOF", "D/L", "VAC", "MED", "HTL", "VOP"].includes(
     flight.type
   );
 
