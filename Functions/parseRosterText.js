@@ -1,7 +1,28 @@
+const MONTH_ABBREVIATIONS = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+
 export const parseRosterText = (text) => {
   if (!text) return [];
 
+  // --- INICIO: LÓGICA DE FECHAS ---
+  // 1. Buscamos el rango de fechas del encabezado ANTES de limpiar el texto.
+  //    Ejemplo: "31AUG25 - 01OCT25"
+  const headerRangeRegex = /(\d{2})([A-Z]{3})(\d{2})\s*-\s*(\d{2})([A-Z]{3})(\d{2})/;
+  const headerMatch = text.match(headerRangeRegex);
+
+  let startDay, startMonthIndex, startYear, endMonthIndex, endYear;
+
+  if (headerMatch) {
+    const [, startDayStr, startMonthStr, startYearStr, _endDayStr, endMonthStr, endYearStr] = headerMatch;
+    startDay = parseInt(startDayStr, 10);
+    startMonthIndex = MONTH_ABBREVIATIONS.indexOf(startMonthStr.toUpperCase());
+    startYear = 2000 + parseInt(startYearStr, 10);
+    endMonthIndex = MONTH_ABBREVIATIONS.indexOf(endMonthStr.toUpperCase());
+    endYear = 2000 + parseInt(endYearStr, 10);
+  }
+  // --- FIN: LÓGICA DE FECHAS ---
+
   let clean = text.replace(/\s+/g, " ").trim();
+  // Limpiamos las líneas que ya no necesitamos
   clean = clean.replace(/Crew Web Portal.*?Individual Roster/gi, "");
   clean = clean.replace(/\d{2}[A-Z]{3}\.\d{2} \d{2}:\d{2}/g, "");
 
@@ -26,11 +47,42 @@ export const parseRosterText = (text) => {
   const parts = clean.split(dayRegex).filter(Boolean);
 
   const parsed = [];
+  let lastDayNumber = 0; // Variable para detectar el cambio de mes
 
   for (let i = 0; i < parts.length; i++) {
     if (/\d{1,2}[A-Z]{3}/.test(parts[i])) {
       const normalizedDate = normalizeDay(parts[i]);
-      const day = { date: normalizedDate, flights: [], note: null, tv: null, tsv: null };
+
+      // --- INICIO: APLICACIÓN DE LÓGICA DE FECHAS ---
+      const dayNumberMatch = normalizedDate.match(/^(\d+)/);
+      let fullDate = null; // Esta será la fecha completa (ej: new Date(2025, 7, 31))
+
+      if (dayNumberMatch && headerMatch) {
+        const dayNumber = parseInt(dayNumberMatch[1], 10);
+        let currentMonthIndex, currentYear;
+
+        // Si es el primer día que procesamos (o si el array de resultados aún está vacío),
+        // usamos el mes/año de inicio del encabezado.
+        if (lastDayNumber === 0 || parsed.length === 0) {
+          currentMonthIndex = startMonthIndex;
+          currentYear = startYear;
+        } else {
+          const previousDayObject = parsed[parsed.length - 1];
+          // Si el día actual es menor que el anterior (ej: 31 -> 1), avanzamos un mes.
+          if (dayNumber < lastDayNumber) {
+            currentMonthIndex = (previousDayObject.fullDate.getMonth() + 1) % 12;
+            // Si el mes pasa de Diciembre (11) a Enero (0), avanzamos un año.
+            currentYear = currentMonthIndex === 0 ? previousDayObject.fullDate.getFullYear() + 1 : previousDayObject.fullDate.getFullYear();
+          } else { // Si no, seguimos en el mismo mes y año que el día anterior.
+            currentMonthIndex = previousDayObject.fullDate.getMonth();
+            currentYear = previousDayObject.fullDate.getFullYear();
+          }
+        }
+        fullDate = new Date(currentYear, currentMonthIndex, dayNumber);
+      }
+      // --- FIN: APLICACIÓN DE LÓGICA DE FECHAS ---
+
+      const day = { date: normalizedDate, fullDate: fullDate, flights: [], note: null, tv: null, tsv: null };
       const details = parts[i + 1] ? parts[i + 1].trim() : "";
 
       const flightTokens = details.split(/ (?=OP|ESM|\*|D\/L|REST|LAYOVER|STBY|OFF|AR\d+)/g);
@@ -128,6 +180,10 @@ if (airportIdxs.length >= 2) {
         day.tsv = lastFlightExtraTimes[2]; // último
       }
 
+      // --- LOG DE DEPURACIÓN ---
+      // Imprimimos el objeto 'day' completo para ver qué se ha parseado.
+      console.log("Día parseado:", JSON.stringify(day, null, 2));
+      lastDayNumber = parseInt(dayNumberMatch[1], 10); // Actualizamos el último día procesado
       if (day.flights.length > 0 || day.note) parsed.push(day);
     }
   }
