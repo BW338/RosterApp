@@ -102,3 +102,7 @@ toda la validacion de IAP.
 
 31| parseRosterText:
 -Logramos machear fecha con mes correspondiente.
+
+32| fullDate to header:
+-Llevamos el valor a RosterScreen.
+-Logramos convertir fullDate (2025-07-30T04:00:00.000Z) en formato mes ("Julio")

@@ -55,6 +55,7 @@ export default function RosterScreen({ navigation, route }) {
           ref={sectionListRef}
           sections={roster.map((d) => ({
             title: d.date,
+            fullDate: d.fullDate, // 1. Pasamos fullDate a la sección
             tv: d.tv,
             tsv: d.tsv,
             te: d.te,
@@ -81,7 +82,7 @@ export default function RosterScreen({ navigation, route }) {
               />
             )
           }
-          renderSectionHeader={({ section: { title, tv, tsv }, index }) => {
+          renderSectionHeader={({ section: { title, fullDate, tv, tsv }, index }) => { // 2. Recibimos fullDate
             const te = subtractMinutes(tsv, 30);
             const today = isToday(title);
 
@@ -95,9 +96,22 @@ export default function RosterScreen({ navigation, route }) {
                   today && styles.todaySection,
                 ]}
               >
-                <Text style={styles.sectionHeaderText}>
-                  {formatDateShort(title)}
-                </Text>
+          <View>
+  <Text style={styles.sectionHeaderText}>
+    {formatDateShort(title)}
+  </Text>
+
+  <Text style={{ fontSize: 10, color: "#666", marginLeft: 4 }}>
+    {fullDate instanceof Date
+      ? (() => {
+          const mes = fullDate.toLocaleDateString("es-ES", { month: "long" });
+          return mes.charAt(0).toUpperCase() + mes.slice(1); // ✅ primera letra mayúscula
+        })()
+      : fullDate}
+  </Text>
+</View>
+
+
 
                 <View style={styles.totalsContainer}>
                   {te && (
