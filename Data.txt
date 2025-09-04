@@ -109,3 +109,6 @@ toda la validacion de IAP.
 
 33| today.js:
 -Logro tener en cuenta el mes a la hora de remarcar el dia de "Hoy" con color.
+
+34| todayButton.js:
+-Logro ajustar el scroll de "Hoy" tango el useEffect como el boton.

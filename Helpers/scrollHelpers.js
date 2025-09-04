@@ -1,13 +1,13 @@
-// /Helpers/scrollHelpers.js
-import { isToday } from "./today";
+import { isTodayStrict } from "./today";
 
 /**
- * Posiciona la SectionList en el día actual
+ * Posiciona la SectionList en el día actual (día, mes y año)
  * @param {object} roster - array de secciones del roster
  * @param {object} sectionListRef - referencia al SectionList
  */
 export const scrollToToday = (roster, sectionListRef) => {
-  const todayIndex = roster.findIndex(d => isToday(d.date));
+  // 🔹 Busca el índice de la sección que corresponde a HOY
+  const todayIndex = roster.findIndex(d => isTodayStrict(d.fullDate));
 
   if (todayIndex !== -1 && sectionListRef?.current) {
     sectionListRef.current.scrollToLocation({

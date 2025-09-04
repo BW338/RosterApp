@@ -25,7 +25,7 @@ export function isToday(title) {
 export function isTodayStrict(fullDate) {
   if (!fullDate) return false;
 
-  const d = new Date(fullDate); // ya viene en ISO, se puede parsear directo
+  const d = new Date(fullDate);
   const today = new Date();
 
   return (
