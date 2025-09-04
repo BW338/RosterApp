@@ -21,12 +21,16 @@ export function isToday(title) {
   return day === today.getDate();
 }
 
-// 🔹 (opcional) comparar también mes
-export function isTodayStrict(title, monthIndex) {
+// 🔹 Devuelve true si la fecha corresponde a hoy (día, mes y año)
+export function isTodayStrict(fullDate) {
+  if (!fullDate) return false;
+
+  const d = new Date(fullDate); // ya viene en ISO, se puede parsear directo
   const today = new Date();
-  const day = parseInt(title.slice(0, 2), 10);
+
   return (
-    day === today.getDate() &&
-    monthIndex === today.getMonth()
+    d.getDate() === today.getDate() &&
+    d.getMonth() === today.getMonth() &&
+    d.getFullYear() === today.getFullYear()
   );
 }

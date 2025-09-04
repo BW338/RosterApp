@@ -4,7 +4,7 @@ import FlightCard from "../Components/FlightCard/FlightCard";
 import { formatDateShort } from "../Helpers/dateInSpanish";
 import { scrollToToday } from "../Helpers/scrollHelpers";
 import TodayButton from "../Components/Buttons/TodayButton";
-import { subtractMinutes, isToday } from "../Helpers/today";
+import { subtractMinutes, isToday, isTodayStrict } from "../Helpers/today";
 import { getDynamicStyle } from "../Helpers/styleUtils";
 import { getActivityStyle } from "../Helpers/activityStyleUtils";
 import { loadRosterFromStorage } from "../Helpers/StorageUtils"; 
@@ -82,49 +82,47 @@ export default function RosterScreen({ navigation, route }) {
               />
             )
           }
-          renderSectionHeader={({ section: { title, fullDate, tv, tsv }, index }) => { // 2. Recibimos fullDate
-            const te = subtractMinutes(tsv, 30);
-            const today = isToday(title);
+      renderSectionHeader={({ section: { title, fullDate, tv, tsv }, index }) => {
+  const te = subtractMinutes(tsv, 30);
+  const today = isTodayStrict(fullDate); // 👈 ahora compara con fecha completa
 
-            return (
-              <View
-                style={[
-                  styles.sectionHeader,
-                  index % 2 === 0
-                    ? styles.sectionHeaderEven
-                    : styles.sectionHeaderOdd,
-                  today && styles.todaySection,
-                ]}
-              >
-          <View>
-  <Text style={styles.sectionHeaderText}>
-    {formatDateShort(title)}
-  </Text>
+  return (
+    <View
+      style={[
+        styles.sectionHeader,
+        index % 2 === 0
+          ? styles.sectionHeaderEven
+          : styles.sectionHeaderOdd,
+        today && styles.todaySection, // 👈 se pinta solo si es HOY exacto
+      ]}
+    >
+      <View>
+        <Text style={styles.sectionHeaderText}>
+          {formatDateShort(title)}
+        </Text>
 
-  <Text style={{ fontSize: 10, color: "#666", marginLeft: 4 }}>
-    {fullDate instanceof Date
-      ? (() => {
-          const mes = fullDate.toLocaleDateString("es-ES", { month: "long" });
-          return mes.charAt(0).toUpperCase() + mes.slice(1); // ✅ primera letra mayúscula
-        })()
-      : fullDate}
-  </Text>
-</View>
+        <Text style={{ fontSize: 10, color: "#666", marginLeft: 4 }}>
+          {(() => {
+            const d = new Date(fullDate);
+            const mes = d.toLocaleDateString("es-ES", { month: "long" });
+            return mes.charAt(0).toUpperCase() + mes.slice(1);
+          })()}
+        </Text>
+      </View>
 
+      <View style={styles.totalsContainer}>
+        {te && (
+          <Text
+            style={[styles.sectionHeaderTotals, getDynamicStyle(te)]}
+          >
+            TE: {te}
+          </Text>
+        )}
+      </View>
+    </View>
+  );
+}}
 
-
-                <View style={styles.totalsContainer}>
-                  {te && (
-                    <Text
-                      style={[styles.sectionHeaderTotals, getDynamicStyle(te)]}
-                    >
-                      TE: {te}
-                    </Text>
-                  )}
-                </View>
-              </View>
-            );
-          }}
         />
         <TodayButton onPress={() => scrollToToday(roster, sectionListRef)} />
       </View>

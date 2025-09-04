@@ -106,3 +106,6 @@ toda la validacion de IAP.
 32| fullDate to header:
 -Llevamos el valor a RosterScreen.
 -Logramos convertir fullDate (2025-07-30T04:00:00.000Z) en formato mes ("Julio")
+
+33| today.js:
+-Logro tener en cuenta el mes a la hora de remarcar el dia de "Hoy" con color.
