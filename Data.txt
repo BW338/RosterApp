@@ -112,3 +112,7 @@ toda la validacion de IAP.
 
 34| todayButton.js:
 -Logro ajustar el scroll de "Hoy" tango el useEffect como el boton.
+
+35| Calendar.js:
+-Se añade calendario y actividad!!! 
+*Resta seguir formateando el componente

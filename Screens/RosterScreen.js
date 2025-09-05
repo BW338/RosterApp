@@ -36,17 +36,24 @@ export default function RosterScreen({ navigation, route }) {
   }, [navigation]);
 
   // Cargar roster (param o AsyncStorage)
-  useEffect(() => {
-    const loadRoster = async () => {
-      if (route.params?.roster?.length > 0) {
-        setRoster(route.params.roster);
+useEffect(() => {
+  const loadRoster = async () => {
+    if (route.params?.roster?.length > 0) {
+      console.log("📌 Roster cargado desde route.params:", route.params.roster);
+      setRoster(route.params.roster);
+    } else {
+      const saved = await loadRosterFromStorage();
+      if (saved.length > 0) {
+        console.log("💾 Roster cargado desde AsyncStorage:", saved);
+        setRoster(saved);
       } else {
-        const saved = await loadRosterFromStorage();
-        if (saved.length > 0) setRoster(saved);
+        console.log("⚠️ No se encontró roster en params ni en AsyncStorage");
       }
-    };
-    loadRoster();
-  }, [route.params]);
+    }
+  };
+  loadRoster();
+}, [route.params]);
+
 
   return (
     <SafeAreaView style={styles.container}>
