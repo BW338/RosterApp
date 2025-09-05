@@ -126,3 +126,8 @@ toda la validacion de IAP.
 
 38| Calenda.js y Styles:
 -Se inicia en el dia de hoy, el dia de hoy en negrita
+
+39| RosterScreen Calendar:
+-En rosterScreen se incluye el valor de checkin en el header.
+-En Calendar se incluye el valor de checkin en detalle del dia, se suma al timeline
+-Se formatea la info.

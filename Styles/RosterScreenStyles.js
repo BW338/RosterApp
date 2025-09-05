@@ -28,6 +28,16 @@ export default StyleSheet.create({
         fontWeight: 'bold',
         fontStyle: 'italic'
     },
+     sectionHeaderCheckin: {
+  textAlign: "center",    // centra horizontalmente el texto
+        marginLeft: 8,
+        fontSize: 14,
+        color: "#333",
+        fontWeight: 'bold',
+        fontStyle: 'italic',
+        alignItems: "center"
+
+    },
     todayButton: {
   position: "absolute",
   bottom: 20,

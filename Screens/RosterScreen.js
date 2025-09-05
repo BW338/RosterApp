@@ -65,6 +65,7 @@ useEffect(() => {
             fullDate: d.fullDate, // 1. Pasamos fullDate a la sección
             tv: d.tv,
             tsv: d.tsv,
+            checkin: d.checkin,
             te: d.te,
             data:
               d.flights.length > 0
@@ -89,44 +90,48 @@ useEffect(() => {
               />
             )
           }
-      renderSectionHeader={({ section: { title, fullDate, tv, tsv }, index }) => {
+      renderSectionHeader={({ section: { title, fullDate, tv, tsv, checkin }, index }) => {
   const te = subtractMinutes(tsv, 30);
   const today = isTodayStrict(fullDate); // 👈 ahora compara con fecha completa
 
   return (
-    <View
-      style={[
-        styles.sectionHeader,
-        index % 2 === 0
-          ? styles.sectionHeaderEven
-          : styles.sectionHeaderOdd,
-        today && styles.todaySection, // 👈 se pinta solo si es HOY exacto
-      ]}
-    >
-      <View>
-        <Text style={styles.sectionHeaderText}>
-          {formatDateShort(title)}
-        </Text>
+  <View
+  style={[
+    styles.sectionHeader,
+    index % 2 === 0 ? styles.sectionHeaderEven : styles.sectionHeaderOdd,
+    today && styles.todaySection,
+    { flexDirection: "row", alignItems: "center", justifyContent: "space-between" }
+  ]}
+>
+  {/* Fecha izquierda */}
+  <View>
+    <Text style={styles.sectionHeaderText}>
+      {formatDateShort(title)}
+    </Text>
+    <Text style={{ fontSize: 10, color: "#666", marginLeft: 4 }}>
+      {(() => {
+        const d = new Date(fullDate);
+        const mes = d.toLocaleDateString("es-ES", { month: "long" });
+        return mes.charAt(0).toUpperCase() + mes.slice(1);
+      })()}
+    </Text>
+  </View>
 
-        <Text style={{ fontSize: 10, color: "#666", marginLeft: 4 }}>
-          {(() => {
-            const d = new Date(fullDate);
-            const mes = d.toLocaleDateString("es-ES", { month: "long" });
-            return mes.charAt(0).toUpperCase() + mes.slice(1);
-          })()}
-        </Text>
-      </View>
-
-      <View style={styles.totalsContainer}>
-        {te && (
-          <Text
-            style={[styles.sectionHeaderTotals, getDynamicStyle(te)]}
-          >
-            TE: {te}
-          </Text>
-        )}
-      </View>
+  {/* Check-in centro */}
+  {checkin && (
+    <View style={{ flex: 1, alignItems: "center" }}>
+      <Text style={styles.sectionHeaderCheckin}>CkIn: {checkin}</Text>
     </View>
+  )}
+
+  {/* TE derecha */}
+  {te && (
+    <Text style={[styles.sectionHeaderTotals, getDynamicStyle(te)]}>
+      TE: {te}
+    </Text>
+  )}
+</View>
+
   );
 }}
 

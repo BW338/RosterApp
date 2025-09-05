@@ -3,13 +3,13 @@ import { StyleSheet } from "react-native";
 export default StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f9f9f9", // fondo más suave
+    backgroundColor: "#f9f9f9",
   },
 
   // ✨ Info del día
   infoBox: {
     flex: 1,
-    padding: 16,
+    padding: 6,
     borderTopWidth: 1,
     borderColor: "#e0e0e0",
     backgroundColor: "#fff",
@@ -17,7 +17,7 @@ export default StyleSheet.create({
   title: {
     fontSize: 20,
     fontWeight: "700",
-    marginBottom: 12,
+    marginBottom: 6,
     color: "#222",
   },
   empty: {
@@ -28,9 +28,28 @@ export default StyleSheet.create({
     marginTop: 20,
   },
 
+  flightInfo: {
+    fontSize: 14,
+    color: '#444',
+    lineHeight: 22,
+  },
+
+  checkinContainer: {
+    backgroundColor: 'rgba(103, 58, 183, 0.1)',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    alignSelf: 'flex-start',
+    marginBottom: 12,
+  },
+  checkinText: {
+    color: '#673ab7',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
   // 🕒 Timeline de horas
   timelineContainer: {
-    marginTop: 20,
+    marginTop: 6,
   },
   timelineTitle: {
     fontSize: 16,
@@ -43,18 +62,18 @@ export default StyleSheet.create({
     flexWrap: "wrap",
   },
   hourBlock: {
-    width: "12.5%", // 8 bloques por fila (24h)
-    height: 38,
+    width: "23.5%", // 4 bloques por fila
+    height: 30,
     justifyContent: "center",
     alignItems: "center",
-    margin: 1,
+    margin: "0.75%",
     borderRadius: 6,
   },
   inactiveBlock: {
     backgroundColor: "#f0f0f0",
   },
   activeBlock: {
-    backgroundColor: "#afa84caa", // verde más suave con opacidad
+    backgroundColor: "#afa84c",
   },
   hourLabel: {
     fontSize: 10,
@@ -84,7 +103,8 @@ export default StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-around",
     alignItems: "center",
-    paddingVertical: 8,
+    paddingVertical: 12,
+    paddingHorizontal: 8,
     borderBottomWidth: 1,
     borderColor: "#eee",
     backgroundColor: "#fff",
@@ -94,8 +114,8 @@ export default StyleSheet.create({
     alignItems: "center",
   },
   legendDot: {
-    width: 18,
-    height: 18,
+    width: 14,
+    height: 14,
     borderRadius: 4,
     marginRight: 6,
     borderWidth: 1.5,
