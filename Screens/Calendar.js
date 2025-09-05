@@ -3,8 +3,15 @@ import { View, Text, ScrollView } from "react-native";
 import { Calendar } from "react-native-calendars";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect } from "@react-navigation/native";
-
 import styles from "../Styles/CalendarScreenStyles";
+
+// 🎨 Colores pastel + bordes
+const COLORS = {
+  libre: { bg: "rgba(0, 255, 0, 0.15)", border: "#3cff00ff" },
+  trabajo: { bg: "rgba(204, 194, 57, 0.15)", border: "#c7b834ff" },
+  gua: { bg: "rgba(255,59,48,0.15)", border: "#FF3B30" },
+  esm: { bg: "rgba(255,149,0,0.15)", border: "#FF9500" },
+};
 
 export default function CalendarScreen() {
   const [roster, setRoster] = useState([]);
@@ -75,46 +82,34 @@ useFocusEffect(
     return "libre";
   };
 
-const generateMarks = (data) => {
-  const marks = {};
-  data.forEach((day) => {
-    if (day.fullDate) {
-      const dateKey = day.fullDate.split("T")[0];
-      let color = "blue"; // por defecto libre
-      let textColor = "white";
+ const generateMarks = (data) => {
+    const marks = {};
+    data.forEach((day) => {
+      const date = day.fullDate.split("T")[0];
 
-      if (day.flights && day.flights.length > 0) {
-        const types = day.flights.map((f) => f.type);
+      let estado = "libre"; // por defecto libre
+      if (day.flights.some((f) => f.type === "GUA")) estado = "gua";
+      else if (day.flights.some((f) => f.type === "ESM")) estado = "esm";
+      else if (day.flights.some((f) => f.type === "OP" || f.type.startsWith("AR")))
+        estado = "trabajo";
 
-        if (types.includes("GUA")) {
-          color = "red"; // guardia
-        } else if (types.includes("ESM")) {
-          color = "orange"; // esm
-        } else if (
-          types.some(
-            (t) => t.startsWith("OP") || t.startsWith("AR") || t.match(/^[A-Z]{2}\d+/)
-          )
-        ) {
-          color = "green"; // vuelos normales
-        }
-      }
-
-      marks[dateKey] = {
+      marks[date] = {
         customStyles: {
           container: {
-            backgroundColor: color,
+            backgroundColor: COLORS[estado].bg,
+            borderColor: COLORS[estado].border,
+            borderWidth: 1.5,
             borderRadius: 6,
           },
           text: {
-            color: textColor,
-            fontWeight: "bold",
+            color: "#222",
+            fontWeight: "600",
           },
         },
       };
-    }
-  });
-  setMarkedDates(marks);
-};
+    });
+    setMarkedDates(marks);
+  };
 
 
   const handleDayPress = (day) => {
@@ -179,22 +174,78 @@ const generateMarks = (data) => {
   return (
     <View style={styles.container}>
    <Calendar
-  markedDates={markedDates}
-  markingType={"custom"}
-  onDayPress={handleDayPress}
-  theme={{
-    selectedDayBackgroundColor: "#00adf5",
-    todayTextColor: "#00adf5",
+  markedDates={{
+    ...markedDates,
+    [selectedDay?.fullDate?.split("T")[0]]: {
+      customStyles: {
+        container: {
+          backgroundColor: markedDates[selectedDay?.fullDate?.split("T")[0]]?.customStyles?.container?.backgroundColor || "transparent",
+          borderWidth: 2,
+          borderColor: "rgba(128, 0, 128, 0.8)",
+          borderRadius: 6,
+        },
+        text: {
+          color: "#333",
+          fontWeight: "600",
+        },
+      },
+    },
   }}
-/>
+        markingType={"custom"}
+        onDayPress={handleDayPress}
+        theme={{
+          todayTextColor: "#673ab7",
+          arrowColor: "#673ab7",
+          monthTextColor: "#333",
+          textDayFontWeight: "500",
+          textMonthFontWeight: "600",
+          textDayHeaderFontWeight: "500",
+          textDayFontSize: 14,
+            textDayFontWeight: "bold",
+          textDayHeaderFontSize: 18 ,
+          textMonthFontSize: 18,
+          textSectionTitleColor: "#333",
+        }}
+        firstDay={1} // lunes
+        dayNamesShort={["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"]}
+      />
+
+{/* 🔹 Leyenda de colores */}
+{/* <View style={styles.legend}>
+  <View style={styles.legendItem}>
+    <View style={[styles.legendDot, { backgroundColor: "rgba(0,122,255,0.15)", borderColor: "#007AFF" }]} />
+    <Text style={styles.legendText}>Día libre</Text>
+  </View>
+  <View style={styles.legendItem}>
+    <View style={[styles.legendDot, { backgroundColor: "rgba(52,199,89,0.15)", borderColor: "#34C759" }]} />
+    <Text style={styles.legendText}>Trabajo</Text>
+  </View>
+  <View style={styles.legendItem}>
+    <View style={[styles.legendDot, { backgroundColor: "rgba(255,59,48,0.15)", borderColor: "#FF3B30" }]} />
+    <Text style={styles.legendText}>Guardia</Text>
+  </View>
+  <View style={styles.legendItem}>
+    <View style={[styles.legendDot, { backgroundColor: "rgba(255,149,0,0.15)", borderColor: "#FF9500" }]} />
+    <Text style={styles.legendText}>ESM</Text>
+  </View>
+</View> */}
 
 
-   <ScrollView style={styles.infoBox}>
+<ScrollView style={styles.infoBox}>
   {selectedDay ? (
     <>
-      <Text style={styles.title}>
-        {selectedDay.date} ({selectedDay.fullDate.split("T")[0]})
-      </Text>
+ <Text style={styles.title}>
+  {`${new Date(selectedDay.fullDate).toLocaleDateString("es-ES", {
+    day: "2-digit",
+  })} ${new Date(selectedDay.fullDate)
+    .toLocaleDateString("es-ES", { weekday: "long" })
+    .charAt(0)
+    .toUpperCase()}${new Date(selectedDay.fullDate)
+    .toLocaleDateString("es-ES", { weekday: "long" })
+    .slice(1)}`}
+</Text>
+
+
 
       {selectedDay.flights.length === 0 ? (
         <Text>🟦 Día libre</Text>
@@ -202,10 +253,11 @@ const generateMarks = (data) => {
         <Text>🟥 Guardia</Text>
       ) : selectedDay.flights.some((f) => f.type === "ESM") ? (
         <Text>🟧 ESM</Text>
-      ) : (
-        <Text>🟩 Trabajo ({selectedDay.flights.length} vuelos)</Text>
-      )}
+      ) : selectedDay.flights.some((f) => ["*", "TOF", "D/L"].includes(f.type)) ? (
+        <Text>🟦 Día libre</Text>
+      ) : null}
 
+      {/* 👇 Ahora solo mostramos los vuelos sin la línea "Trabajo..." */}
       {selectedDay.flights.map((f, i) => (
         <Text key={i}>
           - {f.type} {f.origin}→{f.destination} ({f.depTime} - {f.arrTime})

@@ -119,3 +119,7 @@ toda la validacion de IAP.
 
 36| Calendar.js:
 -Se ajusta la logica para que el calendario siempre muestre la info que contiene el asycstorage.
+
+37| Calenda.js y Styles:
+-Ajuste de los colores segun actividad
+-Seteo de detalle de actividad por dia.
