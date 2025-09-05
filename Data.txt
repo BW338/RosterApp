@@ -123,3 +123,6 @@ toda la validacion de IAP.
 37| Calenda.js y Styles:
 -Ajuste de los colores segun actividad
 -Seteo de detalle de actividad por dia.
+
+38| Calenda.js y Styles:
+-Se inicia en el dia de hoy, el dia de hoy en negrita

@@ -68,6 +68,12 @@ useFocusEffect(
   }, [])
 );
 
+useEffect(() => {
+  const today = new Date().toISOString().split("T")[0];
+  const found = roster.find((d) => d.fullDate.startsWith(today));
+  setSelectedDay(found || null);
+}, [roster]);
+
 
   // 👉 Determina el tipo de día
   const getDayType = (day) => {
@@ -110,7 +116,6 @@ useFocusEffect(
     });
     setMarkedDates(marks);
   };
-
 
   const handleDayPress = (day) => {
     const found = roster.find((d) => d.fullDate.startsWith(day.dateString));
@@ -173,42 +178,49 @@ useFocusEffect(
 
   return (
     <View style={styles.container}>
-   <Calendar
+  <Calendar
+  initialDate={new Date().toISOString().split("T")[0]} // arranca en hoy
   markedDates={{
     ...markedDates,
     [selectedDay?.fullDate?.split("T")[0]]: {
       customStyles: {
         container: {
-          backgroundColor: markedDates[selectedDay?.fullDate?.split("T")[0]]?.customStyles?.container?.backgroundColor || "transparent",
+          backgroundColor:
+            markedDates[selectedDay?.fullDate?.split("T")[0]]?.customStyles
+              ?.container?.backgroundColor || "transparent",
           borderWidth: 2,
           borderColor: "rgba(128, 0, 128, 0.8)",
           borderRadius: 6,
         },
         text: {
           color: "#333",
-          fontWeight: "600",
+          fontWeight: "bold", // negrita en el seleccionado
         },
       },
     },
   }}
-        markingType={"custom"}
-        onDayPress={handleDayPress}
-        theme={{
-          todayTextColor: "#673ab7",
-          arrowColor: "#673ab7",
-          monthTextColor: "#333",
-          textDayFontWeight: "500",
-          textMonthFontWeight: "600",
-          textDayHeaderFontWeight: "500",
-          textDayFontSize: 14,
-            textDayFontWeight: "bold",
-          textDayHeaderFontSize: 18 ,
-          textMonthFontSize: 18,
-          textSectionTitleColor: "#333",
-        }}
-        firstDay={1} // lunes
-        dayNamesShort={["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"]}
-      />
+  markingType={"custom"}
+  onDayPress={handleDayPress}
+  theme={{
+    todayTextColor: "#673ab7",
+    'stylesheet.day.basic': {
+      todayText: {
+        color: "#673ab7",
+        fontWeight: "bold", // negrita en el día de hoy
+      },
+    },
+    arrowColor: "#673ab7",
+    monthTextColor: "#333",
+    textDayFontWeight: "500",
+    textMonthFontWeight: "600",
+    textDayHeaderFontWeight: "500",
+    textDayFontSize: 14,
+    textDayHeaderFontSize: 18,
+    textMonthFontSize: 18,
+    textSectionTitleColor: "#333",
+  }}
+/>
+
 
 {/* 🔹 Leyenda de colores */}
 {/* <View style={styles.legend}>
