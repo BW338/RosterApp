@@ -116,3 +116,6 @@ toda la validacion de IAP.
 35| Calendar.js:
 -Se añade calendario y actividad!!! 
 *Resta seguir formateando el componente
+
+36| Calendar.js:
+-Se ajusta la logica para que el calendario siempre muestre la info que contiene el asycstorage.
