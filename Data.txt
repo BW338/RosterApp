@@ -135,3 +135,6 @@ toda la validacion de IAP.
 40| Calculator.js:
 -Se integra el calculador de tiempos a la ScreenA, lo que en Timpicker era Home.js
 **Resta corroborar funcionamiento y estilos.
+
+41| parseRosterText.js:
+-Corregimos la funcion porque en los saltos de pagina interpretaba un cambio de mes.
