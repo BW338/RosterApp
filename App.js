@@ -8,7 +8,7 @@ import { useSubscription } from "./hooks/useSubscription";
 import RosterPannel from "./Screens/RosterPannel";
 import RosterScreen from "./Screens/RosterScreen";
 import Calendar from "./Screens/Calendar";
-import ScreenA from "./Screens/ScreenA";
+import Calculator from "./Screens/Calculator";
 import ScreenB from "./Screens/ScreenB";
 import ScreenC from "./Screens/ScreenC";
 
@@ -66,7 +66,7 @@ export default function App() {
         </Tab.Screen>
                         <Tab.Screen name="Calendar" component={Calendar} />
 
-        <Tab.Screen name="Screen A" component={ScreenA} />
+        <Tab.Screen name="Screen A" component={Calculator} />
         <Tab.Screen name="Screen B" component={ScreenB} />
         <Tab.Screen name="Screen C" component={ScreenC} />
 

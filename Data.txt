@@ -131,3 +131,7 @@ toda la validacion de IAP.
 -En rosterScreen se incluye el valor de checkin en el header.
 -En Calendar se incluye el valor de checkin en detalle del dia, se suma al timeline
 -Se formatea la info.
+
+40| Calculator.js:
+-Se integra el calculador de tiempos a la ScreenA, lo que en Timpicker era Home.js
+**Resta corroborar funcionamiento y estilos.
