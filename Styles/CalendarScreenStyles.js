@@ -3,21 +3,21 @@ import { StyleSheet } from "react-native";
 export default StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f9f9f9",
+    marginTop:28,
+    backgroundColor: "#f9f9f963",
   },
-
   // ✨ Info del día
   infoBox: {
     flex: 1,
     padding: 6,
     borderTopWidth: 1,
-    borderColor: "#e0e0e0",
+    borderColor: "#2007b1ff",
     backgroundColor: "#fff",
   },
   title: {
     fontSize: 20,
     fontWeight: "700",
-    marginBottom: 6,
+    marginBottom: 4,
     color: "#222",
   },
   empty: {
@@ -29,7 +29,7 @@ export default StyleSheet.create({
   },
 
   flightInfo: {
-    fontSize: 14,
+    fontSize: 18,
     color: '#444',
     lineHeight: 22,
   },
@@ -50,11 +50,13 @@ export default StyleSheet.create({
   // 🕒 Timeline de horas
   timelineContainer: {
     marginTop: 6,
+    borderWidth: 0.5,
+    borderRadius:8,
   },
   timelineTitle: {
     fontSize: 16,
     fontWeight: "600",
-    marginBottom: 10,
+    marginBottom:10,
     color: "#444",
   },
   timeline: {
@@ -62,7 +64,7 @@ export default StyleSheet.create({
     flexWrap: "wrap",
   },
   hourBlock: {
-    width: "23.5%", // 4 bloques por fila
+    width: "14%", // 4 bloques por fila
     height: 30,
     justifyContent: "center",
     alignItems: "center",
@@ -73,11 +75,12 @@ export default StyleSheet.create({
     backgroundColor: "#f0f0f0",
   },
   activeBlock: {
-    backgroundColor: "#afa84c",
+    backgroundColor: "#ff9790ff",
   },
   hourLabel: {
-    fontSize: 10,
+    fontSize: 16,
     color: "#555",
+    fontWeight: "700"
   },
 
   // 🟦 Día libre
@@ -96,32 +99,5 @@ export default StyleSheet.create({
     fontSize: 18,
     fontWeight: "600",
     color: "#0077b6",
-  },
-
-  // 🟩 Leyenda colores
-  legend: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    alignItems: "center",
-    paddingVertical: 12,
-    paddingHorizontal: 8,
-    borderBottomWidth: 1,
-    borderColor: "#eee",
-    backgroundColor: "#fff",
-  },
-  legendItem: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  legendDot: {
-    width: 14,
-    height: 14,
-    borderRadius: 4,
-    marginRight: 6,
-    borderWidth: 1.5,
-  },
-  legendText: {
-    fontSize: 13,
-    color: "#333",
   },
 });

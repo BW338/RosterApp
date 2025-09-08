@@ -143,3 +143,6 @@ toda la validacion de IAP.
 -Se modifica codifos de RosterScreen/SectionList y de ScrollToToday para evitar el crash al iniciar el roster 
 y lograr el scroll automatico al dia de hoy.
 **Falta que esto funcione en IOS.
+
+43| ToDoList.js:
+-Se agrega la funcion de lista de pendientes a Calendar. Se guarda en el Storage, resta ver el borrado general de datos.

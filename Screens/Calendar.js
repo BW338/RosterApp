@@ -4,8 +4,8 @@ import { Calendar } from "react-native-calendars";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect } from "@react-navigation/native";
 import styles from "../Styles/CalendarScreenStyles";
+import ToDoList from "../Components/ToDoList/ToDoList";
 
-// 🎨 Colores pastel + bordes
 const COLORS = {
   libre: { bg: "rgba(0, 255, 0, 0.15)", border: "#3cff00ff" },
   trabajo: { bg: "rgba(204, 194, 57, 0.15)", border: "#c7b834ff" },
@@ -17,6 +17,7 @@ export default function CalendarScreen() {
   const [roster, setRoster] = useState([]);
   const [markedDates, setMarkedDates] = useState({});
   const [selectedDay, setSelectedDay] = useState(null);
+  const [tasks, setTasks] = useState({});
 
   const loadRoster = async () => {
     try {
@@ -25,18 +26,23 @@ export default function CalendarScreen() {
         const parsed = JSON.parse(saved);
         setRoster(parsed);
         generateMarks(parsed);
-      } else {
-        setRoster([]);
-        setMarkedDates({});
-        setSelectedDay(null);
       }
     } catch (err) {
       console.log("❌ Error cargando roster:", err);
     }
   };
 
-  useEffect(() => { loadRoster(); }, []);
-  useFocusEffect(useCallback(() => { loadRoster(); }, []));
+  const loadTasks = async () => {
+    try {
+      const savedTasks = await AsyncStorage.getItem("tasks");
+      if (savedTasks) setTasks(JSON.parse(savedTasks));
+    } catch (err) {
+      console.log("❌ Error cargando tasks:", err);
+    }
+  };
+
+  useEffect(() => { loadRoster(); loadTasks(); }, []);
+  useFocusEffect(useCallback(() => { loadRoster(); loadTasks(); }, []));
 
   useEffect(() => {
     const today = new Date().toISOString().split("T")[0];
@@ -46,7 +52,7 @@ export default function CalendarScreen() {
 
   const getDayType = (day) => {
     if (!day) return "libre";
-    if (day.flights && day.flights.some(f => f.type === "OP" || /^AR\d+/.test(f.flightNumber))) return "vuelo";
+    if (day.flights?.some(f => f.type === "OP" || /^AR\d+/.test(f.flightNumber))) return "vuelo";
     if (day.note === "GUA") return "guardia";
     if (day.note === "ESM") return "esm";
     return "libre";
@@ -57,9 +63,9 @@ export default function CalendarScreen() {
     data.forEach((day) => {
       const date = day.fullDate.split("T")[0];
       let estado = "libre";
-      if (day.flights.some((f) => f.type === "GUA")) estado = "gua";
-      else if (day.flights.some((f) => f.type === "ESM")) estado = "esm";
-      else if (day.flights.some((f) => f.type === "OP" || f.type.startsWith("AR"))) estado = "trabajo";
+      if (day.flights?.some(f => f.type === "GUA")) estado = "gua";
+      else if (day.flights?.some(f => f.type === "ESM")) estado = "esm";
+      else if (day.flights?.some(f => f.type === "OP" || f.type.startsWith("AR"))) estado = "trabajo";
 
       marks[date] = {
         customStyles: {
@@ -81,46 +87,36 @@ export default function CalendarScreen() {
     setSelectedDay(found || null);
   };
 
-const renderTimeline = (dayData) => {
-  if (!dayData) return null;
+  const renderTimeline = (dayData) => {
+    if (!dayData) return null;
+    const type = getDayType(dayData);
+    let depFirst, end;
 
-  const type = getDayType(dayData);
-  let depFirst, end;
+    if (type === "vuelo") {
+      depFirst = dayData.checkin || dayData.flights[0].depTime;
+      const lastFlight = dayData.flights[dayData.flights.length - 1];
+      end = lastFlight.checkout || lastFlight.arrTime;
+    } else if (type === "guardia" || type === "esm") {
+      depFirst = "00:00";
+      end = "23:59";
+    } else return null;
 
-  if (type === "vuelo") {
-    depFirst = dayData.checkin || dayData.flights[0].depTime;
-    const lastFlight = dayData.flights[dayData.flights.length - 1];
-    end = lastFlight.checkout || lastFlight.arrTime;
-  } else if (type === "guardia" || type === "esm") {
-    depFirst = "00:00";
-    end = "23:59";
-  } else {
-    return null;
-  }
+    const [startH, startM] = depFirst.split(":").map(Number);
+    const [endH, endM] = end.split(":").map(Number);
+    const startHour = startH + startM / 60;
+    const endHour = endH + endM / 60;
 
-  const [startH, startM] = depFirst.split(":").map(Number);
-  const [endH, endM] = end.split(":").map(Number);
+    const blocks = Array.from({ length: 24 }, (_, h) => {
+      const active = h >= Math.floor(startHour) && h < Math.ceil(endHour);
+      return (
+        <View key={h} style={[styles.hourBlock, active ? styles.activeBlock : styles.inactiveBlock]}>
+          <Text style={styles.hourLabel}>{h}:00</Text>
+        </View>
+      );
+    });
 
-  const startHour = startH + startM / 60;
-  const endHour = endH + endM / 60;
-
-  const blocks = Array.from({ length: 24 }, (_, h) => {
-    const active = h >= Math.floor(startHour) && h < Math.ceil(endHour);
-    return (
-      <View key={h} style={[styles.hourBlock, active ? styles.activeBlock : styles.inactiveBlock]}>
-        <Text style={styles.hourLabel}>{h}:00</Text>
-      </View>
-    );
-  });
-
-  return (
-    <View style={styles.timelineContainer}>
-      {/* Timeline visual solamente, sin encabezado */}
-      <View style={styles.timeline}>{blocks}</View>
-    </View>
-  );
-};
-
+    return <View style={styles.timelineContainer}><View style={styles.timeline}>{blocks}</View></View>;
+  };
 
   return (
     <View style={styles.container}>
@@ -140,11 +136,10 @@ const renderTimeline = (dayData) => {
             },
           },
         }}
-        markingType={"custom"}
+        markingType="custom"
         onDayPress={handleDayPress}
         theme={{
           todayTextColor: "#673ab7",
-          "stylesheet.day.basic": { todayText: { color: "#673ab7", fontWeight: "bold" } },
           arrowColor: "#673ab7",
           monthTextColor: "#333",
           textDayFontWeight: "500",
@@ -160,7 +155,6 @@ const renderTimeline = (dayData) => {
       <ScrollView style={styles.infoBox}>
         {selectedDay ? (
           <>
-            {/* Encabezado con Checkin */}
             <Text style={styles.title}>
               {`${new Date(selectedDay.fullDate).toLocaleDateString("es-ES", { day: "2-digit" })} ${new Date(selectedDay.fullDate)
                 .toLocaleDateString("es-ES", { weekday: "long" })
@@ -170,7 +164,6 @@ const renderTimeline = (dayData) => {
                 .slice(1)} | Checkin: ${selectedDay.checkin || selectedDay.flights[0]?.depTime || "--:--"}`}
             </Text>
 
-            {/* Vuelos en renglones */}
             {selectedDay.flights.map((f, i) => (
               <Text key={i} style={{ marginVertical: 0 }}>
                 {f.flightNumber} {f.origin} {f.depTime} - {f.arrTime} {f.destination}
@@ -178,8 +171,10 @@ const renderTimeline = (dayData) => {
               </Text>
             ))}
 
-            {/* Timeline visual */}
             {renderTimeline(selectedDay)}
+
+            {/* ✅ Componente ToDoList */}
+            <ToDoList selectedDay={selectedDay} tasks={tasks} setTasks={setTasks} />
           </>
         ) : (
           <Text style={styles.empty}>Seleccioná un día</Text>
