@@ -138,3 +138,8 @@ toda la validacion de IAP.
 
 41| parseRosterText.js:
 -Corregimos la funcion porque en los saltos de pagina interpretaba un cambio de mes.
+
+42| AutoScroll:
+-Se modifica codifos de RosterScreen/SectionList y de ScrollToToday para evitar el crash al iniciar el roster 
+y lograr el scroll automatico al dia de hoy.
+**Falta que esto funcione en IOS.

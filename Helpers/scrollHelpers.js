@@ -6,15 +6,18 @@ import { isTodayStrict } from "./today";
  * @param {object} sectionListRef - referencia al SectionList
  */
 export const scrollToToday = (roster, sectionListRef) => {
-  // 🔹 Busca el índice de la sección que corresponde a HOY
-  const todayIndex = roster.findIndex(d => isTodayStrict(d.fullDate));
+  const todayIndex = roster.findIndex(
+    d => d.fullDate && isTodayStrict(new Date(d.fullDate))
+  );
 
   if (todayIndex !== -1 && sectionListRef?.current) {
     sectionListRef.current.scrollToLocation({
       sectionIndex: todayIndex,
       itemIndex: 0,
       animated: true,
-      viewPosition: 0, // 0 = arriba, 0.5 = centrado
+      viewPosition: 0,
     });
+  } else {
+    console.warn("⚠️ No se encontró la sección de hoy");
   }
 };
