@@ -2,8 +2,8 @@ import { StyleSheet } from "react-native";
 
 export default StyleSheet.create({
   todoContainer: {
-    marginTop: 12,
-    padding: 10,
+    marginTop: 6,
+    padding: 6,
     borderRadius: 8,
     backgroundColor: "#f5f5f5",
     borderWidth: 1,
@@ -26,7 +26,7 @@ export default StyleSheet.create({
     borderColor: "#ccc",
     borderRadius: 6,
     paddingHorizontal: 8,
-    height: 36,
+    height: 32,
     marginRight: 6,
     backgroundColor: "#fff",
   },
@@ -34,7 +34,7 @@ export default StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingVertical: 6,
+    paddingVertical: 2,
     paddingHorizontal: 8,
     backgroundColor: "#fff",
     borderRadius: 6,
@@ -55,4 +55,3 @@ export default StyleSheet.create({
     marginTop: 6,
   },
 });
-    

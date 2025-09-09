@@ -44,7 +44,7 @@ export default function ToDoList({ selectedDay, tasks, setTasks }) {
 
   return (
     <View style={styles.todoContainer}>
-      <Text style={styles.todoTitle}>To Do List</Text>
+      <Text style={styles.todoTitle}>Tareas</Text>
 
       <View style={styles.todoInputContainer}>
         <TextInput

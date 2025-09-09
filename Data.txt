@@ -146,3 +146,7 @@ y lograr el scroll automatico al dia de hoy.
 
 43| ToDoList.js:
 -Se agrega la funcion de lista de pendientes a Calendar. Se guarda en el Storage, resta ver el borrado general de datos.
+
+44| Calendar Crash:
+-Se arregla un Error que tiraba la App cuando en el calendario seleccionaba un dia que no tenia checkin,
+como por ejemplo en el 2do tramo de un nocturno.
