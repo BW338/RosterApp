@@ -43,7 +43,7 @@ useEffect(() => {
 useEffect(() => {
   const loadRoster = async () => {
     if (route.params?.roster?.length > 0) {
-      console.log("📌 Roster cargado desde route.params:", route.params.roster);
+    //  console.log("📌 Roster cargado desde route.params:", route.params.roster);
       setRoster(route.params.roster);
     } else {
       const saved = await loadRosterFromStorage();

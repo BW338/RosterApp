@@ -150,3 +150,6 @@ y lograr el scroll automatico al dia de hoy.
 44| Calendar Crash:
 -Se arregla un Error que tiraba la App cuando en el calendario seleccionaba un dia que no tenia checkin,
 como por ejemplo en el 2do tramo de un nocturno.
+
+45| Logs en parseRosterText:
+-Agrego Logs como para ver que es la info de cada dia y como se parsea la info del PDF.

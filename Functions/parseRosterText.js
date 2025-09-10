@@ -133,105 +133,156 @@ export const parseRosterText = (text) => {
       let lastFlightExtraTimes = [];
       let firstCheckinOfDay = null;
 
-      flightTokens.forEach((ft) => {
-        let tokens = ft.trim().split(" ").filter(Boolean);
-        if (/^\d{1,2}[A-Z]{3}$/i.test(tokens[0])) tokens.shift();
+flightTokens.forEach((ft) => {
+  let tokens = ft.trim().split(" ").filter(Boolean);
+  if (/^\d{1,2}[A-Z]{3}$/i.test(tokens[0])) tokens.shift();
 
-        // Días no operativos / notas
-        if (/^REST|LAYOVER|STBY|OFF$/.test(tokens[0])) {
-          day.note = tokens[0];
-          return;
-        }
+  // Días no operativos / notas
+  if (/^REST|LAYOVER|STBY|OFF$/.test(tokens[0])) {
+    day.note = tokens[0];
+    return;
+  }
 
-        // Actividades que no son vuelos OP
-        if (["*", "D/L", "ESM", "GUA", "ELD", "TOF", "VAC", "MED", "HTL", "VOP"].includes(tokens[0])) {
-          day.flights.push({
-            type: tokens[0],
-            origin: tokens[1] || null,
-            depTime: tokens[2] || null,
-            destination: tokens[3] || null,
-            arrTime: tokens[4] || null,
-            checkin: null,
-            checkout: null,
-            aircraft: null,
-          });
-          return;
-        }
+  // Actividades que no son vuelos OP
+  if (["*", "D/L", "ESM", "GUA", "ELD", "TOF", "VAC", "MED", "HTL", "VOP"].includes(tokens[0])) {
+    day.flights.push({
+      type: tokens[0],
+      origin: tokens[1] || null,
+      depTime: tokens[2] || null,
+      destination: tokens[3] || null,
+      arrTime: tokens[4] || null,
+      checkin: null,
+      checkout: null,
+      aircraft: null,
+    });
+    return;
+  }
 
-        // Vuelos OP
-        const startsWithOP = tokens[0] === "OP";
-        const idxFlight = startsWithOP ? 1 : 0;
-        const flightNumber = tokens[idxFlight];
-        if (!/^AR\d+/.test(flightNumber)) return;
+  // --- NUEVO: todos los vuelos empiezan con "AR" ---
+  const flightNumberIdx = tokens.findIndex(t => /^AR\d+/.test(t));
+  if (flightNumberIdx === -1) return; // no es un vuelo
 
-        let rest = tokens.slice(idxFlight + 1);
+  const flightNumber = tokens[flightNumberIdx];
+  let rest = tokens.slice(flightNumberIdx + 1);
 
-        // Detectar check-in
-        let checkin = null;
-        if (rest.length > 0 && isTime(rest[0])) {
-          checkin = rest[0];
-          rest = rest.slice(1);
-          if (!firstCheckinOfDay) firstCheckinOfDay = checkin;
-        }
+  // Detectar check-in
+  let checkin = null;
+  if (rest.length > 0 && isTime(rest[0])) {
+    checkin = rest[0];
+    rest = rest.slice(1);
+    if (!firstCheckinOfDay) firstCheckinOfDay = checkin;
+  }
 
-        // Buscar aeropuertos
-        const airportIdxs = [];
-        for (let k = 0; k < rest.length; k++) {
-          if (isAirport(rest[k])) airportIdxs.push(k);
-          if (airportIdxs.length === 2) break;
-        }
-        let origin = airportIdxs[0] !== undefined ? rest[airportIdxs[0]] : null;
-        let destination = airportIdxs[1] !== undefined ? rest[airportIdxs[1]] : null;
+  // Buscar aeropuertos
+  const airportIdxs = [];
+  for (let k = 0; k < rest.length; k++) {
+    if (isAirport(rest[k])) airportIdxs.push(k);
+    if (airportIdxs.length === 2) break;
+  }
+  let origin = airportIdxs[0] !== undefined ? rest[airportIdxs[0]] : null;
+  let destination = airportIdxs[1] !== undefined ? rest[airportIdxs[1]] : null;
 
-        // Horarios
-        let depTime = null;
-        let arrTime = null;
-        let checkout = null;
-        if (airportIdxs.length >= 1) {
-          for (let k = airportIdxs[0] + 1; k < rest.length; k++) {
-            if (isTime(rest[k])) { depTime = rest[k]; break; }
-          }
-        }
-        if (airportIdxs.length >= 2) {
-          const foundTimes = [];
-          for (let k = airportIdxs[1] + 1; k < rest.length; k++) {
-            if (isTime(rest[k])) {
-              foundTimes.push(rest[k]);
-              if (foundTimes.length === 2) break;
-            }
-          }
-          arrTime = foundTimes[0] || null;
-          checkout = foundTimes[1] || null;
-        }
+  // Horarios
+  let depTime = null;
+  let arrTime = null;
+  let checkout = null;
+  if (airportIdxs.length >= 1) {
+    for (let k = airportIdxs[0] + 1; k < rest.length; k++) {
+      if (isTime(rest[k])) { depTime = rest[k]; break; }
+    }
+  }
+  if (airportIdxs.length >= 2) {
+    const foundTimes = [];
+    for (let k = airportIdxs[1] + 1; k < rest.length; k++) {
+      if (isTime(rest[k])) {
+        foundTimes.push(rest[k]);
+        if (foundTimes.length === 2) break;
+      }
+    }
+    arrTime = foundTimes[0] || null;
+    checkout = foundTimes[1] || null;
+  }
 
-        // Equipo
-        const isAircraft = (tk) => /^(?:\d{3}|\d{2}[A-Z]|[A-Z]\d{2,3})$/.test(tk);
-        let aircraft = null;
-        for (let k = rest.length - 1; k >= 0; k--) {
-          const tk = (rest[k] || "").trim();
-          if (isTime(tk)) continue;
-          if (isAirport(tk)) continue;
-          if (/^(?:TSV:|TV:|Crew|Web|Portal)$/i.test(tk)) continue;
-          if (/^\d+(?:\.\d+){2,}$/.test(tk)) continue;
-          if (isAircraft(tk)) { aircraft = tk.toUpperCase(); break; }
-        }
+  // Equipo
+  const isAircraft = (tk) => /^(?:\d{3}|\d{2}[A-Z]|[A-Z]\d{2,3})$/.test(tk);
+  let aircraft = null;
+  for (let k = rest.length - 1; k >= 0; k--) {
+    const tk = (rest[k] || "").trim();
+    if (isTime(tk)) continue;
+    if (isAirport(tk)) continue;
+    if (/^(?:TSV:|TV:|Crew|Web|Portal)$/i.test(tk)) continue;
+    if (/^\d+(?:\.\d+){2,}$/.test(tk)) continue;
+    if (isAircraft(tk)) { aircraft = tk.toUpperCase(); break; }
+  }
 
-        // Últimos 3 horarios para TV/TSV
-        const timeMatches = rest.filter(isTime);
-        if (timeMatches.length >= 3) lastFlightExtraTimes = timeMatches.slice(-3);
+  // Últimos 3 horarios para TV/TSV
+  const timeMatches = rest.filter(isTime);
+  if (timeMatches.length >= 3) lastFlightExtraTimes = timeMatches.slice(-3);
 
-        day.flights.push({
-          type: "OP",
-          flightNumber,
-          origin,
-          depTime,
-          destination,
-          arrTime,
-          checkin,
-          checkout,
-          aircraft
-        });
+  // --- Detectar vuelos que cruzan medianoche ---
+  if (depTime && arrTime) {
+    const depParts = depTime.split(":").map(Number);
+    const arrParts = arrTime.split(":").map(Number);
+    const depMinutes = depParts[0] * 60 + depParts[1];
+    const arrMinutes = arrParts[0] * 60 + arrParts[1];
+
+    if (arrMinutes < depMinutes && day.fullDate) {
+      // Primer tramo → mismo día
+      day.flights.push({
+        type: "OP",
+        flightNumber,
+        origin,
+        depTime,
+        destination,
+        arrTime: null,
+        checkin,
+        checkout: null,
+        aircraft
       });
+
+      // Segundo tramo → siguiente día
+      const nextDate = new Date(day.fullDate.getFullYear(), day.fullDate.getMonth(), day.fullDate.getDate() + 1);
+      const nextDay = parsed.find(d => d.fullDate?.getTime() === nextDate.getTime()) || {
+        date: null,
+        fullDate: nextDate,
+        flights: [],
+        note: null,
+        tv: null,
+        tsv: null,
+        checkin: null
+      };
+      if (!parsed.includes(nextDay)) parsed.push(nextDay);
+
+      nextDay.flights.push({
+        type: "OP",
+        flightNumber,
+        origin: destination,
+        depTime: arrTime,
+        destination: origin,
+        arrTime: checkout,
+        checkin: null,
+        checkout,
+        aircraft
+      });
+
+      return;
+    }
+  }
+
+  // Vuelo normal
+  day.flights.push({
+    type: "OP",
+    flightNumber,
+    origin,
+    depTime,
+    destination,
+    arrTime,
+    checkin,
+    checkout,
+    aircraft
+  });
+});
+
 
       // TV / TSV
       if (lastFlightExtraTimes.length >= 3) {
@@ -244,7 +295,10 @@ export const parseRosterText = (text) => {
 
       lastDayNumber = parseInt(dayNumberMatch[1], 10);
       if (day.flights.length > 0 || day.note) parsed.push(day);
+        console.log("📅 Día parseado:", JSON.stringify(day, null, 2));
+
     }
+
   }
 
   return parsed;
