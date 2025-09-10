@@ -157,9 +157,12 @@ como por ejemplo en el 2do tramo de un nocturno.
 46| Nightflight detection:
 -Detectamos vuelos nocturnos en el log y suprimimos algunos Alert que molestaban.
 
-47| Refact:
+47| Refact #1:
 -Refactorizamos parseRosterText
 *****la deteccion de nocturnos no funciona como creia.
 
-48| Refact:
+48| Refact #2:
+-Refactorizamos parseRosterText
+
+49| Refact #3:
 -Refactorizamos parseRosterText
