@@ -1,6 +1,7 @@
 // parseRosterText.js
 import { MONTH_ABBREVIATIONS } from "./constants.js";
 import { detectNightFlights } from "./nightFlights.js";
+import { normalizeDay, isTime, isAirport, getLastDayOfMonth } from "./utils.js";
 
 /**
  * Parsea el texto del roster y devuelve un array de días con sus vuelos.
@@ -10,29 +11,22 @@ import { detectNightFlights } from "./nightFlights.js";
 export const parseRosterText = (text) => {
   if (!text) return [];
 
-  // --- INICIO: detectar rango de fechas del encabezado (ej: "23AUG25 - 01OCT25") ---
+  // Detectar rango de fechas
   const headerRangeRegex = /(\d{2})([A-Z]{3})(\d{2})\s*-\s*(\d{2})([A-Z]{3})(\d{2})/;
   const headerMatch = text.match(headerRangeRegex);
 
   let startDay, startMonthIndex, startYear, endMonthIndex, endYear;
   if (headerMatch) {
-    const [
-      ,
-      startDayStr, startMonthStr, startYearStr,
-      _endDayStr, endMonthStr, endYearStr
-    ] = headerMatch;
-
+    const [, startDayStr, startMonthStr, startYearStr, _endDayStr, endMonthStr, endYearStr] = headerMatch;
     startDay = parseInt(startDayStr, 10);
     startMonthIndex = MONTH_ABBREVIATIONS.indexOf(startMonthStr.toUpperCase());
     startYear = 2000 + parseInt(startYearStr, 10);
     endMonthIndex = MONTH_ABBREVIATIONS.indexOf(endMonthStr.toUpperCase());
     endYear = 2000 + parseInt(endYearStr, 10);
   }
-  // --- FIN rango fechas ---
 
-  // --- LIMPIEZA: eliminamos headers, pies de página y basura ---
+  // Limpiar headers y basura
   let clean = text.replace(/\s+/g, " ").trim();
-
   const ignorePatterns = [
     /Crew Web Portal.*?Individual Roster/gi,
     /\d{2}[A-Z]{3}\.\d{2} \d{2}:\d{2}/g,
@@ -44,30 +38,9 @@ export const parseRosterText = (text) => {
     /TSV: \d{1,3}:\d{2}/gi,
     /TV: \d{1,3}:\d{2}/gi
   ];
-  ignorePatterns.forEach((p) => { clean = clean.replace(p, ""); });
+  ignorePatterns.forEach(p => { clean = clean.replace(p, ""); });
 
-  // --- FUNCIONES LOCALES (temporal, luego se migran a utils.js) ---
-  const spanishToEnglishDay = {
-    AGO: "AUG", SEP: "SEP", OCT: "OCT", NOV: "NOV",
-    DIC: "DEC", ENE: "JAN", FEB: "FEB", MAR: "MAR",
-    ABR: "APR", MAY: "MAY", JUN: "JUN", JUL: "JUL"
-  };
-
-  const getLastDayOfMonth = (year, monthIndex) =>
-    new Date(year, monthIndex + 1, 0).getDate();
-
-  const normalizeDay = (dayStr) => {
-    const match = dayStr.match(/^(\d{1,2})([A-Z]{3})$/);
-    if (!match) return dayStr;
-    const dayNum = match[1];
-    const engDay = spanishToEnglishDay[match[2]] || match[2];
-    return `${dayNum}${engDay}`;
-  };
-
-  const isTime = (t) => /^\d{1,2}:\d{2}$/.test(t);
-  const isAirport = (t) => /^[A-Z]{3}$/.test(t);
-
-  // --- SPLIT POR DÍAS ---
+  // Split por días
   const dayRegex = /(\d{1,2}[A-Z]{3})/g;
   const parts = clean.split(dayRegex).filter(Boolean);
 
@@ -77,8 +50,6 @@ export const parseRosterText = (text) => {
   for (let i = 0; i < parts.length; i++) {
     if (/\d{1,2}[A-Z]{3}/.test(parts[i])) {
       const normalizedDate = normalizeDay(parts[i]);
-
-      // --- Construir fullDate coherente ---
       const dayNumberMatch = normalizedDate.match(/^(\d+)/);
       let fullDate = null;
 
@@ -131,17 +102,15 @@ export const parseRosterText = (text) => {
       let lastFlightExtraTimes = [];
       let firstCheckinOfDay = null;
 
-      flightTokens.forEach((ft) => {
+      flightTokens.forEach(ft => {
         let tokens = ft.trim().split(" ").filter(Boolean);
         if (/^\d{1,2}[A-Z]{3}$/i.test(tokens[0])) tokens.shift();
 
-        // Días no operativos
         if (/^REST|LAYOVER|STBY|OFF$/.test(tokens[0])) {
           day.note = tokens[0];
           return;
         }
 
-        // Actividades no vuelos OP
         if (["*", "D/L", "ESM", "GUA", "ELD", "TOF", "VAC", "MED", "HTL", "VOP"].includes(tokens[0])) {
           day.flights.push({
             type: tokens[0],
@@ -156,7 +125,7 @@ export const parseRosterText = (text) => {
           return;
         }
 
-        // Vuelos OP (empiezan con AR)
+        // Vuelos OP
         const flightNumberIdx = tokens.findIndex(t => /^AR\d+/.test(t));
         if (flightNumberIdx === -1) return;
 
@@ -272,7 +241,7 @@ export const parseRosterText = (text) => {
     }
   }
 
-  // --- Detectar vuelos nocturnos usando el módulo ---
+  // Detectar vuelos nocturnos usando módulo externo
   detectNightFlights(parsed);
 
   return parsed;

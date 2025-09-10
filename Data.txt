@@ -160,3 +160,6 @@ como por ejemplo en el 2do tramo de un nocturno.
 47| Refact:
 -Refactorizamos parseRosterText
 *****la deteccion de nocturnos no funciona como creia.
+
+48| Refact:
+-Refactorizamos parseRosterText
