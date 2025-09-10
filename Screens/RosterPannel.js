@@ -46,7 +46,7 @@ const handleClearStorage = async () => {
   try {
     await AsyncStorage.removeItem("roster");
     setRoster([]); // limpiamos el estado también
-    Alert.alert("✅ Storage borrado", "Los datos se eliminaron correctamente.");
+//    Alert.alert("✅ Storage borrado", "Los datos se eliminaron correctamente.");
   } catch (error) {
     console.error("Error borrando storage:", error);
     Alert.alert("❌ Error", "No se pudo borrar el storage.");

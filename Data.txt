@@ -153,3 +153,6 @@ como por ejemplo en el 2do tramo de un nocturno.
 
 45| Logs en parseRosterText:
 -Agrego Logs como para ver que es la info de cada dia y como se parsea la info del PDF.
+
+46| Nightflight detection:
+-Detectamos vuelos nocturnos en el log y suprimimos algunos Alert que molestaban.

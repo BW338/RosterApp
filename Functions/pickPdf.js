@@ -8,12 +8,12 @@ import { Alert } from "react-native";
  */
 export async function pickPdfFile() {
   try {
-    console.log("LOG: Abriendo selector de PDF");
+  //  console.log("LOG: Abriendo selector de PDF");
     const result = await DocumentPicker.getDocumentAsync({ type: "application/pdf" });
 
     if (!result.canceled && result.assets?.length > 0) {
       const uri = result.assets[0].uri;
-      console.log("LOG: Leyendo PDF como Base64...");
+//      console.log("LOG: Leyendo PDF como Base64...");
       const base64 = await FileSystem.readAsStringAsync(uri, {
         encoding: FileSystem.EncodingType.Base64,
       });
