@@ -157,12 +157,57 @@ export const parseFlights = (flightTokens, fullDate, parsedDays) => {
     });
   });
 
-  // Asignar TV y TSV desde lastFlightExtraTimes
+  // Asignar TV desde lastFlightExtraTimes (solo TV, TSV se calculará después)
   if (lastFlightExtraTimes.length >= 2) {
-    [tv, tsv] = lastFlightExtraTimes;
+    tv = lastFlightExtraTimes[0]; // Solo tomamos TV del texto
   } else if (lastFlightExtraTimes.length === 1) {
     tv = lastFlightExtraTimes[0];
   }
 
-  return { flights, note, tv, tsv, checkin: firstCheckinOfDay };
+  // Calcular TSV automáticamente
+  const calculateTSV = (flights, checkin) => {
+    if (!checkin || flights.length === 0) return null;
+    
+    // Encontrar el último checkout o arrival time del día
+    let lastEndTime = null;
+    for (let i = flights.length - 1; i >= 0; i--) {
+      const flight = flights[i];
+      if (flight.checkout) {
+        lastEndTime = flight.checkout;
+        break;
+      } else if (flight.arrTime) {
+        lastEndTime = flight.arrTime;
+        break;
+      }
+    }
+    
+    if (!lastEndTime) return null;
+    
+    // Convertir tiempos a minutos para calcular diferencia
+    const timeToMinutes = (time) => {
+      const [hours, minutes] = time.split(':').map(Number);
+      return hours * 60 + minutes;
+    };
+    
+    const minutesToTime = (totalMinutes) => {
+      const hours = Math.floor(totalMinutes / 60);
+      const minutes = totalMinutes % 60;
+      return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+    };
+    
+    let checkinMinutes = timeToMinutes(checkin);
+    let endMinutes = timeToMinutes(lastEndTime);
+    
+    // Si el último tiempo es menor que el checkin, significa que cruzó medianoche
+    if (endMinutes < checkinMinutes) {
+      endMinutes += 24 * 60; // Agregar 24 horas
+    }
+    
+    const diffMinutes = endMinutes - checkinMinutes;
+    return minutesToTime(diffMinutes);
+  };
+
+  const calculatedTSV = calculateTSV(flights, firstCheckinOfDay);
+
+  return { flights, note, tv, tsv: calculatedTSV, checkin: firstCheckinOfDay };
 };
