@@ -67,79 +67,29 @@ export const parseFlights = (flightTokens, fullDate, parsedDays) => {
     const aircraft = rest.reverse().find(tk => !isTime(tk) && !isAirport(tk) && isAircraft(tk)) || null;
     rest.reverse(); // volver al orden original
 
-    // --- NUEVA LÓGICA PARA TV/TSV ---
-    // Buscar tiempos que aparecen después del avión y que no son dep/arr/checkout
-    const allTimes = rest.filter(isTime);
-    
-    // Si hay más de 3 tiempos, los últimos probablemente sean TV y TSV
-    // Formato típico: checkin, dep, arr, checkout, TV, TSV
-    // o dep, arr, checkout, TV, TSV (sin checkin)
-    if (allTimes.length >= 5) {
-      // Caso: checkin, dep, arr, checkout, TV, TSV
-      lastFlightExtraTimes = allTimes.slice(-2); // tomar los últimos 2
-    } else if (allTimes.length === 4 && !checkin) {
-      // Caso: dep, arr, checkout, TV (falta TSV)
-      // En este caso el último tiempo podría ser TV
-      const potentialTv = allTimes[allTimes.length - 1];
-      // Solo asignamos si este tiempo no es checkout
-      if (potentialTv !== checkout) {
-        lastFlightExtraTimes = [potentialTv];
+    // --- Lógica para TV/TSV ---
+    // Si es un tramo sin destino, los últimos tiempos son probablemente Rq, TV, TSV.
+    if (destination === null) {
+      const timeMatches = rest.filter(isTime);
+      // depTime ya fue extraído. Los que quedan son los totales.
+      const totalTimes = timeMatches.slice(1);
+      if (totalTimes.length >= 2) {
+        // Asumimos formato [..., TV, TSV]
+        tv = totalTimes[totalTimes.length - 2];
+        tsv = totalTimes[totalTimes.length - 1];
       }
-    }
-
-    // También buscar patrones específicos como "02:50 02:50 05:00" al final
-    // donde los dos primeros son TV repetido y el último es TSV
-    const timePattern = rest.join(" ");
-    const tripleTimeMatch = timePattern.match(/(\d{1,2}:\d{2})\s+\1\s+(\d{1,2}:\d{2})(?:\s|$)/);
-    if (tripleTimeMatch) {
-      lastFlightExtraTimes = [tripleTimeMatch[1], tripleTimeMatch[2]]; // TV, TSV
-    }
-
-    // --- Detección de vuelos que cruzan medianoche ---
-    if (depTime && arrTime && fullDate) {
-      const depMinutes = depTime.split(":").map(Number).reduce((h, m) => h * 60 + m);
-      const arrMinutes = arrTime.split(":").map(Number).reduce((h, m) => h * 60 + m);
-      if (arrMinutes < depMinutes) {
-        flights.push({ 
-          type: "OP", 
-          flightNumber, 
-          origin, 
-          depTime, 
-          destination, 
-          arrTime: null, 
-          checkin, 
-          checkout: null, 
-          aircraft, 
-          raw: tokens.join(" ") 
-        });
-
-        const nextDate = new Date(fullDate.getFullYear(), fullDate.getMonth(), fullDate.getDate() + 1);
-        let nextDay = parsedDays.find(d => d.fullDate?.getTime() === nextDate.getTime());
-        if (!nextDay) {
-          nextDay = { 
-            date: null, 
-            fullDate: nextDate, 
-            flights: [], 
-            note: null, 
-            tv: null, 
-            tsv: null, 
-            checkin: null 
-          };
-          parsedDays.push(nextDay);
+    } else if (checkout) {
+      // Si hay checkout, puede haber Rq, TV, TSV al final
+      const timePattern = rest.join(" ");
+      const totalsMatch = timePattern.match(/(\d{1,2}:\d{2})\s+(\d{1,2}:\d{2})\s+(\d{1,2}:\d{2})\s*$/);
+      if (totalsMatch) {
+        // Heurística: si los tres últimos tiempos no son parte de dep/arr/checkout, son Rq, TV y TSV
+        const checkoutIndex = rest.lastIndexOf(checkout);
+        const rqIndex = rest.lastIndexOf(totalsMatch[1]);
+        if (rqIndex > checkoutIndex) {
+          tv = totalsMatch[2];
+          tsv = totalsMatch[3];
         }
-        nextDay.flights.push({ 
-          type: "OP", 
-          flightNumber, 
-          origin: destination, 
-          depTime: arrTime, 
-          destination: null, 
-          arrTime: checkout, 
-          checkin: null, 
-          checkout, 
-          aircraft, 
-          raw: tokens.join(" ") 
-        });
-        return;
       }
     }
 
@@ -157,57 +107,5 @@ export const parseFlights = (flightTokens, fullDate, parsedDays) => {
     });
   });
 
-  // Asignar TV desde lastFlightExtraTimes (solo TV, TSV se calculará después)
-  if (lastFlightExtraTimes.length >= 2) {
-    tv = lastFlightExtraTimes[0]; // Solo tomamos TV del texto
-  } else if (lastFlightExtraTimes.length === 1) {
-    tv = lastFlightExtraTimes[0];
-  }
-
-  // Calcular TSV automáticamente
-  const calculateTSV = (flights, checkin) => {
-    if (!checkin || flights.length === 0) return null;
-    
-    // Encontrar el último checkout o arrival time del día
-    let lastEndTime = null;
-    for (let i = flights.length - 1; i >= 0; i--) {
-      const flight = flights[i];
-      if (flight.checkout) {
-        lastEndTime = flight.checkout;
-        break;
-      } else if (flight.arrTime) {
-        lastEndTime = flight.arrTime;
-        break;
-      }
-    }
-    
-    if (!lastEndTime) return null;
-    
-    // Convertir tiempos a minutos para calcular diferencia
-    const timeToMinutes = (time) => {
-      const [hours, minutes] = time.split(':').map(Number);
-      return hours * 60 + minutes;
-    };
-    
-    const minutesToTime = (totalMinutes) => {
-      const hours = Math.floor(totalMinutes / 60);
-      const minutes = totalMinutes % 60;
-      return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
-    };
-    
-    let checkinMinutes = timeToMinutes(checkin);
-    let endMinutes = timeToMinutes(lastEndTime);
-    
-    // Si el último tiempo es menor que el checkin, significa que cruzó medianoche
-    if (endMinutes < checkinMinutes) {
-      endMinutes += 24 * 60; // Agregar 24 horas
-    }
-    
-    const diffMinutes = endMinutes - checkinMinutes;
-    return minutesToTime(diffMinutes);
-  };
-
-  const calculatedTSV = calculateTSV(flights, firstCheckinOfDay);
-
-  return { flights, note, tv, tsv: calculatedTSV, checkin: firstCheckinOfDay };
+  return { flights, note, tv, tsv, checkin: firstCheckinOfDay };
 };

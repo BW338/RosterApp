@@ -178,3 +178,6 @@ como por ejemplo en el 2do tramo de un nocturno.
 
 53| TSV:
 -El valor se calcular comparando checkin y fin.
+
+54| Calendar:
+-Se ajusta la logica de nocturnos a calendar, queda funcionando muy bien, resta formatear la info.

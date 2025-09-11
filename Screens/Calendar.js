@@ -90,6 +90,8 @@ export default function CalendarScreen() {
 
   const handleDayPress = (day) => {
     const found = roster.find((d) => d.fullDate?.startsWith(day.dateString));
+    console.log("🗓️ Día seleccionado:", day.dateString);
+    console.log("🔍 Datos encontrados para el día:", JSON.stringify(found, null, 2));
     setSelectedDay(found || null);
   };
 
@@ -100,9 +102,10 @@ const renderTimeline = (dayData) => {
   let depFirst, end;
 
   if (type === "vuelo") {
-    depFirst = dayData.checkin || dayData.flights[0]?.depTime;
     const lastFlight = dayData.flights[dayData.flights.length - 1];
     end = lastFlight?.checkout || lastFlight?.arrTime;
+    // Si el día tiene checkin, es el día de salida. Si no, es el de llegada.
+    depFirst = dayData.checkin || (dayData.flights.length > 0 ? "00:00" : null);
   } else if (type === "guardia" || type === "esm") {
     depFirst = "00:00";
     end = "23:59";
@@ -129,8 +132,19 @@ const renderTimeline = (dayData) => {
   const startHour = startH + startM / 60;
   const endHour = endH + endM / 60;
 
+  const isOvernight = endHour < startHour;
+
   const blocks = Array.from({ length: 24 }, (_, h) => {
-    const active = h >= Math.floor(startHour) && h < Math.ceil(endHour);
+    let active = false;
+    if (isOvernight && dayData.checkin) {
+      // Es un servicio nocturno, y estamos en el día de SALIDA.
+      // Marcar desde el check-in hasta el final del día.
+      active = h >= Math.floor(startHour);
+    } else {
+      // Es un servicio diurno, O estamos en el día de LLEGADA de un nocturno.
+      // Marcar desde la hora de inicio hasta la de fin.
+      active = h >= Math.floor(startHour) && h < Math.ceil(endHour);
+    }
     return (
       <View
         key={h}
@@ -146,6 +160,21 @@ const renderTimeline = (dayData) => {
       <View style={styles.timeline}>{blocks}</View>
     </View>
   );
+};
+
+const formatFlightInfo = (day) => {
+  if (!day) return "";
+  if (!day.flights?.length && !day.checkin) {
+    return "Sin actividad";
+  }
+
+  const firstFlight = day.flights?.[0];
+  const lastFlight = day.flights?.[day.flights.length - 1];
+
+  const checkin = day.checkin || firstFlight?.depTime || "--:--";
+  const checkout = lastFlight?.checkout || lastFlight?.arrTime || "--:--";
+
+  return `Checkin: ${checkin} | Fin: ${checkout}`;
 };
 
 
@@ -187,12 +216,7 @@ const renderTimeline = (dayData) => {
         {selectedDay ? (
           <>
             <Text style={styles.title}>
-              {`${new Date(selectedDay.fullDate).toLocaleDateString("es-ES", { day: "2-digit" })} ${new Date(selectedDay.fullDate)
-                .toLocaleDateString("es-ES", { weekday: "long" })
-                .charAt(0)
-                .toUpperCase()}${new Date(selectedDay.fullDate)
-                .toLocaleDateString("es-ES", { weekday: "long" })
-                .slice(1)} | Checkin: ${selectedDay.checkin || selectedDay.flights[0]?.depTime || "--:--"}`}
+              {`${new Date(selectedDay.fullDate).toLocaleDateString("es-ES", { day: "2-digit", weekday: "long" }).replace(/^\w/, c => c.toUpperCase())} | ${formatFlightInfo(selectedDay)}`}
             </Text>
 
             {selectedDay.flights?.length > 0 ? (
