@@ -166,3 +166,6 @@ como por ejemplo en el 2do tramo de un nocturno.
 
 49| Refact #3:
 -Refactorizamos parseRosterText
+
+50| Nightflight en dos dias:
+-Logro distribuir la info de Nightflight en dos dias, pero no es la solucion definitiva, resta seguir trabajando esto.

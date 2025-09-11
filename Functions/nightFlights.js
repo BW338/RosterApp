@@ -1,49 +1,53 @@
 // nightFlights.js
+import { isTime } from "./parseUtils.js";
+
 /**
- * Detecta vuelos nocturnos entre días consecutivos.
- * @param {Array} parsed - Array de objetos día con sus vuelos.
+ * Corrige vuelos que se extienden por dos días, combinando la información
+ * y asignando el vuelo completo al día de aterrizaje.
+ * @param {Array} days - array de días ya parseados
  */
-export const detectNightFlights = (parsed) => {
-  for (let i = 0; i < parsed.length - 1; i++) {
-    const today = parsed[i];
-    const tomorrow = parsed[i + 1];
+export const detectNightFlights = (days) => {
+  for (let i = 0; i < days.length - 1; i++) {
+    const currentDay = days[i];
+    const nextDay = days[i + 1];
+    if (!currentDay?.flights?.length || !nextDay?.flights?.length) {
+      continue;
+    }
 
-    today.flights.forEach(f1 => {
-      if (f1.type !== "OP" || !f1.depTime) return;
+    const lastFlightOfCurrentDay = currentDay.flights[currentDay.flights.length - 1];
+    const firstFlightOfNextDay = nextDay.flights[0];
 
-      tomorrow.flights.forEach(f2 => {
-        if (f2.type !== "OP" || !f2.depTime) return;
+    // Patrón: el último vuelo del día es una salida incompleta, y el primero del día siguiente
+    // es una llegada incompleta con el mismo número de vuelo.
+    if (
+      lastFlightOfCurrentDay.type === 'OP' &&
+      lastFlightOfCurrentDay.destination === null &&
+      firstFlightOfNextDay.type === 'OP' &&
+      firstFlightOfNextDay.flightNumber === lastFlightOfCurrentDay.flightNumber &&
+      firstFlightOfNextDay.destination === null // Indica que fue mal parseado como salida
+    ) {
+      // Re-parsear el checkout de la parte de llegada
+      const rawArrivalTokens = firstFlightOfNextDay.raw.split(' ').filter(Boolean);
+      const arrivalTimes = rawArrivalTokens.filter(isTime);
+      const checkoutTime = arrivalTimes.length > 1 ? arrivalTimes[1] : null;
 
-        // Caso 1: mismo número de vuelo en dos días
-        if (f1.flightNumber === f2.flightNumber) {
-          console.log("🌙 Vuelo nocturno (mismo número):", {
-            dia1: today.fullDate?.toDateString(),
-            flight: f1.flightNumber,
-            arr: f1.arrTime,
-            dia2: tomorrow.fullDate?.toDateString(),
-            dep: f2.depTime
-          });
-        }
+      // Construir el vuelo completo
+      const completeFlight = {
+        ...lastFlightOfCurrentDay,
+        destination: firstFlightOfNextDay.origin, // El origen mal parseado es el destino real
+        arrTime: firstFlightOfNextDay.depTime,   // La salida mal parseada es la llegada real
+        checkout: checkoutTime,
+      };
 
-        // Caso 2: vuelos consecutivos distintos que se enganchan entre medianoche
-        if (f1.arrTime && f2.depTime) {
-          const [arrH, arrM] = f1.arrTime.split(":").map(Number);
-          const [depH, depM] = f2.depTime.split(":").map(Number);
-          const arrMinutes = arrH * 60 + arrM;
-          const depMinutes = depH * 60 + depM;
+      // Mover el vuelo completo al día de aterrizaje (nextDay)
+      nextDay.flights[0] = completeFlight;
+      currentDay.flights.pop(); // Eliminar la parte de salida del día anterior
 
-          if (arrMinutes > depMinutes) {
-            console.log("🌙 Vuelo nocturno (cadena distinta):", {
-              dia1: today.fullDate?.toDateString(),
-              flight1: f1.flightNumber,
-              arr: f1.arrTime,
-              dia2: tomorrow.fullDate?.toDateString(),
-              flight2: f2.flightNumber,
-              dep: f2.depTime
-            });
-          }
-        }
-      });
-    });
+      // Mover los totales (TV, TSV) al día de aterrizaje
+      nextDay.tv = currentDay.tv;
+      nextDay.tsv = currentDay.tsv;
+      currentDay.tv = null;
+      currentDay.tsv = null;
+    }
   }
 };

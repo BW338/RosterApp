@@ -2,7 +2,7 @@
 import { MONTH_ABBREVIATIONS } from "./constants.js";
 import { detectNightFlights } from "./nightFlights.js";
 import { normalizeDay, getLastDayOfMonth } from "./parseUtils.js";
-import { parseFlights } from "./parseFlights.js"; 
+import { parseFlights } from "./parseFlights.js";
 
 /**
  * Parsea el texto del roster y devuelve un array de días con sus vuelos.
@@ -12,7 +12,7 @@ import { parseFlights } from "./parseFlights.js";
 export const parseRosterText = (text) => {
   if (!text) return [];
 
-  // Detectar rango de fechas
+  // --- Detectar rango de fechas ---
   const headerRangeRegex = /(\d{2})([A-Z]{3})(\d{2})\s*-\s*(\d{2})([A-Z]{3})(\d{2})/;
   const headerMatch = text.match(headerRangeRegex);
 
@@ -26,7 +26,7 @@ export const parseRosterText = (text) => {
     endYear = 2000 + parseInt(endYearStr, 10);
   }
 
-  // Limpiar headers y basura
+  // --- Limpiar texto ---
   let clean = text.replace(/\s+/g, " ").trim();
   const ignorePatterns = [
     /Crew Web Portal.*?Individual Roster/gi,
@@ -41,7 +41,7 @@ export const parseRosterText = (text) => {
   ];
   ignorePatterns.forEach(p => { clean = clean.replace(p, ""); });
 
-  // Split por días
+  // --- Split por días ---
   const dayRegex = /(\d{1,2}[A-Z]{3})/g;
   const parts = clean.split(dayRegex).filter(Boolean);
 
@@ -62,24 +62,22 @@ export const parseRosterText = (text) => {
           currentMonthIndex = startMonthIndex;
           currentYear = startYear;
         } else {
-          const previousDayObject = parsed[parsed.length - 1];
+          const prev = parsed[parsed.length - 1];
           if (dayNumber < lastDayNumber) {
-            const lastDayOfPrevMonth = getLastDayOfMonth(
-              previousDayObject.fullDate.getFullYear(),
-              previousDayObject.fullDate.getMonth()
+            const lastDayPrev = getLastDayOfMonth(
+              prev.fullDate.getFullYear(),
+              prev.fullDate.getMonth()
             );
-            if (lastDayNumber === lastDayOfPrevMonth) {
-              currentMonthIndex = (previousDayObject.fullDate.getMonth() + 1) % 12;
-              currentYear = currentMonthIndex === 0
-                ? previousDayObject.fullDate.getFullYear() + 1
-                : previousDayObject.fullDate.getFullYear();
+            if (lastDayNumber === lastDayPrev) {
+              currentMonthIndex = (prev.fullDate.getMonth() + 1) % 12;
+              currentYear = currentMonthIndex === 0 ? prev.fullDate.getFullYear() + 1 : prev.fullDate.getFullYear();
             } else {
-              currentMonthIndex = previousDayObject.fullDate.getMonth();
-              currentYear = previousDayObject.fullDate.getFullYear();
+              currentMonthIndex = prev.fullDate.getMonth();
+              currentYear = prev.fullDate.getFullYear();
             }
           } else {
-            currentMonthIndex = previousDayObject.fullDate.getMonth();
-            currentYear = previousDayObject.fullDate.getFullYear();
+            currentMonthIndex = prev.fullDate.getMonth();
+            currentYear = prev.fullDate.getFullYear();
           }
         }
         fullDate = new Date(currentYear, currentMonthIndex, dayNumber);
@@ -95,26 +93,23 @@ export const parseRosterText = (text) => {
         checkin: null
       };
 
-      // Parseamos vuelos usando la función externa
+      // --- Parsear vuelos ---
       const details = parts[i + 1] ? parts[i + 1].trim() : "";
       const flightTokens = details.split(
-        / (?=OP|ESM|\*|D\/L|REST|LAYOVER|STBY|OFF|GUA|VOP|VAC|MED|HTL)/g
+        / (?=OP|AR\d{3,4}Z?|ESM|\*|D\/L|REST|LAYOVER|STBY|OFF|GUA|VOP|VAC|MED|HTL)/g
       );
 
       const { flights, note, tv, tsv, checkin } = parseFlights(flightTokens, fullDate, parsed);
-      day.flights = flights;
-      day.note = note;
-      day.tv = tv;
-      day.tsv = tsv;
-      day.checkin = checkin;
+      Object.assign(day, { flights, note, tv, tsv, checkin });
 
       lastDayNumber = parseInt(dayNumberMatch[1], 10);
       if (day.flights.length > 0 || day.note) parsed.push(day);
     }
   }
 
-  // Detectar vuelos nocturnos usando módulo externo
+  // --- Detectar vuelos nocturnos ---
   detectNightFlights(parsed);
 
+  console.log("💾 JSON final:", JSON.stringify(parsed, null, 2));
   return parsed;
 };
