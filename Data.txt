@@ -172,3 +172,6 @@ como por ejemplo en el 2do tramo de un nocturno.
 
 51| Nightflight solved:
 -Se logro parsear correctamente los vuelos nocturnos, ahora resta corregir algunas cuestiones con datos secundarios como TSV, TE, Etc.
+
+52| TSV & TE:
+-Se corrige la toma del valor TSV.
