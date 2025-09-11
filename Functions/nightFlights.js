@@ -2,52 +2,58 @@
 import { isTime } from "./parseUtils.js";
 
 /**
- * Corrige vuelos que se extienden por dos días, combinando la información
- * y asignando el vuelo completo al día de aterrizaje.
+ * Corrige vuelos nocturnos.
+ * 1. Completa la información del vuelo en el día de salida.
+ * 2. Crea una entrada de "solo llegada" en el día de aterrizaje.
+ * 3. Mueve los totales (TV, TSV) y el checkout al día de aterrizaje.
  * @param {Array} days - array de días ya parseados
  */
 export const detectNightFlights = (days) => {
-  for (let i = 0; i < days.length - 1; i++) {
+  // Iterar hacia atrás para poder eliminar elementos de forma segura
+  for (let i = days.length - 2; i >= 0; i--) {
     const currentDay = days[i];
     const nextDay = days[i + 1];
     if (!currentDay?.flights?.length || !nextDay?.flights?.length) {
       continue;
     }
 
-    const lastFlightOfCurrentDay = currentDay.flights[currentDay.flights.length - 1];
-    const firstFlightOfNextDay = nextDay.flights[0];
+    // Patrón: Buscar un vuelo de salida incompleto (sin destino ni hora de llegada)
+    const departureLeg = currentDay.flights.find(
+      (f) => f.type === "OP" && f.destination === null && f.arrTime === null
+    );
+    if (!departureLeg) continue;
 
-    // Patrón: el último vuelo del día es una salida incompleta, y el primero del día siguiente
-    // es una llegada incompleta con el mismo número de vuelo.
-    if (
-      lastFlightOfCurrentDay.type === 'OP' &&
-      lastFlightOfCurrentDay.destination === null &&
-      firstFlightOfNextDay.type === 'OP' &&
-      firstFlightOfNextDay.flightNumber === lastFlightOfCurrentDay.flightNumber &&
-      firstFlightOfNextDay.destination === null // Indica que fue mal parseado como salida
-    ) {
-      // Re-parsear el checkout de la parte de llegada
-      const rawArrivalTokens = firstFlightOfNextDay.raw.split(' ').filter(Boolean);
-      const arrivalTimes = rawArrivalTokens.filter(isTime);
-      const checkoutTime = arrivalTimes.length > 1 ? arrivalTimes[1] : null;
+    // Patrón: Buscar su parte de llegada en el día siguiente (mal parseada como una salida)
+    const arrivalLegIndex = nextDay.flights.findIndex(
+      (f) =>
+        f.type === "OP" &&
+        f.flightNumber === departureLeg.flightNumber &&
+        f.destination === null
+    );
+    if (arrivalLegIndex === -1) continue;
 
-      // Construir el vuelo completo
-      const completeFlight = {
-        ...lastFlightOfCurrentDay,
-        destination: firstFlightOfNextDay.origin, // El origen mal parseado es el destino real
-        arrTime: firstFlightOfNextDay.depTime,   // La salida mal parseada es la llegada real
-        checkout: checkoutTime,
-      };
+    const arrivalLeg = nextDay.flights[arrivalLegIndex];
 
-      // Mover el vuelo completo al día de aterrizaje (nextDay)
-      nextDay.flights[0] = completeFlight;
-      currentDay.flights.pop(); // Eliminar la parte de salida del día anterior
+    // 1. Completar la información en el vuelo de salida (currentDay)
+    const rawArrivalTokens = arrivalLeg.raw.split(' ').filter(Boolean);
+    const arrivalTimes = rawArrivalTokens.filter(isTime);
+    const finalCheckout = arrivalTimes.length > 1 ? arrivalTimes[1] : null;
+    
+    departureLeg.destination = arrivalLeg.origin; // El "origen" del tramo de llegada es el destino real
+    departureLeg.arrTime = arrivalLeg.depTime; // El "depTime" del tramo de llegada es la hora de arribo real
+    departureLeg.checkout = null; // El checkout ocurre en el día siguiente
 
-      // Mover los totales (TV, TSV) al día de aterrizaje
-      nextDay.tv = currentDay.tv;
-      nextDay.tsv = currentDay.tsv;
-      currentDay.tv = null;
-      currentDay.tsv = null;
-    }
+    // 2. Transformar el tramo de llegada para mostrar solo el arribo
+    arrivalLeg.origin = null;
+    arrivalLeg.depTime = null;
+    arrivalLeg.destination = departureLeg.destination;
+    arrivalLeg.arrTime = departureLeg.arrTime;
+    arrivalLeg.checkout = finalCheckout;
+
+    // 3. Mover los totales (TV, TSV) al día de aterrizaje
+    nextDay.tv = currentDay.tv;
+    nextDay.tsv = currentDay.tsv;
+    currentDay.tv = null;
+    currentDay.tsv = null;
   }
 };
