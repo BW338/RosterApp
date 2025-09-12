@@ -19,7 +19,6 @@ import {
 import { Calendar } from "react-native-calendars";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
-import KeyboardSpacer from "react-native-keyboard-spacer";
 
 // Si tienes ToolBar2 e Info2, mantenelos importados
 // import ToolBar2 from '../components/toolbar-2';
@@ -200,8 +199,7 @@ const ControlFlex = () => {
   return (
     <>
       <StatusBar backgroundColor="#85C1E9" barStyle="dark-content" />
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-       <View style={localStyles.fondoViaticos}>
+      <View style={localStyles.fondoViaticos}>
 
           <Text style={localStyles.tituloFlex}>Control Hr Flex</Text>
 
@@ -268,8 +266,6 @@ const ControlFlex = () => {
               </KeyboardAvoidingView>
             </Modal>
 
-            <KeyboardSpacer />
-
             {/* Info2 y ToolBar2 se mantienen si los tienes */}
             {/* <Info2 infoVisible={infoVisible} setInfoVisible={setInfoVisible} infoOn2={infoOn2} AbrirModal={AbrirModal} abrirRav={abrirRav} /> */}
 
@@ -298,7 +294,7 @@ const ControlFlex = () => {
           {/* <View style={{ width: "100%", position: "absolute", bottom: 0 }}>
             <ToolBar2 Back={Back} AbrirModal={AbrirModal} infoOn2={infoOn2} abrirRav={abrirRav} viaticos={IrAViaticos} />
           </View> */}
-</View>      </TouchableWithoutFeedback>
+      </View>
     </>
   );
 };

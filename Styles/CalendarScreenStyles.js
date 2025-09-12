@@ -3,22 +3,24 @@ import { StyleSheet } from "react-native";
 export default StyleSheet.create({
   container: {
     flex: 1,
-    marginTop:28,
+    marginTop: 28,
     backgroundColor: "#f9f9f963",
   },
-  // ✨ Info del día
+  // Info del día
   infoBox: {
     flex: 1,
-    padding: 6,
+    padding: 12,
     borderTopWidth: 1,
     borderColor: "#2007b1ff",
     backgroundColor: "#fff",
   },
   title: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: "700",
-    marginBottom: 4,
+    marginBottom: 12,
     color: "#222",
+    lineHeight: 22,
+    textAlign: "left",
   },
   empty: {
     fontSize: 14,
@@ -34,6 +36,41 @@ export default StyleSheet.create({
     lineHeight: 22,
   },
 
+  // Contenedor para los horarios checkin/fin (versión antigua)
+  timeInfoContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: 'rgba(103, 58, 183, 0.08)',
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    borderRadius: 8,
+    marginVertical: 8,
+    maxWidth: 200,
+  },
+  timeInfoText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#673ab7',
+  },
+  timeInfoSeparator: {
+    fontSize: 16,
+    fontWeight: '400',
+    color: '#673ab7',
+    marginHorizontal: 8,
+  },
+  timeInfoLabels: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 4,
+    maxWidth: 200,
+  },
+  timeLabel: {
+    fontSize: 12,
+    color: '#666',
+    fontWeight: '500',
+  },
+
   checkinContainer: {
     backgroundColor: 'rgba(103, 58, 183, 0.1)',
     paddingVertical: 8,
@@ -47,43 +84,70 @@ export default StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
-  // 🕒 Timeline de horas
+
+  // Detalles de vuelos
+  flightDetails: {
+    marginVertical: 3,
+    fontSize: 14,
+    color: "#555",
+    backgroundColor: "#f8f8f8",
+    padding: 10,
+    borderRadius: 8,
+    borderLeftWidth: 3,
+    borderLeftColor: "#673ab7",
+    lineHeight: 18,
+  },
+
+  // Timeline de horas
   timelineContainer: {
-    marginTop: 6,
-    borderWidth: 0.5,
-    borderRadius:8,
+    marginTop: 16,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderRadius: 10,
+    borderColor: "#e0e0e0",
+    backgroundColor: "#fafafa",
   },
   timelineTitle: {
     fontSize: 16,
     fontWeight: "600",
-    marginBottom:10,
+    marginBottom: 10,
     color: "#444",
+    textAlign: "center",
   },
   timeline: {
     flexDirection: "row",
     flexWrap: "wrap",
+    padding: 6,
   },
   hourBlock: {
-    width: "14%", // 4 bloques por fila
-    height: 30,
+    width: "13%", // Ajustado para mejor distribución
+    height: 36,
     justifyContent: "center",
     alignItems: "center",
-    margin: "0.75%",
+    margin: "0.8%",
     borderRadius: 6,
   },
   inactiveBlock: {
-    backgroundColor: "#f0f0f0",
+    backgroundColor: "#f5f5f5",
+    borderWidth: 1,
+    borderColor: "#e8e8e8",
   },
   activeBlock: {
-    backgroundColor: "#ff9790ff",
+    backgroundColor: "#ff8a80",
+    borderWidth: 1,
+    borderColor: "#ff5722",
+    shadowColor: "#ff5722",
+    shadowOpacity: 0.3,
+    shadowRadius: 2,
+    elevation: 2,
   },
   hourLabel: {
-    fontSize: 16,
+    fontSize: 10,
     color: "#555",
-    fontWeight: "700"
+    fontWeight: "600"
   },
 
-  // 🟦 Día libre
+  // Día libre
   freeDayBox: {
     marginTop: 20,
     padding: 20,
@@ -99,5 +163,133 @@ export default StyleSheet.create({
     fontSize: 18,
     fontWeight: "600",
     color: "#0077b6",
+  },
+
+  // NUEVOS ESTILOS PARA HEADER HORIZONTAL
+  dayHeaderContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 15,
+    paddingVertical: 12,
+    paddingHorizontal: 12,
+    backgroundColor: "#f8f9ff",
+    borderRadius: 12,
+    borderLeftWidth: 4,
+    borderLeftColor: "#673ab7",
+  },
+  dayTitleSection: {
+    flex: 1,
+    paddingRight: 12,
+  },
+  dayTitle: {
+    fontSize: 20,
+    fontWeight: "700",
+    color: "#333",
+    lineHeight: 24,
+    textAlign: "left",
+  },
+  timeInfoSection: {
+    alignItems: 'flex-end',
+  },
+  
+  // Horarios horizontales (nueva versión)
+  timeInfoHorizontal: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(103, 58, 183, 0.08)',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+  },
+  timeColumn: {
+    alignItems: 'center',
+    minWidth: 55,
+  },
+  timeValue: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#673ab7',
+  },
+  timeLabel: {
+    fontSize: 10,
+    color: '#666',
+    fontWeight: '500',
+    textTransform: 'uppercase',
+    marginTop: 2,
+  },
+  timeSeparator: {
+    fontSize: 14,
+    color: '#999',
+    marginHorizontal: 12,
+  },
+
+  // Estilos antiguos del título (mantenidos por compatibilidad)
+  dayTitleContainer: {
+    marginBottom: 15,
+    paddingVertical: 12,
+    paddingHorizontal: 8,
+    backgroundColor: "#f8f9ff",
+    borderRadius: 12,
+    borderLeftWidth: 4,
+    borderLeftColor: "#673ab7",
+  },
+  activitySymbol: {
+    fontSize: 20,
+    marginRight: 8,
+  },
+  
+  // Contenedor para horarios en el título (versión antigua)
+  titleTimeInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+    marginTop: 8,
+    backgroundColor: 'rgba(103, 58, 183, 0.05)',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    alignSelf: 'flex-start',
+  },
+  titleTimeColumn: {
+    alignItems: 'center',
+    minWidth: 65,
+  },
+  titleTime: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#673ab7',
+    textAlign: 'center',
+  },
+  titleTimeSeparator: {
+    fontSize: 14,
+    fontWeight: '400',
+    color: '#999',
+    marginHorizontal: 12,
+    alignSelf: 'center',
+  },
+  titleTimeLabel: {
+    fontSize: 11,
+    color: '#666',
+    fontWeight: '500',
+    textAlign: 'center',
+    marginTop: 3,
+    textTransform: 'uppercase',
+  },
+
+  // Nuevos estilos para mejor organización
+  dayInfoSection: {
+    marginBottom: 16,
+  },
+  
+  flightListContainer: {
+    marginTop: 10,
+    marginBottom: 16,
+  },
+
+  sectionDivider: {
+    height: 1,
+    backgroundColor: '#e0e0e0',
+    marginVertical: 12,
   },
 });

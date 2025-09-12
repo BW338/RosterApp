@@ -13,6 +13,25 @@ const COLORS = {
   esm: { bg: "rgba(255,149,0,0.15)", border: "#FF9500" },
 };
 
+// Iconos y símbolos para cada tipo de actividad
+const ACTIVITY_SYMBOLS = {
+  vuelo: "🛫",
+  gua: "🟠",
+  esm: "📚",
+  tof: "☀️",
+  "*": "☀️",
+  "d/l": "☀️",
+  vac: "🏖️",
+  med: "🚑",
+  off: "☀️",
+  rest: "💤",
+  htl: "🏨",
+  vop: "⛱️",
+  eld: "💻"
+};
+
+
+
 export default function CalendarScreen() {
   const [roster, setRoster] = useState([]);
   const [markedDates, setMarkedDates] = useState({});
@@ -65,7 +84,7 @@ export default function CalendarScreen() {
       return firstActivity.type.toLowerCase();
     }
     if (["*", "D/L", "VAC", "MED", "OFF", "REST"].includes(firstActivity.type)) {
-      return "libre";
+      return firstActivity.type.toLowerCase();
     }
     return "libre";
   };
@@ -104,133 +123,154 @@ export default function CalendarScreen() {
     setSelectedDay(found || null);
   };
 
-  // Render timeline de vuelos/guardias
-const renderTimeline = (dayData) => {
-  if (!dayData) return null;
-  const type = getDayType(dayData);
-  let depFirst, end;
+  // Función simplificada solo para el título
+  const formatDayTitleSimple = (day) => {
+    if (!day) return "";
 
-  if (type === "libre") {
-    // Día libre, mostrar timeline vacía
-    depFirst = "00:00";
-    end = "00:00";
-  } else if (type === "vuelo") {
-    const lastFlight = dayData.flights[dayData.flights.length - 1];
-    end = lastFlight?.checkout || lastFlight?.arrTime;
-    // Si el día tiene checkin, es el día de salida. Si no, es el de llegada.
-    depFirst = dayData.checkin || (dayData.flights.length > 0 ? "00:00" : null);
-  } else if (type === "guardia") {
-    depFirst = "00:00";
-    end = "23:59";
-  } else if (type === "esm") {
-    const raw = dayData.flights[0]?.raw;
-    if (raw) {
-      const times = raw.match(/\d{1,2}:\d{2}/g);
-      if (times && times.length >= 2) {
-        depFirst = times[0];
-        end = times[times.length - 1];
-      }
-    }
-    // Fallback por si falla el parseo del raw
-    if (!depFirst) {
-      depFirst = "00:00";
-      end = "23:59";
-    }
-  } else {
-    // 🛑 Día libre o sin actividad → no dibujar timeline
-    return (
-      <Text style={{ textAlign: "center", marginVertical: 10, color: "#666" }}>
-        Sin actividad programada
-      </Text>
-    );
-  }
+    const dayName = new Date(day.fullDate).toLocaleDateString("es-ES", { 
+      day: "2-digit", 
+      weekday: "long" 
+    }).replace(/^\w/, c => c.toUpperCase());
 
-  // ✅ Si todavía falta algo → salir
-  if (!depFirst || !end) {
-    return (
-      <Text style={{ textAlign: "center", marginVertical: 10, color: "#666" }}>
-        Sin horarios definidos
-      </Text>
-    );
-  }
+    const type = getDayType(day);
+    const firstActivity = day.flights?.[0];
+    
+    let symbol = "";
+    let activityText = "";
 
-  const [startH, startM] = depFirst.split(":").map(Number);
-  const [endH, endM] = end.split(":").map(Number);
-  const startHour = startH + startM / 60;
-  const endHour = endH + endM / 60;
-
-  const isOvernight = endHour < startHour;
-
-  const blocks = Array.from({ length: 24 }, (_, h) => {
-    let active = false;
-    if (isOvernight && dayData.checkin) {
-      // Es un servicio nocturno, y estamos en el día de SALIDA.
-      // Marcar desde el check-in hasta el final del día.
-      active = h >= Math.floor(startHour);
+    if (type === "libre") {
+      symbol = "😴";
+      activityText = "Libre";
+    } else if (type === "vuelo") {
+      symbol = ACTIVITY_SYMBOLS.vuelo;
+      activityText = "Vuelo";
     } else {
-      // Es un servicio diurno, O estamos en el día de LLEGADA de un nocturno.
-      // Marcar desde la hora de inicio hasta la de fin.
-      active = h >= Math.floor(startHour) && h < Math.ceil(endHour);
+      const activityType = firstActivity?.type?.toLowerCase();
+      symbol = ACTIVITY_SYMBOLS[activityType] || ACTIVITY_SYMBOLS[type] || "📋";
+      activityText = firstActivity?.type || type.toUpperCase();
     }
-    return (
-      <View
-        key={h}
-        style={[styles.hourBlock, active ? styles.activeBlock : styles.inactiveBlock]}
-      >
-        <Text style={styles.hourLabel}>{h}:00</Text>
-      </View>
-    );
-  });
 
-  return (
-    <View style={styles.timelineContainer}>
-      <View style={styles.timeline}>{blocks}</View>
-    </View>
-  );
-};
+    return `${symbol} ${dayName} ${activityText}`;
+  };
 
-const formatFlightInfo = (day) => {
-  if (!day) return "";
+  // Función separada para renderizar los horarios
+  const renderTimeInfo = (day) => {
+    if (!day) return null;
 
-  const type = getDayType(day);
-  const firstActivity = day.flights?.[0];
+    const type = getDayType(day);
+    if (type === "libre") return null;
 
-  if (type === "libre") {
-    return "Día Libre";
-  }
-
-  if (type === "guardia") return "Guardia";
-  if (type === "tof") return "Toma de Francos";
-  if (type === "eld") return "Entrenamiento";
-  if (type === "htl") return "Posta";
-  if (type === "vop") return "Vuelo Operativo";
-
-  if (type === "esm") {
-    const raw = firstActivity?.raw;
-    if (raw) {
-      const times = raw.match(/\d{1,2}:\d{2}/g);
-      if (times && times.length >= 2) {
-        return `Servicio: ${times[0]} - ${times[times.length - 1]}`;
-      }
-    }
-    return "Servicio en Tierra";
-  }
-
-  if (type === "vuelo") {
-    const lastFlight = day.flights?.[day.flights.length - 1];
     const checkin = day.checkin;
+    const lastFlight = day.flights?.[day.flights.length - 1];
     const checkout = lastFlight?.checkout || lastFlight?.arrTime;
 
-    const parts = [];
-    if (checkin) parts.push(`Checkin: ${checkin}`);
-    if (checkout) parts.push(`Fin: ${checkout}`);
+    if (!checkin && !checkout) return null;
 
-    return parts.length > 0 ? parts.join(" | ") : "Actividad de Vuelo";
-  }
+    return (
+      <View style={styles.timeInfoHorizontal}>
+        {checkin && (
+          <View style={styles.timeColumn}>
+            <Text style={styles.timeValue}>{checkin}</Text>
+            <Text style={styles.timeLabel}>checkin</Text>
+          </View>
+        )}
+        {checkin && checkout && (
+          <Text style={styles.timeSeparator}>|</Text>
+        )}
+        {checkout && (
+          <View style={styles.timeColumn}>
+            <Text style={styles.timeValue}>{checkout}</Text>
+            <Text style={styles.timeLabel}>fin</Text>
+          </View>
+        )}
+      </View>
+    );
+  };
 
-  return "Sin actividad";
-};
+  // Render timeline de vuelos/guardias
+  const renderTimeline = (dayData) => {
+    if (!dayData) return null;
+    const type = getDayType(dayData);
+    let depFirst, end;
 
+    if (type === "libre") {
+      // Día libre, mostrar timeline vacía
+      depFirst = "00:00";
+      end = "00:00";
+    } else if (type === "vuelo") {
+      const lastFlight = dayData.flights[dayData.flights.length - 1];
+      end = lastFlight?.checkout || lastFlight?.arrTime;
+      // Si el día tiene checkin, es el día de salida. Si no, es el de llegada.
+      depFirst = dayData.checkin || (dayData.flights.length > 0 ? "00:00" : null);
+    } else if (type === "gua") {
+      depFirst = "00:00";
+      end = "23:59";
+    } else if (type === "esm") {
+      const raw = dayData.flights[0]?.raw;
+      if (raw) {
+        const times = raw.match(/\d{1,2}:\d{2}/g);
+        if (times && times.length >= 2) {
+          depFirst = times[0];
+          end = times[times.length - 1];
+        }
+      }
+      // Fallback por si falla el parseo del raw
+      if (!depFirst) {
+        depFirst = "00:00";
+        end = "23:59";
+      }
+    } else {
+      // Día libre o sin actividad → no dibujar timeline
+      return (
+        <Text style={{ textAlign: "center", marginVertical: 10, color: "#666" }}>
+          Sin actividad programada
+        </Text>
+      );
+    }
+
+    // Si todavía falta algo → salir
+    if (!depFirst || !end) {
+      return (
+        <Text style={{ textAlign: "center", marginVertical: 10, color: "#666" }}>
+          Sin horarios definidos
+        </Text>
+      );
+    }
+
+    const [startH, startM] = depFirst.split(":").map(Number);
+    const [endH, endM] = end.split(":").map(Number);
+    const startHour = startH + startM / 60;
+    const endHour = endH + endM / 60;
+
+    const isOvernight = endHour < startHour;
+
+    const blocks = Array.from({ length: 24 }, (_, h) => {
+      let active = false;
+      if (isOvernight && dayData.checkin) {
+        // Es un servicio nocturno, y estamos en el día de SALIDA.
+        // Marcar desde el check-in hasta el final del día.
+        active = h >= Math.floor(startHour);
+      } else {
+        // Es un servicio diurno, O estamos en el día de LLEGADA de un nocturno.
+        // Marcar desde la hora de inicio hasta la de fin.
+        active = h >= Math.floor(startHour) && h < Math.ceil(endHour);
+      }
+      return (
+        <View
+          key={h}
+          style={[styles.hourBlock, active ? styles.activeBlock : styles.inactiveBlock]}
+        >
+          <Text style={styles.hourLabel}>{h}:00</Text>
+        </View>
+      );
+    });
+
+    return (
+      <View style={styles.timelineContainer}>
+        <View style={styles.timeline}>{blocks}</View>
+      </View>
+    );
+  };
 
   return (
     <View style={styles.container}>
@@ -269,15 +309,19 @@ const formatFlightInfo = (day) => {
       <ScrollView style={styles.infoBox}>
         {selectedDay ? (
           <>
-            <Text style={styles.title}>
-              {`${new Date(selectedDay.fullDate).toLocaleDateString("es-ES", { day: "2-digit", weekday: "long" }).replace(/^\w/, c => c.toUpperCase())} | ${formatFlightInfo(selectedDay)}`}
-            </Text>
+            <View style={styles.dayHeaderContainer}>
+              <View style={styles.dayTitleSection}>
+                <Text style={styles.dayTitle}>{formatDayTitleSimple(selectedDay)}</Text>
+              </View>
+              <View style={styles.timeInfoSection}>
+                {renderTimeInfo(selectedDay)}
+              </View>
+            </View>
 
             {selectedDay.flights?.length > 0 ? (
               selectedDay.flights.map((f, i) => (
-                <Text key={i} style={{ marginVertical: 0 }}>
+                <Text key={i} style={styles.flightDetails}>
                   {f.flightNumber} {f.origin} {f.depTime} - {f.arrTime} {f.destination}
-                  {i === selectedDay.flights.length - 1 && (f.checkout || f.arrTime) ? ` | Fin: ${f.checkout || f.arrTime}` : ""}
                 </Text>
               ))
             ) : (
