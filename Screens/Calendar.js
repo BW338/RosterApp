@@ -54,10 +54,19 @@ export default function CalendarScreen() {
   }, [roster]);
 
   const getDayType = (day) => {
-    if (!day) return "libre";
-    if (day.flights?.some(f => f.type === "OP" || /^AR\d+/.test(f.flightNumber))) return "vuelo";
-    if (day.note === "GUA") return "guardia";
-    if (day.note === "ESM") return "esm";
+    if (!day || !day.flights || day.flights.length === 0) return "libre";
+    const firstActivity = day.flights[0];
+
+    if (firstActivity.type === "OP" || (firstActivity.flightNumber && /^AR\d+/.test(firstActivity.flightNumber))) {
+      return "vuelo";
+    }
+    // Devolver el tipo de actividad especial en minúsculas
+    if (["GUA", "ESM", "TOF", "ELD", "HTL", "VOP"].includes(firstActivity.type)) {
+      return firstActivity.type.toLowerCase();
+    }
+    if (["*", "D/L", "VAC", "MED", "OFF", "REST"].includes(firstActivity.type)) {
+      return "libre";
+    }
     return "libre";
   };
 
@@ -101,19 +110,37 @@ const renderTimeline = (dayData) => {
   const type = getDayType(dayData);
   let depFirst, end;
 
-  if (type === "vuelo") {
+  if (type === "libre") {
+    // Día libre, mostrar timeline vacía
+    depFirst = "00:00";
+    end = "00:00";
+  } else if (type === "vuelo") {
     const lastFlight = dayData.flights[dayData.flights.length - 1];
     end = lastFlight?.checkout || lastFlight?.arrTime;
     // Si el día tiene checkin, es el día de salida. Si no, es el de llegada.
     depFirst = dayData.checkin || (dayData.flights.length > 0 ? "00:00" : null);
-  } else if (type === "guardia" || type === "esm") {
+  } else if (type === "guardia") {
     depFirst = "00:00";
     end = "23:59";
+  } else if (type === "esm") {
+    const raw = dayData.flights[0]?.raw;
+    if (raw) {
+      const times = raw.match(/\d{1,2}:\d{2}/g);
+      if (times && times.length >= 2) {
+        depFirst = times[0];
+        end = times[times.length - 1];
+      }
+    }
+    // Fallback por si falla el parseo del raw
+    if (!depFirst) {
+      depFirst = "00:00";
+      end = "23:59";
+    }
   } else {
     // 🛑 Día libre o sin actividad → no dibujar timeline
     return (
       <Text style={{ textAlign: "center", marginVertical: 10, color: "#666" }}>
-        No hay actividad para este día
+        Sin actividad programada
       </Text>
     );
   }
@@ -164,17 +191,44 @@ const renderTimeline = (dayData) => {
 
 const formatFlightInfo = (day) => {
   if (!day) return "";
-  if (!day.flights?.length && !day.checkin) {
-    return "Sin actividad";
+
+  const type = getDayType(day);
+  const firstActivity = day.flights?.[0];
+
+  if (type === "libre") {
+    return "Día Libre";
   }
 
-  const firstFlight = day.flights?.[0];
-  const lastFlight = day.flights?.[day.flights.length - 1];
+  if (type === "guardia") return "Guardia";
+  if (type === "tof") return "Toma de Francos";
+  if (type === "eld") return "Entrenamiento";
+  if (type === "htl") return "Posta";
+  if (type === "vop") return "Vuelo Operativo";
 
-  const checkin = day.checkin || firstFlight?.depTime || "--:--";
-  const checkout = lastFlight?.checkout || lastFlight?.arrTime || "--:--";
+  if (type === "esm") {
+    const raw = firstActivity?.raw;
+    if (raw) {
+      const times = raw.match(/\d{1,2}:\d{2}/g);
+      if (times && times.length >= 2) {
+        return `Servicio: ${times[0]} - ${times[times.length - 1]}`;
+      }
+    }
+    return "Servicio en Tierra";
+  }
 
-  return `Checkin: ${checkin} | Fin: ${checkout}`;
+  if (type === "vuelo") {
+    const lastFlight = day.flights?.[day.flights.length - 1];
+    const checkin = day.checkin;
+    const checkout = lastFlight?.checkout || lastFlight?.arrTime;
+
+    const parts = [];
+    if (checkin) parts.push(`Checkin: ${checkin}`);
+    if (checkout) parts.push(`Fin: ${checkout}`);
+
+    return parts.length > 0 ? parts.join(" | ") : "Actividad de Vuelo";
+  }
+
+  return "Sin actividad";
 };
 
 
