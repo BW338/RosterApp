@@ -194,3 +194,6 @@ como por ejemplo en el 2do tramo de un nocturno.
 
 57| Fixing Error:
 -Se arregla un Error que surgio al cargar el PDF.
+
+58| CalendarStyles:
+-Se sigue trabajando

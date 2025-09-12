@@ -24,13 +24,102 @@ const ACTIVITY_SYMBOLS = {
   vac: "🏖️",
   med: "🚑",
   off: "☀️",
-  rest: "💤",
+  rest: "☀️",
   htl: "🏨",
   vop: "⛱️",
   eld: "💻"
 };
 
 
+const getDayType = (day) => {
+  if (!day || !day.flights || day.flights.length === 0) return "libre";
+  const firstActivity = day.flights[0];
+
+  if (firstActivity.type === "OP" || (firstActivity.flightNumber && /^AR\d+/.test(firstActivity.flightNumber))) {
+    return "vuelo";
+  }
+  if (["*", "D/L", "VAC", "MED", "OFF", "REST"].includes(firstActivity.type)) {
+    return "libre";
+  }
+  // Para GUA, ESM, TOF, etc., devuelve el tipo mismo
+  return firstActivity.type;
+};
+
+// Render timeline de vuelos/guardias
+const renderTimeline = (dayData) => {
+  if (!dayData) return null;
+  const type = getDayType(dayData);
+  let depFirst, end;
+
+  switch (type) {
+    case "libre":
+      depFirst = "00:00";
+      end = "00:00";
+      break;
+    case "vuelo": {
+      const lastFlight = dayData.flights[dayData.flights.length - 1];
+      end = lastFlight?.checkout || lastFlight?.arrTime;
+      depFirst = dayData.checkin || (dayData.flights.length > 0 ? "00:00" : null);
+      break;
+    }
+    case "GUA":
+      depFirst = "00:00";
+      end = "23:59";
+      break;
+    case "ESM": {
+      const raw = dayData.flights[0]?.raw;
+      const times = raw?.match(/\d{1,2}:\d{2}/g);
+      if (times && times.length >= 2) {
+        depFirst = times[0];
+        end = times[times.length - 1];
+      } else {
+        depFirst = "00:00";
+        end = "23:59";
+      }
+      break;
+    }
+    default:
+      return null; // No mostrar timeline para otras actividades especiales
+  }
+
+  if (!depFirst || !end) {
+    return null;
+  }
+
+  const [startH, startM] = depFirst.split(":").map(Number);
+  const [endH, endM] = end.split(":").map(Number);
+  const startHour = startH + startM / 60;
+  const endHour = endH + endM / 60;
+  const isOvernight = endHour < startHour;
+
+  const blocks = Array.from({ length: 24 }, (_, h) => {
+    let active = false;
+    if (isOvernight && dayData.checkin) {
+      active = h >= Math.floor(startHour);
+    } else {
+      active = h >= Math.floor(startHour) && h < Math.ceil(endHour);
+    }
+    return (
+      <View key={h} style={[styles.hourBlock, active ? styles.activeBlock : styles.inactiveBlock]}>
+        <Text style={styles.hourLabel}>{h.toString().padStart(2, "0")}</Text>
+      </View>
+    );
+  });
+
+  const row1 = blocks.slice(0, 8);
+  const row2 = blocks.slice(8, 16);
+  const row3 = blocks.slice(16, 24);
+
+  return (
+    <View style={styles.timelineContainer}>
+      <View style={styles.timeline}>
+        <View style={styles.timelineRow}>{row1}</View>
+        <View style={styles.timelineRow}>{row2}</View>
+        <View style={styles.timelineRow}>{row3}</View>
+      </View>
+    </View>
+  );
+};
 
 export default function CalendarScreen() {
   const [roster, setRoster] = useState([]);
@@ -71,23 +160,6 @@ export default function CalendarScreen() {
     const found = roster.find((d) => d.fullDate?.startsWith(today));
     setSelectedDay(found || null);
   }, [roster]);
-
-  const getDayType = (day) => {
-    if (!day || !day.flights || day.flights.length === 0) return "libre";
-    const firstActivity = day.flights[0];
-
-    if (firstActivity.type === "OP" || (firstActivity.flightNumber && /^AR\d+/.test(firstActivity.flightNumber))) {
-      return "vuelo";
-    }
-    // Devolver el tipo de actividad especial en minúsculas
-    if (["GUA", "ESM", "TOF", "ELD", "HTL", "VOP"].includes(firstActivity.type)) {
-      return firstActivity.type.toLowerCase();
-    }
-    if (["*", "D/L", "VAC", "MED", "OFF", "REST"].includes(firstActivity.type)) {
-      return firstActivity.type.toLowerCase();
-    }
-    return "libre";
-  };
 
   // Marcar días en calendario
   const generateMarks = (data) => {
@@ -183,91 +255,6 @@ export default function CalendarScreen() {
             <Text style={styles.timeLabel}>fin</Text>
           </View>
         )}
-      </View>
-    );
-  };
-
-  // Render timeline de vuelos/guardias
-  const renderTimeline = (dayData) => {
-    if (!dayData) return null;
-    const type = getDayType(dayData);
-    let depFirst, end;
-
-    if (type === "libre") {
-      // Día libre, mostrar timeline vacía
-      depFirst = "00:00";
-      end = "00:00";
-    } else if (type === "vuelo") {
-      const lastFlight = dayData.flights[dayData.flights.length - 1];
-      end = lastFlight?.checkout || lastFlight?.arrTime;
-      // Si el día tiene checkin, es el día de salida. Si no, es el de llegada.
-      depFirst = dayData.checkin || (dayData.flights.length > 0 ? "00:00" : null);
-    } else if (type === "gua") {
-      depFirst = "00:00";
-      end = "23:59";
-    } else if (type === "esm") {
-      const raw = dayData.flights[0]?.raw;
-      if (raw) {
-        const times = raw.match(/\d{1,2}:\d{2}/g);
-        if (times && times.length >= 2) {
-          depFirst = times[0];
-          end = times[times.length - 1];
-        }
-      }
-      // Fallback por si falla el parseo del raw
-      if (!depFirst) {
-        depFirst = "00:00";
-        end = "23:59";
-      }
-    } else {
-      // Día libre o sin actividad → no dibujar timeline
-      return (
-        <Text style={{ textAlign: "center", marginVertical: 10, color: "#666" }}>
-          Sin actividad programada
-        </Text>
-      );
-    }
-
-    // Si todavía falta algo → salir
-    if (!depFirst || !end) {
-      return (
-        <Text style={{ textAlign: "center", marginVertical: 10, color: "#666" }}>
-          Sin horarios definidos
-        </Text>
-      );
-    }
-
-    const [startH, startM] = depFirst.split(":").map(Number);
-    const [endH, endM] = end.split(":").map(Number);
-    const startHour = startH + startM / 60;
-    const endHour = endH + endM / 60;
-
-    const isOvernight = endHour < startHour;
-
-    const blocks = Array.from({ length: 24 }, (_, h) => {
-      let active = false;
-      if (isOvernight && dayData.checkin) {
-        // Es un servicio nocturno, y estamos en el día de SALIDA.
-        // Marcar desde el check-in hasta el final del día.
-        active = h >= Math.floor(startHour);
-      } else {
-        // Es un servicio diurno, O estamos en el día de LLEGADA de un nocturno.
-        // Marcar desde la hora de inicio hasta la de fin.
-        active = h >= Math.floor(startHour) && h < Math.ceil(endHour);
-      }
-      return (
-        <View
-          key={h}
-          style={[styles.hourBlock, active ? styles.activeBlock : styles.inactiveBlock]}
-        >
-          <Text style={styles.hourLabel}>{h}:00</Text>
-        </View>
-      );
-    });
-
-    return (
-      <View style={styles.timelineContainer}>
-        <View style={styles.timeline}>{blocks}</View>
       </View>
     );
   };

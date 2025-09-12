@@ -115,16 +115,19 @@ export default StyleSheet.create({
     textAlign: "center",
   },
   timeline: {
-    flexDirection: "row",
-    flexWrap: "wrap",
     padding: 6,
   },
+  timelineRow: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    marginBottom: 4,
+  },
   hourBlock: {
-    width: "13%", // Ajustado para mejor distribución
-    height: 36,
+    flex: 1,
+    height: 40,
     justifyContent: "center",
     alignItems: "center",
-    margin: "0.8%",
+    marginHorizontal: 2,
     borderRadius: 6,
   },
   inactiveBlock: {
@@ -142,9 +145,9 @@ export default StyleSheet.create({
     elevation: 2,
   },
   hourLabel: {
-    fontSize: 10,
+    fontSize: 14,
     color: "#555",
-    fontWeight: "600"
+    fontWeight: "bold",
   },
 
   // Día libre
