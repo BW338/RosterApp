@@ -191,3 +191,6 @@ como por ejemplo en el 2do tramo de un nocturno.
 *Se trabaja en estilos del calendar.js
 *Se trabaja en iconos de barra de navegacion
 *Por algun motivo la IA genero parte de la planilla Flex.
+
+57| Fixing Error:
+-Se arregla un Error que surgio al cargar el PDF.

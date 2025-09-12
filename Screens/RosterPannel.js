@@ -12,6 +12,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 export default function RosterPannel({ isSubscribed, offerings }) {
   const [pdfData, setPdfData] = useState(null);
   const [roster, setRoster] = useState([]);
+  const [isPicking, setIsPicking] = useState(false);
   const navigation = useNavigation();
 
    // 🔹 Al iniciar, intentar recuperar el roster guardado
@@ -54,9 +55,14 @@ const handleClearStorage = async () => {
 };
   // Abrir selector de PDF
   const handlePickPdf = async () => {
+    if (isPicking) return;
     if (!isSubscribed) return; // Seguridad extra
+    setIsPicking(true);
     const base64 = await pickPdfFile();
-    if (base64) setPdfData(base64);
+    if (base64) {
+      setPdfData(base64);
+    }
+    setIsPicking(false);
   };
 
   // Suscribirse
@@ -164,7 +170,7 @@ const handleClearStorage = async () => {
   return (
     <View style={{ flex: 1, padding: 10, marginTop: 50 }}>
       {isSubscribed ? (
-        <PrimaryButton title="Cargar PDF" onPress={handlePickPdf} />
+        <PrimaryButton title="Cargar PDF" onPress={handlePickPdf} disabled={isPicking} />
       ) : (
         <PrimaryButton title="Suscribirse" onPress={handleSubscribe} />
       )}

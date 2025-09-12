@@ -1,5 +1,5 @@
 import * as DocumentPicker from "expo-document-picker";
-import * as FileSystem from "expo-file-system";
+import * as FileSystem from "expo-file-system/legacy";
 import { Alert } from "react-native";
 
 /**
@@ -15,7 +15,7 @@ export async function pickPdfFile() {
       const uri = result.assets[0].uri;
 //      console.log("LOG: Leyendo PDF como Base64...");
       const base64 = await FileSystem.readAsStringAsync(uri, {
-        encoding: FileSystem.EncodingType.Base64,
+        encoding: 'base64',
       });
       console.log("LOG: Base64 length:", base64.length);
       return base64;
