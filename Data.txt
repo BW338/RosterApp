@@ -200,3 +200,8 @@ como por ejemplo en el 2do tramo de un nocturno.
 
 59| Night Style:
 -Empezamos con la implementation de switch Night
+
+60| Night constrast:
+-Se ajustan un poco mas los contrastes. 
+-Se borra el titulo del header.
+-Se modifica el boton "+PDF"

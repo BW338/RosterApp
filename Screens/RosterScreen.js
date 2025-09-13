@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef, useCallback } from "react";
-import { View, Text, SectionList, SafeAreaView, Button, Switch, Platform } from "react-native";
+import { View, Text, SectionList, SafeAreaView, TouchableOpacity, Switch, Platform } from "react-native";
 import FlightCard from "../Components/FlightCard/FlightCard";
 import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect } from '@react-navigation/native';
@@ -69,11 +69,26 @@ useEffect(() => {
         </View>
       ),
       headerRight: () => (
-        <Button
-          title="Actualizar roster"
+        <TouchableOpacity
           onPress={() => navigation.navigate("RosterPannel")}
-          color={Platform.OS === 'ios' ? (isDarkMode ? 'white' : '#007AFF') : undefined}
-        />
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            backgroundColor: isDarkMode ? '#3A3A3C' : '#E5E5EA',
+            paddingHorizontal: 12,
+            paddingVertical: 6,
+            borderRadius: 8,
+            marginRight: Platform.OS === 'ios' ? 10 : 15,
+          }}
+        >
+          <Ionicons name="document-text-outline" size={18} color={isDarkMode ? '#AECBFA' : '#007AFF'} />
+          <Text style={{
+            color: isDarkMode ? '#AECBFA' : '#007AFF',
+            marginLeft: 6,
+            fontWeight: '600',
+            fontSize: 16,
+          }}>Cargar PDF</Text>
+        </TouchableOpacity>
       ),
     });
   }, [navigation, isDarkMode]);
@@ -155,8 +170,9 @@ useEffect(() => {
       <View
         style={[
           styles.sectionHeader,
-          index % 2 === 0 ? (isDarkMode ? { backgroundColor: '#2C2C2E' } : styles.sectionHeaderEven) : (isDarkMode ? { backgroundColor: '#222224' } : styles.sectionHeaderOdd),
-          today && (isDarkMode ? { backgroundColor: '#4A3700' } : styles.todaySection),
+          index % 2 === 0 ? (isDarkMode ? { backgroundColor: '#2C2C2E' } : styles.sectionHeaderEven) : (isDarkMode ? { backgroundColor: '#1C1C1E' } : styles.sectionHeaderOdd),
+          today && (isDarkMode ? { backgroundColor: '#B8860B' } : styles.todaySection),
+          isDarkMode && { borderBottomColor: '#424242' },
           { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
         ]}
       >

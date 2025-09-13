@@ -22,7 +22,7 @@ function RosterStack({ isSubscribed, offerings }) {
       <Stack.Screen
         name="RosterScreen"
         component={RosterScreen}
-        options={{ title: "Actualizar plan de vuelo" }}
+        options={{ title: "" }}
       />
       <Stack.Screen name="RosterPannel" options={{ title: "Roster" }}>
         {(props) => (

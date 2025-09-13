@@ -12,6 +12,8 @@ export default StyleSheet.create({
         paddingHorizontal: 10,
         paddingVertical: 6,
         borderRadius: 6,
+        borderBottomWidth: 1,
+        borderColor: '#e0e0e0',
     },
     todaySection: {
   backgroundColor: "#FFD54F", // Amarillo suave
