@@ -12,10 +12,25 @@ export default StyleSheet.create({
     shadowRadius: 4,
     elevation: 2,
   },
+  cardDark: {
+    backgroundColor: "#1C1C1E", // Un gris oscuro de iOS
+    borderColor: '#3A3A3C',
+    shadowColor: '#000',
+    shadowOpacity: 0.6,
+  },
+  textDark: {
+    color: '#EAEAEA',
+  },
+  textDarkMuted: {
+    color: '#9E9E9E',
+  },
   route: {
     fontSize: 18,
     fontWeight: "700",
     color: "#2f285a",
+  },
+  routeDark: {
+    color: '#D0D0D0',
   },
   flightNumber: {
     fontSize: 18,
@@ -42,6 +57,9 @@ export default StyleSheet.create({
     fontSize: 16,
     fontWeight: "700",
     color: "#0032d6ff",
+  },
+  durationDark: {
+    color: '#81b0ff',
   },
   aircraft: {
     fontSize: 14,
@@ -74,14 +92,23 @@ export default StyleSheet.create({
     fontWeight: "bold",
     color: "black",
   },
+  specialActivityDark: {
+    color: '#EAEAEA',
+  },
   guaActivity: {
     fontSize: 18,
     fontWeight: "bold",
     color: "#ff0000ff",
   },
+  guaActivityDark: {
+    color: '#FF453A',
+  },
   dlActivity:{
     fontSize: 18,
     fontWeight: "bold",
     color: "#00813aff",
+  },
+  dlActivityDark: {
+    color: '#32D74B',
   }
 });
