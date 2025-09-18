@@ -278,3 +278,9 @@ como por ejemplo en el 2do tramo de un nocturno.
 -Se cambia la carpeta porque tratando de resolver una advertencia rompi todo el proyecto.
 Se soluciono descargando carpeta del repo de github, este commit est para vincular la nueva
 carpeta al repositorio.
+
+81| Big Mistake:
+-Sobreescribi sin querer todos los commit de github (se perdieron permanentemente)
+-Se añade la logica de IAP con el switch para descactivarla:
+const DEBUG_SUBSCRIPTION = true; IAP desactivada
+const DEBUG_SUBSCRIPTION = false; IAP activa
