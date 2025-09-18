@@ -1,0 +1,280 @@
+Commits:
+
+1|
+-1er commit para comenzar el repositorio.
+
+2|
+-Se trabaja en refact de estilos y estilos basicos.
+
+3| IAP implementation:
+-Se añade la libreria "ract-native-purchases".
+
+5| IAP Android payment succesfull:
+-Se agrega la logica para realizar el pago, el mismo se realiza con exito. La logica para 
+que reconozca la suscripcion y permita usar el sistema ya funciona correctamente.
+
+6| HomeStack:
+-Se crea la navegacion para sumar la barra inferior tipica de mobile. 
+(no probe si sigue funcionando IAP ya que para eso tengo que compilar)
+
+7| NavigationBar:
+-Se suma la barra de navegacion para 4 pantallas.
+(no probe si sigue funcionando IAP ya que para eso tengo que compilar)
+
+8| UseSuscription.js MOCKUP:
+-Seteamos el componente para que ande con el emulador y poder trabajar el roster, tuvimos que anular 
+toda la validacion de IAP.
+
+9| Roster from Modal to Screen:
+-Se pasa el roster de modal a Screen para un mejor ux/ui.
+
+10| RosterView.js
+-Se añade navegacion Roster / carga de pdf
+-Boton "ver roster" funciona si hay datos
+-Roster en el Storage.
+-Boton de testeo para borrar asycstorage
+
+11| RosterScree.js Initial Route:
+-Se agregama la funcionalidad de que se inicie RosterScreen cuando haya datos, y a su vez, arriba, en el navegador,
+ se puede ir a RosterView para cargar datos, cargar el plan de vuelo, o lo que sea.
+
+ 12| parseRosterText.js:
+ -Finalmente se logra formatear el 1er tramo de cada dia. 
+ Seguimos ajustando ya que falta organizar varios datos aun.
+ 
+ 13| parseRosterText.js:
+ -Se corrije "equipo:" en el ultimo tramo.
+
+ 14| parseRosterText.js:
+ -Se ajusta el valor de "equipo" del ultimo tramo, para esto se corrije la parte de isAircraft....
+
+15| TSV, TV y TE:
+-Se agregan estos datos.
+-Se separan los estilos en RosterScreenStyles.js
+
+16| Styles:
+-Se posicionan datos y ajustan estilos.
+
+17| Styles:
+-Se agrega valor "checkout".
+-Se formatea duracion de vuelos.
+
+18| RosterView => RosterPannel:
+-Se reemplaza RosterView por RosterPannel de manera definitiva
+*El screen RosterPannel quizas lo termine borrando y adjuntando el PDF directamente desde RosterScreen.
+
+19| Dias en español:
+-Se pasa el formato "01MON" a "01 Lunes"
+
+20| date.js time.js:
+-Se envia a /Helpers las funciones que formatean las fechas.
+
+21| Refactorizacion de date y time a /Helpers.
+-Se refactoriza y ademas se resalta el dia de "Hoy"
+
+22| TodayScroll Button
+-Se crea boton que mediante useReff te lleva al dia de hoy.
+
+23| Today Button to TouchableOpacity:
+-Se transforma el estilo del boton para que quede mas discreto.
+
+24| DinamicStyle fix
+-Se corrige error de estilo dinamico de TE:
+
+25| Refacting:
+-Se envia la logica de posicion "hoy" a /Helpers
+-Se ennvia el boton "Hoy" a /Componentes/Buttons
+
+26| useEffect:
+-Se agrega useEffect para cuando se monte el componente, se posiciona en actividad de hoy
+
+27| Refact:
+-Se refactoriza aun mas el componente RosterScreen.
+-Se ajusta estilo de TE:
+
+28| Se Agrega la screen Calendar.js
+
+29| Special activity styles:
+-Se ajustan los estilos de las actividades que no son vuelo.
+
+30| Adding SpecialActivity:
+-Agregamos las que faltaban: HTL, MED, VOP, VAC
+
+31| parseRosterText:
+-Logramos machear fecha con mes correspondiente.
+
+32| fullDate to header:
+-Llevamos el valor a RosterScreen.
+-Logramos convertir fullDate (2025-07-30T04:00:00.000Z) en formato mes ("Julio")
+
+33| today.js:
+-Logro tener en cuenta el mes a la hora de remarcar el dia de "Hoy" con color.
+
+34| todayButton.js:
+-Logro ajustar el scroll de "Hoy" tango el useEffect como el boton.
+
+35| Calendar.js:
+-Se añade calendario y actividad!!! 
+*Resta seguir formateando el componente
+
+36| Calendar.js:
+-Se ajusta la logica para que el calendario siempre muestre la info que contiene el asycstorage.
+
+37| Calenda.js y Styles:
+-Ajuste de los colores segun actividad
+-Seteo de detalle de actividad por dia.
+
+38| Calenda.js y Styles:
+-Se inicia en el dia de hoy, el dia de hoy en negrita
+
+39| RosterScreen Calendar:
+-En rosterScreen se incluye el valor de checkin en el header.
+-En Calendar se incluye el valor de checkin en detalle del dia, se suma al timeline
+-Se formatea la info.
+
+40| Calculator.js:
+-Se integra el calculador de tiempos a la ScreenA, lo que en Timpicker era Home.js
+**Resta corroborar funcionamiento y estilos.
+
+41| parseRosterText.js:
+-Corregimos la funcion porque en los saltos de pagina interpretaba un cambio de mes.
+
+42| AutoScroll:
+-Se modifica codifos de RosterScreen/SectionList y de ScrollToToday para evitar el crash al iniciar el roster 
+y lograr el scroll automatico al dia de hoy.
+**Falta que esto funcione en IOS.
+
+43| ToDoList.js:
+-Se agrega la funcion de lista de pendientes a Calendar. Se guarda en el Storage, resta ver el borrado general de datos.
+
+44| Calendar Crash:
+-Se arregla un Error que tiraba la App cuando en el calendario seleccionaba un dia que no tenia checkin,
+como por ejemplo en el 2do tramo de un nocturno.
+
+45| Logs en parseRosterText:
+-Agrego Logs como para ver que es la info de cada dia y como se parsea la info del PDF.
+
+46| Nightflight detection:
+-Detectamos vuelos nocturnos en el log y suprimimos algunos Alert que molestaban.
+
+47| Refact #1:
+-Refactorizamos parseRosterText
+*****la deteccion de nocturnos no funciona como creia.
+
+48| Refact #2:
+-Refactorizamos parseRosterText
+
+49| Refact #3:
+-Refactorizamos parseRosterText
+
+50| Nightflight en dos dias:
+-Logro distribuir la info de Nightflight en dos dias, pero no es la solucion definitiva, resta seguir trabajando esto.
+
+51| Nightflight solved:
+-Se logro parsear correctamente los vuelos nocturnos, ahora resta corregir algunas cuestiones con datos secundarios como TSV, TE, Etc.
+
+52| TSV & TE:
+-Se corrige la toma del valor TSV.
+
+53| TSV:
+-El valor se calcular comparando checkin y fin.
+
+54| Calendar:
+-Se ajusta la logica de nocturnos a calendar, queda funcionando muy bien, resta formatear la info.
+
+55| Calendar details:
+-Se formatea la info de los dias especiales y se reflejan los horarios en el timeline.
+
+56| Several changes:
+-Se realizan varios cambios:
+*Se actualiza la version de React native y multiples dependencias.
+*Se trabaja en estilos del calendar.js
+*Se trabaja en iconos de barra de navegacion
+*Por algun motivo la IA genero parte de la planilla Flex.
+
+57| Fixing Error:
+-Se arregla un Error que surgio al cargar el PDF.
+
+58| CalendarStyles:
+-Se sigue trabajando
+
+59| Night Style:
+-Empezamos con la implementation de switch Night
+
+60| Night constrast:
+-Se ajustan un poco mas los contrastes. 
+-Se borra el titulo del header.
+-Se modifica el boton "+PDF"
+
+61| Night mode:
+-Casi que se termina con el Darkmode.
+
+62| Calculator.js integration:
+-Se integra el antiguo Home.js de Timpicker al Calculator.js 
+*Esta muy bien logrado, resta corroboar que funcionen las cuentas.
+
+63| Flex integration:
+-Se integra el componente y funciona OK
+*Resta reparar la suma de meses del año anterior.
+
+64| Flex Month sumatory solved:
+-Se soluciona la sumatoria de mismo mes y distinto año.
+
+65| Fixing Navigation:
+-Se arreglan los errores de navegacion.
+
+66| General improvements:
+-Header y botones de valores y reset de viaticos
+-Contrastes de relojes de Calculator.js
+
+67| Calendar improvements:
+-Mejoras del timeline indicaciones de inicio y fin en los slots.
+-Tamaños de los slots
+-Lengaje y tamaño de indicadores de Dias.
+
+68| Items height:
+-Añadimos un calculador de objetos de rosterScreen para tratar de resolver el Scroll de IOS.
+
+69| Viaticos:
+-Se relaciona mes con año para que no se sumen viaticos de distintos años.
+
+70| IOS scroll succesfull:
+-Finalmnete se logra que el scrol al dia de "hoy" en IOS.
+
+71| Several improvements:
+-Se añanden las pantallas de Roster vacio para RosterScreen y Calendar.
+-Se agrega la funcionalidad de cargar el PDF directo de los botones cargar PDF.
+-Se añade la navegacion por arrastre
+
+72| Night mode Calendar.js:
+-Se añade opcion estilo nocturno en calendar
+
+73| NavigationBar:
+-Se unifica el criterio de los toggle con el estilo noche de navbar.
+-Se añade boton borrar 
+
+74| general improvements:
+-Se retocan algunos estilos como navbar para android y el footer de calculator.js
+
+75| Header format:
+-Se remplaza el "Chkin" por Report y TE por TTEE, y se setean ambos datos en dos renglones.
+
+76| Calendar.js:
+-Se seta el dia de hoy digito ROJO.
+-Se marcan los dias que tiene contenido en ToDo con puntos en los casilleros de fecha.
+
+77| ToDoList:
+-Se añade opcion de marcar como listo las tareas.
+-Se añade vista previa mientras se escribe.
+
+78| general improvements:
+-Efecto Lupa a fecha seleccionada en calendar.js
+
+
+79| Viaticos Styles:
+-Se comienza a trabajar en los estilos para mejorar el UX/UI.
+
+80| New Workspace:
+-Se cambia la carpeta porque tratando de resolver una advertencia rompi todo el proyecto.
+Se soluciono descargando carpeta del repo de github, este commit est para vincular la nueva
+carpeta al repositorio.

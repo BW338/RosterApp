@@ -1,0 +1,520 @@
+import React, { useState, useEffect, useCallback } from "react";
+import { View, Text, ScrollView, Switch, Platform, StatusBar, Keyboard, Animated } from "react-native";
+import { Calendar } from "react-native-calendars";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useFocusEffect } from "@react-navigation/native";
+import styles from "../Styles/CalendarScreenStyles";
+import EmptyRoster from "../Components/EmptyRoster";
+import ToDoList from "../Components/ToDoList/ToDoList.js";
+import { Ionicons } from "@expo/vector-icons";
+import { isTodayStrict } from "../Helpers/today";
+
+const COLORS = {
+  libre: { bg: "rgba(0, 255, 0, 0.15)", border: "#3cff00ff" },
+  trabajo: { bg: "rgba(204, 194, 57, 0.15)", border: "#c7b834ff" },
+  gua: { bg: "rgba(255,59,48,0.15)", border: "#FF3B30" },
+  esm: { bg: "rgba(255,149,0,0.15)", border: "#FF9500" },
+};
+
+// Iconos y símbolos para cada tipo de actividad
+const ACTIVITY_SYMBOLS = {
+  vuelo: "🛫",
+  gua: "🟠",
+  esm: "📚",
+  tof: "☀️",
+  "*": "☀️",
+  "d/l": "☀️",
+  vac: "🏖️",
+  med: "🚑",
+  off: "☀️",
+  rest: "☀️",
+  htl: "🏨",
+  vop: "⛱️",
+  eld: "💻"
+};
+
+
+const getDayType = (day) => {
+  if (!day || !day.flights || day.flights.length === 0) return "libre";
+  const firstActivity = day.flights[0];
+
+  if (firstActivity.type === "OP" || (firstActivity.flightNumber && /^AR\d+/.test(firstActivity.flightNumber))) {
+    return "vuelo";
+  }
+  if (["*", "D/L", "VAC", "MED", "OFF", "REST"].includes(firstActivity.type)) {
+    return "libre";
+  }
+  // Para GUA, ESM, TOF, etc., devuelve el tipo mismo
+  return firstActivity.type;
+};
+
+// Render timeline de vuelos/guardias
+const renderTimeline = (dayData, isDarkMode) => {
+  // No mostrar timeline si no hay datos o es un día libre
+  if (!dayData || getDayType(dayData) === 'libre') {
+    return null;
+  }
+  const type = getDayType(dayData);
+  let depFirst, end;
+
+  switch (type) {
+    case "libre":
+      depFirst = "00:00";
+      end = "00:00";
+      break;
+    case "vuelo": {
+      const lastFlight = dayData.flights[dayData.flights.length - 1];
+      end = lastFlight?.checkout || lastFlight?.arrTime;
+      depFirst = dayData.checkin || (dayData.flights.length > 0 ? "00:00" : null);
+      break;
+    }
+    case "GUA":
+      depFirst = "00:00";
+      end = "23:59";
+      break;
+    case "ESM": {
+      const raw = dayData.flights[0]?.raw;
+      const times = raw?.match(/\d{1,2}:\d{2}/g);
+      if (times && times.length >= 2) {
+        depFirst = times[0];
+        end = times[times.length - 1];
+      } else {
+        depFirst = "00:00";
+        end = "23:59";
+      }
+      break;
+    }
+    default:
+      return null; // No mostrar timeline para otras actividades especiales
+  }
+
+  if (!depFirst || !end) {
+    return null;
+  }
+
+  const [startH, startM] = depFirst.split(":").map(Number);
+  const [endH, endM] = end.split(":").map(Number);
+  const startHour = startH + startM / 60;
+  const endHour = endH + endM / 60;
+  const isOvernight = endHour < startHour;
+
+  const blocks = Array.from({ length: 24 }, (_, h) => {
+    let active = false;
+    if (isOvernight && dayData.checkin) {
+      active = h >= Math.floor(startHour);
+    } else {
+      // If the end time is exactly on the hour (e.g., 18:00), the block for that hour should be included.
+      // The original logic `h < Math.ceil(endHour)` fails because Math.ceil(18) is 18, making the condition `18 < 18` false.
+      // Using `h <= Math.floor(endHour)` correctly includes the end hour block.
+      active = h >= Math.floor(startHour) && h <= Math.floor(endHour);
+    }
+
+    // Default content for a standard hour block
+    let content = <Text style={[styles.hourLabel, isDarkMode && styles.hourLabelDark, active && { color: '#fff' }]}>{h.toString().padStart(2, "0")}</Text>;
+
+    // Special content for check-in and end times
+    if (h === startH && h === endH && depFirst !== end) {
+      // Case: Check-in and Fin in the same hour block
+      content = (
+        <>
+          <Text style={[styles.timelineBlockLabel, active && { color: '#fff' }]}>Inicio / Fin</Text>
+          <Text style={[styles.timelineBlockLabel, isDarkMode && styles.timelineBlockLabelDark, active && { color: '#fff' }]}>Inicio / Fin</Text>
+          <Text 
+            style={[styles.hourLabelSpecial, active && { color: '#fff' }]}
+            numberOfLines={1}
+            adjustsFontSizeToFit={true}
+          >
+            {`${depFirst}-${end}`}
+          </Text>
+        </>
+      );
+    } else if (h === startH) {
+      // Case: Check-in
+      content = (
+        <>
+          <Text style={[styles.timelineBlockLabel, isDarkMode && styles.timelineBlockLabelDark, active && { color: '#fff' }]}>Inicio</Text>
+          <Text 
+            style={[styles.hourLabelSpecial, active && { color: '#fff' }]}
+            numberOfLines={1}
+            adjustsFontSizeToFit={true}
+          >{depFirst}</Text>
+        </>
+      );
+    } else if (h === endH) {
+      // Case: Fin
+      content = (
+        <>
+          <Text style={[styles.timelineBlockLabel, isDarkMode && styles.timelineBlockLabelDark, active && { color: '#fff' }]}>Fin</Text>
+          <Text 
+            style={[styles.hourLabelSpecial, active && { color: '#fff' }]}
+            numberOfLines={1}
+            adjustsFontSizeToFit={true}
+          >{end}</Text>
+        </>
+      );
+    }
+
+    return (
+      <View key={h} style={[styles.hourBlock, active ? [styles.activeBlock, isDarkMode && styles.activeBlockDark] : [styles.inactiveBlock, isDarkMode && styles.inactiveBlockDark]]}>
+        {content}
+      </View>
+    );
+  });
+
+  const row1 = blocks.slice(0, 8);
+  const row2 = blocks.slice(8, 16);
+  const row3 = blocks.slice(16, 24);
+
+  return (
+    <View style={[styles.timelineContainer, isDarkMode && styles.timelineContainerDark]}>
+      <View style={styles.timeline}>
+        <View style={styles.timelineRow}>{row1}</View>
+        <View style={styles.timelineRow}>{row2}</View>
+        <View style={styles.timelineRow}>{row3}</View>
+      </View>
+    </View>
+  );
+};
+
+// Función separada para renderizar los horarios
+const renderTimeInfo = (day, isDarkMode) => {
+  if (!day) return null;
+
+  const type = getDayType(day);
+  if (type === "libre") return null;
+
+  const checkin = day.checkin;
+  const lastFlight = day.flights?.[day.flights.length - 1];
+  const checkout = lastFlight?.checkout || lastFlight?.arrTime;
+
+  if (!checkin && !checkout) return null;
+
+  return (
+    <View style={styles.timeInfoHorizontal}>
+      {checkin && (
+        <View style={styles.timeColumn}>
+          <Text style={[styles.timeValue, isDarkMode && styles.timeValueDark]}>{checkin}</Text>
+          <Text style={[styles.timeLabel, isDarkMode && styles.timeLabelDark]}>inicio</Text>
+        </View>
+      )}
+      {checkin && checkout && (<Text style={styles.timeSeparator}>|</Text>)}
+      {checkout && (
+        <View style={styles.timeColumn}>
+          <Text style={[styles.timeValue, isDarkMode && styles.timeValueDark]}>{checkout}</Text>
+          <Text style={[styles.timeLabel, isDarkMode && styles.timeLabelDark]}>fin</Text>
+        </View>
+      )}
+    </View>
+  );
+};
+
+export default function CalendarScreen({ navigation, isDarkMode, setIsDarkMode }) {
+  const [roster, setRoster] = useState([]);
+  const [markedDates, setMarkedDates] = useState({});
+  const [selectedDay, setSelectedDay] = useState(null);
+  const [tasks, setTasks] = useState({});
+
+  // --- Estado para la vista previa flotante ---
+  const [previewTaskText, setPreviewTaskText] = useState('');
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
+  const [bubbleOpacity] = useState(new Animated.Value(0));
+
+  useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener(
+      'keyboardDidShow',
+      (e) => {
+        setKeyboardHeight(e.endCoordinates.height);
+        Animated.timing(bubbleOpacity, { toValue: 1, duration: 300, useNativeDriver: true }).start();
+      }
+    );
+    const keyboardDidHideListener = Keyboard.addListener(
+      'keyboardDidHide',
+      () => {
+        setKeyboardHeight(0);
+        setPreviewTaskText(''); // Limpiar vista previa al ocultar teclado
+        Animated.timing(bubbleOpacity, { toValue: 0, duration: 200, useNativeDriver: true }).start();
+      }
+    );
+
+    return () => {
+      keyboardDidShowListener.remove();
+      keyboardDidHideListener.remove();
+    };
+  }, [bubbleOpacity]);
+
+  // Configurar el header dinámicamente
+  useEffect(() => {
+    navigation.setOptions({
+      headerShown: true,
+      headerStyle: {
+        backgroundColor: isDarkMode ? '#1C1C1E' : '#F2F2F2',
+      },
+      headerTitleStyle: {
+        color: isDarkMode ? 'white' : 'black',
+      },
+      headerTitle: 'Calendario',
+      headerLeft: () => (
+        <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: Platform.OS === 'ios' ? 10 : 0, gap: 8 }}>
+          <Ionicons name="sunny" size={22} color={isDarkMode ? '#8E8E93' : '#FFC300'} />
+          <Switch
+            trackColor={{ false: "#767577", true: "#81b0ff" }}
+            thumbColor={"#f4f3f4"}
+            ios_backgroundColor="#3e3e3e"
+            onValueChange={setIsDarkMode}
+            value={isDarkMode}
+          />
+          <Ionicons name="moon" size={22} color={isDarkMode ? '#EAEAEA' : '#8E8E93'} />
+        </View>
+      ),
+    });
+  }, [navigation, isDarkMode]);
+
+  // Temas para el componente Calendar
+  const lightTheme = {
+    calendarBackground: '#f9f9f9',
+    monthTextColor: '#333',
+    dayTextColor: '#2d4150',
+    textDisabledColor: '#d9e1e8',
+    todayTextColor: "#FF3B30", // Rojo para el día de hoy
+    arrowColor: "#673ab7",
+    textSectionTitleColor: "#555",
+    dotColor: 'black', // Punto negro para tareas en modo claro
+    textDayFontWeight: '500',
+    textMonthFontWeight: 'bold',
+    textDayFontSize: 14,
+    textMonthFontSize: 18,
+    textSectionTitleFontSize: 12,
+  };
+
+  const darkTheme = {
+    calendarBackground: '#1C1C1E',
+    monthTextColor: '#e0e0e0',
+    dayTextColor: '#e0e0e0',
+    textDisabledColor: '#444',
+    todayTextColor: '#FF453A', // Rojo más brillante para el día de hoy en modo oscuro
+    arrowColor: '#AECBFA',
+    textSectionTitleColor: '#8E8E93',
+    dotColor: 'white', // Punto blanco para tareas en modo oscuro
+    textDayFontWeight: '500',
+    textMonthFontWeight: 'bold',
+    textDayFontSize: 14,
+    textMonthFontSize: 18,
+    textSectionTitleFontSize: 12,
+  };
+
+  // Cargar roster desde AsyncStorage
+  const loadRoster = async () => {
+    try {
+      const saved = await AsyncStorage.getItem("roster");
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        setRoster(parsed);
+      }
+    } catch (err) {
+      console.log("❌ Error cargando roster:", err);
+    }
+  };
+
+  // Cargar tareas desde AsyncStorage
+  const loadTasks = async () => {
+    try {
+      const savedTasks = await AsyncStorage.getItem("tasks");
+      if (savedTasks) setTasks(JSON.parse(savedTasks));
+    } catch (err) {
+      console.log("❌ Error cargando tasks:", err);
+    }
+  };
+
+  useEffect(() => { loadRoster(); loadTasks(); }, []);
+  useFocusEffect(useCallback(() => { loadRoster(); loadTasks(); }, []));
+  
+  // Re-genera las marcas del calendario si el roster o el tema cambian.
+  useEffect(() => {
+    if (roster.length > 0) {
+      generateMarks(roster, tasks, isDarkMode);
+    }
+  }, [roster, tasks, isDarkMode]);
+  
+  // Seleccionar día actual
+  useEffect(() => {
+    const today = new Date().toISOString().split("T")[0];
+    const found = roster.find((d) => d.fullDate?.startsWith(today));
+    setSelectedDay(found || null);
+  }, [roster]);
+
+  // Marcar días en calendario
+  const generateMarks = (data, currentTasks, darkMode) => {
+    const marks = {};
+    data.forEach((day) => {
+      const date = day.fullDate?.split("T")[0];
+      if (!date) return;
+
+      let estado = "libre";
+      const isToday = isTodayStrict(new Date(day.fullDate));
+
+      if (day.flights?.some(f => f.type === "GUA")) estado = "gua";
+      else if (day.flights?.some(f => f.type === "ESM")) estado = "esm";
+      else if (day.flights?.some(f => f.type === "OP" || f.type.startsWith("AR"))) estado = "trabajo";
+
+      marks[date] = {
+        customStyles: {
+          container: {
+            backgroundColor: COLORS[estado].bg,
+            borderColor: COLORS[estado].border,
+            borderWidth: 1.5,
+            borderRadius: 6,
+          },
+          text: {
+            // Si es hoy, aplica el color rojo del tema, si no, el color normal.
+            color: isToday ? (darkMode ? darkTheme.todayTextColor : lightTheme.todayTextColor) : (darkMode ? '#e0e0e0' : '#222'),
+            fontWeight: "600"
+          },
+        },
+      };
+
+      // Añadir un punto si el día tiene tareas
+      const dateTasks = currentTasks[date];
+      if (dateTasks && dateTasks.length > 0) {
+        marks[date].marked = true;
+      }
+    });
+    setMarkedDates(marks);
+  };
+
+  const handleDayPress = (day) => {
+    const dateString = day.dateString;
+    const foundDay = roster.find((d) => d.fullDate?.startsWith(dateString));
+    // Si no se encuentra, creamos un objeto de día vacío para que el usuario pueda añadir tareas
+    setSelectedDay(foundDay || { fullDate: dateString + "T00:00:00.000Z", flights: [], note: "Día sin actividad" });
+  };
+
+  // Función simplificada solo para el título
+  const formatDayTitleSimple = (day) => {
+    if (!day) return "";
+
+    const dayName = new Date(day.fullDate).toLocaleDateString("es-ES", { 
+      day: "2-digit", 
+      weekday: "long" 
+    }).replace(/^\w/, c => c.toUpperCase());
+
+    const type = getDayType(day);
+    const firstActivity = day.flights?.[0];
+    
+    let symbol = "";
+    let activityText = "";
+
+    if (type === "libre") {
+      symbol = "😴";
+      activityText = "Libre";
+    } else if (type === "vuelo") {
+      symbol = ACTIVITY_SYMBOLS.vuelo;
+      activityText = "Vuelo";
+    } else {
+      const activityType = firstActivity?.type?.toLowerCase();
+      symbol = ACTIVITY_SYMBOLS[activityType] || ACTIVITY_SYMBOLS[type] || "📋";
+      activityText = firstActivity?.type || type.toUpperCase();
+    }
+
+    return `${symbol} ${dayName} ${activityText}`;
+  };
+
+  const selectedDateString = selectedDay?.fullDate?.split("T")[0];
+  const isTodaySelected = selectedDateString === new Date().toISOString().split("T")[0];
+
+  return (
+    <View style={[styles.container, isDarkMode && { backgroundColor: '#121212' }]}>
+      <StatusBar barStyle={isDarkMode ? "light-content" : "dark-content"} />
+      {roster.length > 0 ? (
+        <>
+          <Calendar
+            key={isDarkMode ? 'dark-theme' : 'light-theme'} // Forzar re-renderizado al cambiar de tema
+            initialDate={new Date().toISOString().split("T")[0]}
+            markedDates={{
+              ...markedDates,
+              [selectedDateString]: {
+                ...markedDates[selectedDateString], // Mantener propiedades existentes (como el punto de 'marked')
+                customStyles: {
+                  container: {
+                    backgroundColor: markedDates[selectedDateString]?.customStyles?.container?.backgroundColor || "transparent",
+                    borderWidth: 2.5,
+                    borderColor: "rgba(128, 0, 128, 0.9)", // Un borde púrpura más intenso
+                    borderRadius: 8,
+                    // Efecto "lupa"
+                    transform: [{ scale: 1.15 }],
+                    elevation: 10, // Sombra para Android
+                    shadowColor: '#000', // Sombra para iOS
+                    shadowOffset: { width: 0, height: 4 },
+                    shadowOpacity: 0.3,
+                    shadowRadius: 5,
+                    zIndex: 10, // Asegura que esté por encima de otros días
+                  },
+                  text: {
+                    // Si es hoy, usa el color rojo del tema, si no, un color de alto contraste.
+                    color: isTodaySelected 
+                      ? (isDarkMode ? darkTheme.todayTextColor : lightTheme.todayTextColor) 
+                      : (isDarkMode ? '#FFF' : '#000'),
+                    fontWeight: "bold",
+                    fontSize: 15, // Fuente ligeramente más grande
+                  },
+                },
+              },
+            }}
+            markingType="custom"
+            onDayPress={handleDayPress}
+            theme={isDarkMode ? darkTheme : lightTheme}
+          />
+
+          <ScrollView style={[styles.infoBox, isDarkMode && styles.infoBoxDark]}>
+            {selectedDay ? (
+              <>
+                <View style={[styles.dayHeaderContainer, isDarkMode && styles.dayHeaderContainerDark]}>
+                  <View style={styles.dayTitleSection}>
+                    <Text style={[styles.dayTitle, isDarkMode && styles.dayTitleDark]}>{formatDayTitleSimple(selectedDay)}</Text>
+                  </View>
+                  <View style={styles.timeInfoSection}>
+                    {renderTimeInfo(selectedDay, isDarkMode)}
+                  </View>
+                </View>
+
+                {selectedDay.flights?.length > 0 ? (
+                  selectedDay.flights.map((f, i) => (
+                    <Text key={i} style={[styles.flightDetails, isDarkMode && styles.flightDetailsDark]}>
+                      {f.flightNumber} {f.origin} {f.depTime} - {f.arrTime} {f.destination}
+                    </Text>
+                  ))
+                ) : (
+                  <Text style={[styles.empty, isDarkMode && styles.emptyDark]}>Sin vuelos ni actividad</Text>
+                )}
+
+                {renderTimeline(selectedDay, isDarkMode)}
+
+                <ToDoList 
+                  selectedDay={selectedDay} 
+                  tasks={tasks} 
+                  setTasks={setTasks} 
+                  isDarkMode={isDarkMode}
+                  onNewTaskChange={setPreviewTaskText} // Pasar el setter para la vista previa
+                />
+              </>
+            ) : (
+              <Text style={[styles.empty, isDarkMode && styles.emptyDark]}>Seleccioná un día</Text>
+            )}
+          </ScrollView>
+        </>
+      ) : (
+        <EmptyRoster navigation={navigation} isDarkMode={isDarkMode} />
+      )}
+
+      {/* Globo de Vista Previa Flotante */}
+      {keyboardHeight > 0 && previewTaskText.trim().length > 0 && (
+        <Animated.View style={[ styles.floatingPreviewContainer, { bottom: keyboardHeight + 10, opacity: bubbleOpacity } ]}>
+          <View style={[styles.floatingPreviewBubble, isDarkMode && styles.floatingPreviewBubbleDark]}>
+            <Text style={[styles.floatingPreviewText, isDarkMode && styles.floatingPreviewTextDark]}>
+              {previewTaskText}
+            </Text>
+          </View>
+        </Animated.View>
+      )}
+    </View>
+  );
+}
