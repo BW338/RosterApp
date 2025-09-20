@@ -4,7 +4,13 @@ export default StyleSheet.create({
   fondoViaticos: { flex: 1, resizeMode: "cover", justifyContent: "flex-start", alignItems: "center", marginTop:20 },
   tituloFlex: { fontSize: 28, fontWeight: "bold", color: "white", textAlign: "center", marginVertical: 24, textShadowColor: "#000", textShadowOffset: { width: 1, height: 1 }, textShadowRadius: 4 },
   
-  calendarStyle: { borderWidth: 2, borderColor: "white", borderRadius: 20, padding: 5, marginHorizontal: 7 },
+  calendarStyle: {
+    borderWidth: 2,
+    borderColor: "white",
+    borderRadius: 20,
+    padding: 5,
+    marginHorizontal: 7
+  },
   calendarTheme: {
     monthTextColor: "#008b8b",
     textMonthFontSize: 24,
@@ -30,17 +36,34 @@ export default StyleSheet.create({
     marginTop: 20,
     marginBottom: 20,
   },
-  valorHrContainer: {
+  sumacontainer: {
     flexDirection: 'row',
     alignItems: 'center',
     padding: 10,
     backgroundColor: 'rgba(0,0,0,0.6)',
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: '#7cfc00'
+    borderColor: '#7cfc00',
+    marginTop:6,
   },
-  valorHrLabel: {
+    valorcontainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 6,
+    backgroundColor: 'rgba(216, 213, 213, 0.18)',
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#00000065',
+    marginTop:6,
+  },
+  sumatext: {
     color: 'white',
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginRight: 8,
+  },
+    valortext: {
+    color: '#474747d7',
     fontSize: 18,
     fontWeight: 'bold',
     marginRight: 8,
@@ -50,7 +73,13 @@ export default StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
   },
-  sumaFlex: { fontSize: 20, fontWeight: "bold", color: "white", marginTop: 12, textShadowColor: "#000", textShadowOffset: { width: 1, height: 1 }, textShadowRadius: 2 },
+  sumaFlex: { 
+    fontSize: 20, 
+    fontWeight: "bold"
+    , color: "white",
+     marginTop: 12,
+      textShadowColor: "rgba(230, 229, 229, 1)",
+       textShadowOffset: { width: 1, height: 1 }, textShadowRadius: 2 },
 
   // Modal Valor Hora
   modalContainer: { flex: 1, justifyContent: "center", alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.7)' },

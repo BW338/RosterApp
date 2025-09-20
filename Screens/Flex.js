@@ -173,17 +173,17 @@ const FlexScreen = () => {
         </Text>
       </View>
 
-          {/* Contenedor para el valor de la hora y la suma total */}
-          <View style={styles.calculationContainer}>
-            <TouchableOpacity style={styles.valorHrContainer} onPress={AbrirModal}>
-              <Text style={styles.valorHrLabel}>Valor Hora:</Text>
-              <Text style={styles.valorHrValue}>$ {valorHr || 0}</Text>
+        <View style={styles.sumacontainer}>
+              <Text style={styles.sumatext}>Suma Total: $ {valorHr * (suma[currentMonthKey] || 0)}</Text>
+            </View>
+
+        
+            <TouchableOpacity style={styles.valorcontainer} onPress={AbrirModal}>
+              <Text style={styles.valortext}>Valor Hora:</Text>
+              <Text style={styles.valortext}>$ {valorHr || 0}</Text>
             </TouchableOpacity>
 
-            <View style={{ marginTop: 10 }}>
-              <Text style={styles.sumaFlex}>Suma Total: $ {valorHr * (suma[currentMonthKey] || 0)}</Text>
-            </View>
-          </View>
+          
 
           <Modal visible={modalVisible} animationType="fade" transparent={true}>
             <KeyboardAvoidingView

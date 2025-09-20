@@ -288,3 +288,6 @@ const DEBUG_SUBSCRIPTION = false; IAP activa
 82| EAS BUILD | "npm expo-doctor":
 -Se resuelven conflictos para compilar a travez de expo doctor.
 -Se trabaja sobre estilos y valores de Viaticos.js
+
+83| Flex Styles:
+-Se ajustan un poco los estilos
