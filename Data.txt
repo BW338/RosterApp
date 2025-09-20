@@ -284,3 +284,7 @@ carpeta al repositorio.
 -Se añade la logica de IAP con el switch para descactivarla:
 const DEBUG_SUBSCRIPTION = true; IAP desactivada
 const DEBUG_SUBSCRIPTION = false; IAP activa
+
+82| EAS BUILD | "npm expo-doctor":
+-Se resuelven conflictos para compilar a travez de expo doctor.
+-Se trabaja sobre estilos y valores de Viaticos.js

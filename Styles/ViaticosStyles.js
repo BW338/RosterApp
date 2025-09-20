@@ -63,32 +63,35 @@ export default StyleSheet.create({
     marginBottom: 10,
     gap: 10,
   },
+  
   // --- Estilos para el nuevo contador de montos ---
   summaryBoxLeft: {
-    width: '48%',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    borderRadius: 16,
-    padding: 15,
+    width: '36%',
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    borderRadius: 6,
+    marginLeft: 8,
+    paddingVertical: 5,
     borderWidth: 1,
+    paddingLeft:12,
     borderColor: 'rgba(255, 255, 255, 0.2)',
     justifyContent: 'space-between',
   },
   summaryRow: {
-    marginBottom: 15,
+    marginBottom: 2,
   },
   summaryLabel: {
-    fontSize: 14,
+    fontSize: 13,
     color: 'rgba(255, 255, 255, 0.7)',
     marginBottom: 4,
   },
   summaryValue: {
-    fontSize: 22,
+    fontSize: 18,
     fontWeight: '600',
     color: '#FFFFFF',
   },
   totalViaticosContainer: {
     marginTop: 'auto', // Empuja el total hacia abajo
-    paddingTop: 15,
+    paddingTop: 0,
     borderTopWidth: 1,
     borderTopColor: 'rgba(255, 255, 255, 0.2)',
   },
@@ -99,10 +102,10 @@ export default StyleSheet.create({
     textTransform: 'uppercase',
   },
   totalValue: {
-    fontSize: 32,
+    fontSize: 20,
     fontWeight: 'bold',
     color: '#AECBFA', // Un azul claro para destacar
-    marginTop: 4,
+    marginTop: 0,
   },
 
   // --- Estilos para el Calendario ---
@@ -115,7 +118,7 @@ export default StyleSheet.create({
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.2)',
     borderRadius: 16,
-    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
   },
   calendarTheme: {
     calendarBackground: "transparent",
@@ -146,7 +149,7 @@ export default StyleSheet.create({
   dropdown: {
     height: 50,
     width: '100%',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
     borderRadius: 12,
     paddingHorizontal: 15,
     borderWidth: 1,
@@ -157,7 +160,7 @@ export default StyleSheet.create({
     color: 'rgba(255, 255, 255, 0.7)',
   },
   selectedTextStyle: {
-    fontSize: 16,
+    fontSize:16,
     color: '#FFFFFF',
   },
   dropdownContainer: {
@@ -167,7 +170,10 @@ export default StyleSheet.create({
     borderColor: '#333',
   },
   dropdownItemContainer: {
-    padding: 15,
+    paddingVertical: 2, // Reducimos el padding vertical
+    paddingHorizontal: 15,
+    borderBottomWidth: 1, // Añadimos un borde inferior
+    borderBottomColor: 'rgba(255, 255, 255, 0.1)', // Color sutil para el borde
   },
   itemTextStyle: {
     color: '#FFFFFF',
@@ -191,7 +197,7 @@ export default StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    padding: 12,
+    padding:2,
     borderRadius: 10,
     marginTop: 8,
   },
@@ -200,7 +206,7 @@ export default StyleSheet.create({
     alignItems: 'center',
   },
   itemText: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: 'bold',
     color: '#FFFFFF',
     marginLeft: 10,
@@ -209,7 +215,7 @@ export default StyleSheet.create({
     borderRadius: 8,
     padding: 3,
     marginTop:6,
-    backgroundColor: 'rgba(0, 0, 0, 0.3)', // Fondo oscuro para contraste
+    backgroundColor: 'rgba(0, 0, 0, 0.6)', // Fondo oscuro para contraste
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.1)', // Borde más sutil
   }, 

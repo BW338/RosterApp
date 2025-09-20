@@ -26,21 +26,21 @@ export default function ViaticosScreen({ navigation }) {
   const [ush, setUsh] = useState('');
   const [fte, setFte] = useState('');
   const [esm, setEsm] = useState('');
-  const [totalPostas, setTotalPostas] = useState(0)
-  const [viaticos, setViaticos] = useState(0)
+  const [totalEsm, setTotalEsm] = useState({});
+  const [totalOtrasPostas, setTotalOtrasPostas] = useState({});
+  const [viaticos, setViaticos] = useState(0);
   const [dropDownVisible, setDropDownVisible] = useState(false)
   const [hideArrows, setHideArrows] = useState(false);
   const [sweep, setSweep] = useState(true)
 
   const [selectedValues, setSelectedValues] = useState([]);
   const [postas] = useState([
-    'COR', 'MDZ', 'USH', 'FTE', 'ESM'
+   'ESM', 'COR', 'MDZ', 'USH', 'FTE', 
   ].flatMap(code => [
     { label: `${code} x1`, value: `${code}_1` },
     { label: `${code} x2`, value: `${code}_2` },
     { label: `${code} x3`, value: `${code}_3` },
     { label: `${code} x4`, value: `${code}_4` },
-    { label: '----------------', value: `${code}_d1`, disable: true }, // Separador
   ]));
 
   const [filteredValues, setFilteredValues] = useState([]);
@@ -71,7 +71,7 @@ useEffect(() => {
 
   useEffect(() => {
     saveDataToStorage();
-  }, [markedDates, suma, aep, cor, mdz, ush, fte, esm, totalPostas]);
+  }, [markedDates, suma, aep, cor, mdz, ush, fte, esm, totalEsm, totalOtrasPostas]);
 
   const input = (fieldName, newValor) => {
     if(fieldName === 'aep') setAep(newValor);
@@ -86,7 +86,7 @@ useEffect(() => {
     try {
       const storedData = await AsyncStorage.getItem('calendarData');
       if (storedData) {
-        const { markedDates: storedMarkedDates, suma: storedSuma, aep: storedAep, cor:storedCor, ush:storedUsh, mdz:storedMdz, fte:storedFte, esm: storedEsm, totalPostas: storedTotalPostas } = JSON.parse(storedData);
+        const { markedDates: storedMarkedDates, suma: storedSuma, aep: storedAep, cor:storedCor, ush:storedUsh, mdz:storedMdz, fte:storedFte, esm: storedEsm, totalEsm: storedTotalEsm, totalOtrasPostas: storedTotalOtrasPostas } = JSON.parse(storedData);
         setMarkedDates(storedMarkedDates || {});
         setSuma(storedSuma || {});
         setAep(storedAep || '');
@@ -95,7 +95,8 @@ useEffect(() => {
         setMdz(storedMdz || '');
         setFte(storedFte || '');
         setEsm(storedEsm || '');
-        setTotalPostas(storedTotalPostas || 0);
+        setTotalEsm(storedTotalEsm || {});
+        setTotalOtrasPostas(storedTotalOtrasPostas || {});
       }
       const storedSelectedValues = await AsyncStorage.getItem('selectedValues');
       if (storedSelectedValues) {
@@ -108,7 +109,7 @@ useEffect(() => {
 
   const saveDataToStorage = async () => {
     try {
-      const dataToStore = JSON.stringify({ markedDates, suma, aep, cor, ush, mdz, fte, esm, totalPostas });
+      const dataToStore = JSON.stringify({ markedDates, suma, aep, cor, ush, mdz, fte, esm, totalEsm, totalOtrasPostas });
       await AsyncStorage.setItem('calendarData', dataToStore);
     } catch (error) {
       console.log('Error al guardar los datos:', error);
@@ -131,9 +132,15 @@ useEffect(() => {
     }
 
     const postaTotal = airportValue * multiplier;
-    const updatedTotalPostas = { ...totalPostas };
-    updatedTotalPostas[currentMonthKey] = (updatedTotalPostas[currentMonthKey] || 0) + postaTotal;
-    setTotalPostas(updatedTotalPostas);
+    if (airportCode === 'ESM') {
+      const updatedTotalEsm = { ...totalEsm };
+      updatedTotalEsm[currentMonthKey] = (updatedTotalEsm[currentMonthKey] || 0) + postaTotal;
+      setTotalEsm(updatedTotalEsm);
+    } else {
+      const updatedTotalOtrasPostas = { ...totalOtrasPostas };
+      updatedTotalOtrasPostas[currentMonthKey] = (updatedTotalOtrasPostas[currentMonthKey] || 0) + postaTotal;
+      setTotalOtrasPostas(updatedTotalOtrasPostas);
+    }
 
     const newItem = { ...item, month: currentMonthKey, id: `${Date.now()}-${Math.random()}` };
     const updatedSelectedValues = [...selectedValues, newItem];
@@ -149,9 +156,15 @@ useEffect(() => {
 
     if (airportValue > 0) {
       const postaTotal = airportValue * multiplier;
-      const updatedTotalPostas = { ...totalPostas };
-      updatedTotalPostas[month] = (updatedTotalPostas[month] || 0) - postaTotal;
-      setTotalPostas(updatedTotalPostas);
+      if (airportCode === 'ESM') {
+        const updatedTotalEsm = { ...totalEsm };
+        updatedTotalEsm[month] = (updatedTotalEsm[month] || 0) - postaTotal;
+        setTotalEsm(updatedTotalEsm);
+      } else {
+        const updatedTotalOtrasPostas = { ...totalOtrasPostas };
+        updatedTotalOtrasPostas[month] = (updatedTotalOtrasPostas[month] || 0) - postaTotal;
+        setTotalOtrasPostas(updatedTotalOtrasPostas);
+      }
     }
 
     const updatedSelectedValues = selectedValues.filter(item => item.id !== id);
@@ -213,11 +226,22 @@ useEffect(() => {
   
   useEffect(() => {
     const sumaNum = parseInt(suma[currentMonthKey] * aep || 0);
-    const totalPostasNum = parseInt(totalPostas[currentMonthKey] || 0);
-    const sumatoria = sumaNum + totalPostasNum
-    setViaticos(sumatoria)
-    if (totalPostasNum < 0) setTotalPostas(0);
-  }, [currentMonthKey, suma, totalPostas, aep]); 
+    const totalEsmNum = parseInt(totalEsm[currentMonthKey] || 0);
+    const totalOtrasPostasNum = parseInt(totalOtrasPostas[currentMonthKey] || 0);
+    const sumatoria = sumaNum + totalEsmNum + totalOtrasPostasNum;
+    setViaticos(sumatoria);
+
+    if (totalEsmNum < 0) {
+      const updated = { ...totalEsm };
+      updated[currentMonthKey] = 0;
+      setTotalEsm(updated);
+    }
+    if (totalOtrasPostasNum < 0) {
+      const updated = { ...totalOtrasPostas };
+      updated[currentMonthKey] = 0;
+      setTotalOtrasPostas(updated);
+    }
+  }, [currentMonthKey, suma, totalEsm, totalOtrasPostas, aep]);
   
   const AbrirModal = useCallback(() => {
     setModalVisible(true);
@@ -247,15 +271,16 @@ useEffect(() => {
             }
             setMarkedDates(updatedMarkedDates);
             setSuma({ ...suma, [currentMonthKey]: 0 });
-            setTotalPostas({ ...totalPostas, [currentMonthKey]: 0 });
+            setTotalEsm({ ...totalEsm, [currentMonthKey]: 0 });
+            setTotalOtrasPostas({ ...totalOtrasPostas, [currentMonthKey]: 0 });
             const updatedSelectedValues = selectedValues.filter((item) => item.month !== currentMonthKey);
             setSelectedValues(updatedSelectedValues);
             saveSelectedValues(updatedSelectedValues);
           },
         },
       ]
-    );
-  }, [currentMonthKey, markedDates, suma, totalPostas, selectedValues]);
+    ); 
+  }, [currentMonthKey, markedDates, suma, totalEsm, totalOtrasPostas, selectedValues]);
 
 // En tu componente, asegúrate de importar los estilos
 
@@ -374,8 +399,12 @@ useEffect(() => {
                   <Text style={styles.summaryValue}>${(suma[currentMonthKey] || 0) * (aep || 0)}</Text>
                 </View>
                 <View style={styles.summaryRow}>
-                  <Text style={styles.summaryLabel}>Postas</Text>
-                  <Text style={styles.summaryValue}>${totalPostas[currentMonthKey] || 0}</Text>
+                  <Text style={styles.summaryLabel}>Postas</Text> 
+                  <Text style={styles.summaryValue}>${totalOtrasPostas[currentMonthKey] || 0}</Text>
+                </View>
+                <View style={styles.summaryRow}>
+                  <Text style={styles.summaryLabel}>ESM</Text>
+                  <Text style={styles.summaryValue}>${totalEsm[currentMonthKey] || 0}</Text>
                 </View>
 
                 <View style={styles.totalViaticosContainer}>
@@ -395,9 +424,10 @@ useEffect(() => {
                   iconStyle={styles.iconStyle}
                   data={postas}
                   search
+                  maxHeight={210}
                   labelField="label"
                   valueField="value"
-                  placeholder="Seleccionar Posta"
+                  placeholder="Postas y ESM"
                   searchPlaceholder="Buscar..."
                   onChange={(item) => handleDropdownChange(item)}
                   renderLeftIcon={() => (
