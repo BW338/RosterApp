@@ -295,3 +295,6 @@ const DEBUG_SUBSCRIPTION = false; IAP activa
 84| Subscription Plans:
 -Se setea desde playconsole (Android), RevenueCat y RosterApp 3 tipos de suscripcion
 (Mensual, semestral y anual). ya funcionan.
+
+85| +PDF Buttons:
+-Se unifica el criterio de flujo de funcionamiento.

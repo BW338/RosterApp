@@ -4,6 +4,7 @@ import { Calendar } from "react-native-calendars";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect } from "@react-navigation/native";
 import styles from "../Styles/CalendarScreenStyles";
+import { useSubscription } from "../hooks/useSubscription";
 import EmptyRoster from "../Components/EmptyRoster";
 import ToDoList from "../Components/ToDoList/ToDoList.js";
 import { Ionicons } from "@expo/vector-icons";
@@ -213,6 +214,7 @@ export default function CalendarScreen({ navigation, isDarkMode, setIsDarkMode }
   const [markedDates, setMarkedDates] = useState({});
   const [selectedDay, setSelectedDay] = useState(null);
   const [tasks, setTasks] = useState({});
+  const { isSubscribed } = useSubscription();
 
   // --- Estado para la vista previa flotante ---
   const [previewTaskText, setPreviewTaskText] = useState('');
@@ -388,6 +390,14 @@ export default function CalendarScreen({ navigation, isDarkMode, setIsDarkMode }
     setSelectedDay(foundDay || { fullDate: dateString + "T00:00:00.000Z", flights: [], note: "Día sin actividad" });
   };
 
+  const handleUploadPress = () => {
+    if (isSubscribed) {
+      navigation.navigate("RosterPannel", { autoPick: true });
+    } else {
+      navigation.navigate("SubscriptionPage");
+    }
+  };
+
   // Función simplificada solo para el título
   const formatDayTitleSimple = (day) => {
     if (!day) return "";
@@ -502,7 +512,7 @@ export default function CalendarScreen({ navigation, isDarkMode, setIsDarkMode }
           </ScrollView>
         </>
       ) : (
-        <EmptyRoster navigation={navigation} isDarkMode={isDarkMode} />
+        <EmptyRoster navigation={navigation} isDarkMode={isDarkMode} onUploadPress={handleUploadPress} />
       )}
 
       {/* Globo de Vista Previa Flotante */}

@@ -42,6 +42,7 @@ function RosterStack({ isSubscribed, offerings, purchasePackage, restorePurchase
             {...props}
             isDarkMode={isDarkMode}
             setIsDarkMode={setIsDarkMode}
+            isSubscribed={isSubscribed}
           />
         )}
       </Stack.Screen>
@@ -51,16 +52,6 @@ function RosterStack({ isSubscribed, offerings, purchasePackage, restorePurchase
             {...props}
             isSubscribed={isSubscribed}
             offerings={offerings}
-          />
-        )}
-      </Stack.Screen>
-      <Stack.Screen name="SubscriptionPage" options={{ title: "Planes de Suscripción" }}>
-        {(props) => (
-          <SubscriptionPage
-            {...props}
-            offerings={offerings}
-            purchasePackage={purchasePackage}
-            restorePurchases={restorePurchases}
           />
         )}
       </Stack.Screen>
@@ -100,6 +91,78 @@ function ViaticosStack() {
   );
 }
 
+function MainTabs({ isDarkMode, setIsDarkMode, isSubscribed, offerings, purchasePackage, restorePurchases }) {
+  return (
+    <Tab.Navigator
+      tabBarPosition="bottom" // Mueve la barra de pestañas a la parte inferior
+      screenOptions={({ route }) => ({
+        tabBarActiveTintColor: isDarkMode ? "#AECBFA" : "#3983f1",
+        tabBarInactiveTintColor: isDarkMode ? "#8E8E93" : "#888",
+        tabBarShowIcon: true,
+        tabBarStyle: {
+          backgroundColor: isDarkMode ? '#121212' : '#121212',
+          paddingBottom: Platform.OS === 'android' ? 32 : 0, // Aumentamos más el espacio para evitar superposición
+          borderTopColor: isDarkMode ? '#272729' : '#E0E0E0',
+          borderTopRightRadius:50,
+        },
+        // Estilos para el contenedor de cada pestaña para centrar el contenido
+        tabBarItemStyle: {
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+        },
+        tabBarLabelStyle: {
+          fontSize: 10,
+          textTransform: 'capitalize', // Evita que los nombres queden en mayúsculas
+          margin: 0, // Elimina márgenes que puedan causar desalineación
+        },
+        tabBarIndicatorStyle: {
+          backgroundColor: '#3983f1', // La línea que indica la pestaña activa
+          height: 2,
+        },
+        tabBarIcon: ({ color, size }) => {
+          let iconName;
+
+          if (route.name === "Roster") {
+            iconName = "airplane-outline";
+          } else if (route.name === "Calendario") {
+            iconName = "calendar-outline";
+          } else if (route.name === "Calculador") {
+            iconName = "calculator-outline";
+          } else if (route.name === "Viaticos") {
+            iconName = "wallet-outline";
+          } else if (route.name === "Flex") {
+            iconName = "time-outline";
+          }
+
+          return <Ionicons name={iconName} size={size} color={color} />;
+        },
+      })}
+    >
+      <Tab.Screen name="Roster">
+        {(props) => (
+          <RosterStack
+            {...props}
+            isSubscribed={isSubscribed}
+            offerings={offerings}
+            purchasePackage={purchasePackage}
+            restorePurchases={restorePurchases}
+            isDarkMode={isDarkMode}
+            setIsDarkMode={setIsDarkMode}
+          />
+        )}
+      </Tab.Screen>
+      <Tab.Screen name="Calendario">
+        {(props) => <CalendarStack {...props} isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} />}
+      </Tab.Screen>
+      <Tab.Screen name="Calculador" component={CalculatorScreen} />
+      <Tab.Screen name="Viaticos" component={ViaticosStack} />
+      <Tab.Screen name="Flex" component={FlexScreen} />
+
+    </Tab.Navigator>
+  );
+}
+
 export default function App() {
   const { isSubscribed, offerings, loading, purchasePackage, restorePurchases } = useSubscription();
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -117,55 +180,10 @@ export default function App() {
   return (
     <SafeAreaView style={[styles.safeArea, isDarkMode && styles.safeAreaDark]}>
       <NavigationContainer>
-        <Tab.Navigator
-          tabBarPosition="bottom" // Mueve la barra de pestañas a la parte inferior
-          screenOptions={({ route }) => ({
-            tabBarActiveTintColor: isDarkMode ? "#AECBFA" : "#3983f1",
-            tabBarInactiveTintColor: isDarkMode ? "#8E8E93" : "#888",
-            tabBarShowIcon: true,
-            tabBarStyle: {
-              backgroundColor: isDarkMode ? '#121212' : '#121212',
-              paddingBottom: Platform.OS === 'android' ? 32 : 0, // Aumentamos más el espacio para evitar superposición
-              borderTopColor: isDarkMode ? '#272729' : '#E0E0E0',
-              borderTopRightRadius:50,
-            },
-            // Estilos para el contenedor de cada pestaña para centrar el contenido
-            tabBarItemStyle: {
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-            },
-            tabBarLabelStyle: {
-              fontSize: 10,
-              textTransform: 'capitalize', // Evita que los nombres queden en mayúsculas
-              margin: 0, // Elimina márgenes que puedan causar desalineación
-            },
-            tabBarIndicatorStyle: {
-              backgroundColor: '#3983f1', // La línea que indica la pestaña activa
-              height: 2,
-            },
-            tabBarIcon: ({ color, size }) => {
-              let iconName;
-
-              if (route.name === "Roster") {
-                iconName = "airplane-outline";
-              } else if (route.name === "Calendario") {
-                iconName = "calendar-outline";
-              } else if (route.name === "Calculador") {
-                iconName = "calculator-outline";
-              } else if (route.name === "Viaticos") {
-                iconName = "wallet-outline";
-              } else if (route.name === "Flex") {
-                iconName = "time-outline";
-              }
-
-              return <Ionicons name={iconName} size={size} color={color} />;
-            },
-          })}
-        >
-          <Tab.Screen name="Roster">
+        <Stack.Navigator screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="Main">
             {(props) => (
-              <RosterStack
+              <MainTabs
                 {...props}
                 isSubscribed={isSubscribed}
                 offerings={offerings}
@@ -175,15 +193,25 @@ export default function App() {
                 setIsDarkMode={setIsDarkMode}
               />
             )}
-          </Tab.Screen>
-          <Tab.Screen name="Calendario">
-            {(props) => <CalendarStack {...props} isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} />}
-          </Tab.Screen>
-          <Tab.Screen name="Calculador" component={CalculatorScreen} />
-          <Tab.Screen name="Viaticos" component={ViaticosStack} />
-          <Tab.Screen name="Flex" component={FlexScreen} />
-
-        </Tab.Navigator>
+          </Stack.Screen>
+          <Stack.Screen
+            name="SubscriptionPage"
+            options={{
+              presentation: 'modal',
+              headerShown: true,
+              title: "Planes de Suscripción",
+            }}
+          >
+            {(props) => (
+              <SubscriptionPage
+                {...props}
+                offerings={offerings}
+                purchasePackage={purchasePackage}
+                restorePurchases={restorePurchases}
+              />
+            )}
+          </Stack.Screen>
+        </Stack.Navigator>
         <Toast />
       </NavigationContainer>
     </SafeAreaView>

@@ -178,7 +178,7 @@ export default function RosterScreen({ navigation, route, isDarkMode, setIsDarkM
             }}
           >
             <Ionicons 
-              name={isSubscribed ? "document-text-outline" : "star-outline"} 
+              name={"cloud-upload-outline"} 
               size={18} 
               color={isDarkMode ? '#AECBFA' : '#007AFF'} 
             />
@@ -188,7 +188,7 @@ export default function RosterScreen({ navigation, route, isDarkMode, setIsDarkM
               fontWeight: '600',
               fontSize: 16,
             }}>
-              {isSubscribed ? 'Cargar PDF' : 'Premium'}
+              Cargar PDF
             </Text>
           </TouchableOpacity>
         </View>
@@ -311,7 +311,7 @@ export default function RosterScreen({ navigation, route, isDarkMode, setIsDarkM
           <TodayButton onPress={scrollToToday} />
         </>
       ) : (
-        <EmptyRoster navigation={navigation} isDarkMode={isDarkMode} />
+        <EmptyRoster navigation={navigation} isDarkMode={isDarkMode} onUploadPress={handleLoadPDF} />
       )}
       </View>
     </SafeAreaView>

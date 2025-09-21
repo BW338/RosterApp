@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import styles from '../Styles/EmptyRosterStyles';
 
-const EmptyRoster = ({ navigation, isDarkMode }) => {
+const EmptyRoster = ({ navigation, isDarkMode, onUploadPress }) => {
   const containerStyle = [
     styles.container,
     isDarkMode && styles.containerDark,
@@ -23,11 +23,7 @@ const EmptyRoster = ({ navigation, isDarkMode }) => {
       </Text>
       <TouchableOpacity 
         style={buttonStyle} 
-        onPress={() => {
-          // Navegamos a la pantalla del panel de roster y le pasamos un parámetro
-          // para que inicie la selección de archivos automáticamente.
-          navigation.navigate('Roster', { screen: 'RosterPannel', params: { autoPick: true } });
-        }}
+        onPress={onUploadPress}
       >
         <Text style={buttonTextStyle}>Cargar Roster PDF</Text>
       </TouchableOpacity>
