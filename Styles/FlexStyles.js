@@ -1,7 +1,7 @@
 import { StyleSheet } from "react-native";
 
 export default StyleSheet.create({
-  fondoViaticos: { flex: 1, resizeMode: "cover", justifyContent: "flex-start", alignItems: "center", marginTop:20 },
+  fondoViaticos: { flex: 1, resizeMode: "cover", justifyContent: "flex-start", alignItems: "center", marginTop:0 },
   tituloFlex: { fontSize: 28, fontWeight: "bold", color: "white", textAlign: "center", marginVertical: 24, textShadowColor: "#000", textShadowOffset: { width: 1, height: 1 }, textShadowRadius: 4 },
   
   calendarStyle: {
@@ -9,7 +9,8 @@ export default StyleSheet.create({
     borderColor: "white",
     borderRadius: 20,
     padding: 5,
-    marginHorizontal: 7
+    marginHorizontal: 7,
+    marginTop:20,
   },
   calendarTheme: {
     monthTextColor: "#008b8b",

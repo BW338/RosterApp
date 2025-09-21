@@ -91,6 +91,18 @@ function ViaticosStack() {
   );
 }
 
+function FlexStack() {
+  return (
+    <Stack.Navigator>
+      <Stack.Screen
+        name="FlexScreen"
+        component={FlexScreen}
+        // Las opciones del header se configuran dentro de FlexScreen
+      />
+    </Stack.Navigator>
+  );
+}
+
 function MainTabs({ isDarkMode, setIsDarkMode, isSubscribed, offerings, purchasePackage, restorePurchases }) {
   return (
     <Tab.Navigator
@@ -103,7 +115,6 @@ function MainTabs({ isDarkMode, setIsDarkMode, isSubscribed, offerings, purchase
           backgroundColor: isDarkMode ? '#121212' : '#121212',
           paddingBottom: Platform.OS === 'android' ? 32 : 0, // Aumentamos más el espacio para evitar superposición
           borderTopColor: isDarkMode ? '#272729' : '#E0E0E0',
-          borderTopRightRadius:50,
         },
         // Estilos para el contenedor de cada pestaña para centrar el contenido
         tabBarItemStyle: {
@@ -157,7 +168,7 @@ function MainTabs({ isDarkMode, setIsDarkMode, isSubscribed, offerings, purchase
       </Tab.Screen>
       <Tab.Screen name="Calculador" component={CalculatorScreen} />
       <Tab.Screen name="Viaticos" component={ViaticosStack} />
-      <Tab.Screen name="Flex" component={FlexScreen} />
+      <Tab.Screen name="Flex" component={FlexStack} />
 
     </Tab.Navigator>
   );

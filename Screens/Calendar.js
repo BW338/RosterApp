@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { View, Text, ScrollView, Switch, Platform, StatusBar, Keyboard, Animated, Modal, TouchableOpacity } from "react-native";
+import { View, Text, ScrollView, Switch, Platform, StatusBar, Keyboard, Animated, TouchableOpacity } from "react-native";
 import { Calendar } from "react-native-calendars";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect } from "@react-navigation/native";
 import styles from "../Styles/CalendarScreenStyles";
 import { useSubscription } from "../hooks/useSubscription";
 import EmptyRoster from "../Components/EmptyRoster";
+import CalendarInfo from "../Components/CalendarInfo";
 import ToDoList from "../Components/ToDoList/ToDoList.js";
 import { Ionicons } from "@expo/vector-icons";
 import { isTodayStrict } from "../Helpers/today";
@@ -251,6 +252,7 @@ export default function CalendarScreen({ navigation, isDarkMode, setIsDarkMode }
       headerShown: true,
       headerStyle: {
         backgroundColor: isDarkMode ? '#1C1C1E' : '#F2F2F2',
+        maxHeight:30,
       },
       headerTitleStyle: {
         color: isDarkMode ? 'white' : 'black',
@@ -543,42 +545,12 @@ export default function CalendarScreen({ navigation, isDarkMode, setIsDarkMode }
       )}
 
       {/* Modal de Información */}
-      <Modal
-        animationType="slide"
-        transparent={true}
+      <CalendarInfo
         visible={isInfoModalVisible}
-        onRequestClose={() => setIsInfoModalVisible(false)}
-      >
-        <View style={styles.infoModalContainer}>
-          <View style={[styles.infoModalContent, isDarkMode && styles.infoModalContentDark]}>
-            <Text style={[styles.infoModalTitle, isDarkMode && styles.infoModalTitleDark]}>
-              Acerca del Calendario
-            </Text>
-            <Text style={[styles.infoModalText, isDarkMode && styles.infoModalTextDark]}>
-              Este calendario resalta automáticamente tus días de actividad según la información de tu roster.
-            </Text>
-            <Text style={[styles.infoModalText, isDarkMode && styles.infoModalTextDark]}>
-              Los colores te ayudan a identificar rápidamente el tipo de actividad programada:
-            </Text>
-
-            <View style={styles.legendContainer}>
-              {legendItems.map((item, index) => (
-                <View key={index} style={styles.legendItem}>
-                  <View style={[styles.legendColorBox, { backgroundColor: item.color }]} />
-                  <Text style={[styles.legendLabel, isDarkMode && styles.legendLabelDark]}>{item.label}</Text>
-                </View>
-              ))}
-            </View>
-
-            <TouchableOpacity
-              style={[styles.infoModalButton, isDarkMode && styles.infoModalButtonDark]}
-              onPress={() => setIsInfoModalVisible(false)}
-            >
-              <Text style={[styles.infoModalButtonText, isDarkMode && styles.infoModalButtonTextDark]}>Entendido</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
+        onClose={() => setIsInfoModalVisible(false)}
+        isDarkMode={isDarkMode}
+        legendItems={legendItems}
+      />
     </View>
   );
 }

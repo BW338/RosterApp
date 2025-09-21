@@ -16,7 +16,9 @@ import {
 } from "react-native";
 import { Calendar } from "react-native-calendars";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Ionicons } from '@expo/vector-icons';
 import styles from "../Styles/FlexStyles";
+import FlexInfo from "../Components/FlexInfo";
 
 // Nueva función para obtener una clave única de mes y año
 const getMonthYearKey = (date) => {
@@ -26,15 +28,41 @@ const getMonthYearKey = (date) => {
   return `${monthName.charAt(0).toUpperCase() + monthName.slice(1)}-${year}`;
 };
 
-const FlexScreen = () => {
+const FlexScreen = ({ navigation }) => {
   const [markedDates, setMarkedDates] = useState({});
   const [suma, setSuma] = useState({});
   // Usamos una clave que combina mes y año para el estado
   const [currentMonthKey, setCurrentMonthKey] = useState(getMonthYearKey(new Date()));
   const [valorHr, setValorHr] = useState(0);
+  const [isInfoModalVisible, setInfoModalVisible] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [hideArrows, setHideArrows] = useState(false);
   const [sweep, setSweep] = useState(true);
+
+  useEffect(() => {
+    navigation.setOptions({
+      headerShown: true,
+      headerTitle: 'Control Horas Flex',
+      headerStyle: {
+        backgroundColor: '#fff',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.08,
+        shadowRadius: 4,
+        elevation: 3,
+      },
+      headerTitleStyle: {
+        color: '#111827',
+        fontSize: 20,
+        fontWeight: '700',
+      },
+      headerRight: () => (
+        <TouchableOpacity onPress={() => setInfoModalVisible(true)} style={{ marginRight: 15 }}>
+          <Ionicons name="information-circle-outline" size={26} color="#007AFF" />
+        </TouchableOpacity>
+      ),
+    });
+  }, [navigation]);
 
   useEffect(() => {
     loadPersistedData();
@@ -130,12 +158,9 @@ const FlexScreen = () => {
 
   return (
     <>
-      <StatusBar backgroundColor="#85C1E9" barStyle="dark-content" />
+      <StatusBar barStyle="dark-content" />
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <ImageBackground source={require("../assets/bgFlex.jpg")} style={styles.fondoViaticos}>
-
-          <Text style={styles.tituloFlex}>Control Horas Flex </Text>
-          
          <Calendar
   hideExtraDays={true}
   enableSwipeMonths={sweep}
@@ -212,6 +237,12 @@ const FlexScreen = () => {
           </Modal>
         </ImageBackground>
       </TouchableWithoutFeedback>
+
+      {/* Modal de Información */}
+      <FlexInfo
+        visible={isInfoModalVisible}
+        onClose={() => setInfoModalVisible(false)}
+      />
     </>
   );
 };

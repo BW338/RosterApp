@@ -5,6 +5,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Dropdown } from 'react-native-element-dropdown';
 import { Fontisto, FontAwesome, Ionicons } from '@expo/vector-icons';
 import styles from '../Styles/ViaticosStyles';
+import ViaticosInfo from '../Components/ViaticosInfo';
 
 // Helper para obtener una clave única de mes y año (ej: "Septiembre-2024")
 const getMonthYearKey = (date) => {
@@ -19,6 +20,7 @@ export default function ViaticosScreen({ navigation }) {
   const [suma, setSuma] = useState({});
   const [currentMonthKey, setCurrentMonthKey] = useState(getMonthYearKey(new Date()));
   const [modalVisible, setModalVisible] = useState(false);
+  const [isInfoModalVisible, setInfoModalVisible] = useState(false);
   const [selectedMonth, setSelectedMonth] = useState(new Date().toLocaleDateString('es', { month: 'long' }));
   const [aep, setAep] = useState('');
   const [cor, setCor] = useState('');
@@ -288,6 +290,8 @@ useEffect(() => {
   navigation.setOptions({
     headerRight: () => (
       <View style={styles.headerRightContainer}>
+      
+
         {/* Botón Valores */}
         <TouchableOpacity 
           onPress={AbrirModal} 
@@ -309,6 +313,15 @@ useEffect(() => {
             Reset
           </Text>
         </TouchableOpacity>
+
+  {/* Botón de Información */}
+        <TouchableOpacity
+          onPress={() => setInfoModalVisible(true)}
+        >
+          <Ionicons name="information-circle-outline" size={26} color="#007AFF" />
+        </TouchableOpacity>
+
+
       </View>
     ),
     headerTitle: 'Viáticos',
@@ -447,6 +460,12 @@ useEffect(() => {
           </View>
         </ImageBackground>
       </TouchableWithoutFeedback>
+
+      {/* Modal de Información */}
+      <ViaticosInfo
+        visible={isInfoModalVisible}
+        onClose={() => setInfoModalVisible(false)}
+      />
     </>
   );
 };

@@ -301,3 +301,8 @@ const DEBUG_SUBSCRIPTION = false; IAP activa
 
 86| Info Calendar:
 -Se crea un modal para mostrar tutorial del calendario.
+
+87| Several improvements:
+-Refact calendarInfo Se lleva el modal de info del calendario a CalendarInfo.
+-Le mismo se hace con Viaticos y Flex.
+-Se añade header a Flex.
