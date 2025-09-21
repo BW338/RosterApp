@@ -298,3 +298,6 @@ const DEBUG_SUBSCRIPTION = false; IAP activa
 
 85| +PDF Buttons:
 -Se unifica el criterio de flujo de funcionamiento.
+
+86| Info Calendar:
+-Se crea un modal para mostrar tutorial del calendario.

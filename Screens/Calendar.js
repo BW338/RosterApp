@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { View, Text, ScrollView, Switch, Platform, StatusBar, Keyboard, Animated } from "react-native";
+import { View, Text, ScrollView, Switch, Platform, StatusBar, Keyboard, Animated, Modal, TouchableOpacity } from "react-native";
 import { Calendar } from "react-native-calendars";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect } from "@react-navigation/native";
@@ -215,6 +215,7 @@ export default function CalendarScreen({ navigation, isDarkMode, setIsDarkMode }
   const [selectedDay, setSelectedDay] = useState(null);
   const [tasks, setTasks] = useState({});
   const { isSubscribed } = useSubscription();
+  const [isInfoModalVisible, setIsInfoModalVisible] = useState(false);
 
   // --- Estado para la vista previa flotante ---
   const [previewTaskText, setPreviewTaskText] = useState('');
@@ -267,6 +268,14 @@ export default function CalendarScreen({ navigation, isDarkMode, setIsDarkMode }
           />
           <Ionicons name="moon" size={22} color={isDarkMode ? '#EAEAEA' : '#8E8E93'} />
         </View>
+      ),
+      headerRight: () => (
+        <TouchableOpacity
+          onPress={() => setIsInfoModalVisible(true)}
+          style={{ marginRight: 15 }}
+        >
+          <Ionicons name="information-circle-outline" size={26} color={isDarkMode ? '#AECBFA' : '#007AFF'} />
+        </TouchableOpacity>
       ),
     });
   }, [navigation, isDarkMode]);
@@ -431,6 +440,13 @@ export default function CalendarScreen({ navigation, isDarkMode, setIsDarkMode }
   const selectedDateString = selectedDay?.fullDate?.split("T")[0];
   const isTodaySelected = selectedDateString === new Date().toISOString().split("T")[0];
 
+  const legendItems = [
+    { label: 'Vuelo / Actividad', color: COLORS.trabajo.border },
+    { label: 'Guardia', color: COLORS.gua.border },
+    { label: 'Simulador / Curso', color: COLORS.esm.border },
+    { label: 'Libre / Descanso', color: COLORS.libre.border },
+  ];
+
   return (
     <View style={[styles.container, isDarkMode && { backgroundColor: '#121212' }]}>
       <StatusBar barStyle={isDarkMode ? "light-content" : "dark-content"} />
@@ -525,6 +541,44 @@ export default function CalendarScreen({ navigation, isDarkMode, setIsDarkMode }
           </View>
         </Animated.View>
       )}
+
+      {/* Modal de Información */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={isInfoModalVisible}
+        onRequestClose={() => setIsInfoModalVisible(false)}
+      >
+        <View style={styles.infoModalContainer}>
+          <View style={[styles.infoModalContent, isDarkMode && styles.infoModalContentDark]}>
+            <Text style={[styles.infoModalTitle, isDarkMode && styles.infoModalTitleDark]}>
+              Acerca del Calendario
+            </Text>
+            <Text style={[styles.infoModalText, isDarkMode && styles.infoModalTextDark]}>
+              Este calendario resalta automáticamente tus días de actividad según la información de tu roster.
+            </Text>
+            <Text style={[styles.infoModalText, isDarkMode && styles.infoModalTextDark]}>
+              Los colores te ayudan a identificar rápidamente el tipo de actividad programada:
+            </Text>
+
+            <View style={styles.legendContainer}>
+              {legendItems.map((item, index) => (
+                <View key={index} style={styles.legendItem}>
+                  <View style={[styles.legendColorBox, { backgroundColor: item.color }]} />
+                  <Text style={[styles.legendLabel, isDarkMode && styles.legendLabelDark]}>{item.label}</Text>
+                </View>
+              ))}
+            </View>
+
+            <TouchableOpacity
+              style={[styles.infoModalButton, isDarkMode && styles.infoModalButtonDark]}
+              onPress={() => setIsInfoModalVisible(false)}
+            >
+              <Text style={[styles.infoModalButtonText, isDarkMode && styles.infoModalButtonTextDark]}>Entendido</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }

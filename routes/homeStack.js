@@ -3,7 +3,7 @@
   import Calendar from "../Screens/Calendar";
   import CalculatorScreen from "../Screens/Calculator";
   import Flex from "../Screens/Flex";
-import ViaticosScreen from "../Screens/viaticos";
+import ViaticosScreen from "../Screens/Viaticos";
 
   const Tab = createBottomTabNavigator();
 
