@@ -16,7 +16,15 @@ export function useSubscription() {
     // Si estamos en modo debug, simulamos la suscripción y terminamos.
     if (DEBUG_SUBSCRIPTION) {
       setIsSubscribed(true);
-      setOfferings({ current: { identifier: "mock_offering" } });
+      // Mock con los 3 packages para testing (precios reales)
+      setOfferings({
+        identifier: "roster_mensual",
+        availablePackages: [
+          { identifier: "monthly", product: { title: "Plan Mensual", priceString: "USD$1.50" } },
+          { identifier: "six_months", product: { title: "Plan Semestral", priceString: "USD$8.00" } },
+          { identifier: "annual", product: { title: "Plan Anual", priceString: "USD$15.00" } }
+        ]
+      });
       setLoading(false);
       return;
     }
@@ -36,8 +44,10 @@ export function useSubscription() {
         setIsSubscribed(!!customerInfo.entitlements.active["Roster access"]);
 
         const fetchedOfferings = await Purchases.getOfferings();
-        if (fetchedOfferings.current) {
-          setOfferings(fetchedOfferings.current);
+        // Busca tu offering específico "roster_mensual"
+        const rosterOffering = fetchedOfferings.all["roster_mensual"];
+        if (rosterOffering) {
+          setOfferings(rosterOffering);
         }
       } catch (e) {
         console.log("Error RevenueCat:", e);
@@ -53,6 +63,47 @@ export function useSubscription() {
     init();
   }, []);
 
+  // Función para comprar un package específico
+  const purchasePackage = async (packageToPurchase) => {
+    if (DEBUG_SUBSCRIPTION) {
+      // En modo debug, simula compra exitosa
+      setIsSubscribed(true);
+      return { success: true };
+    }
+
+    try {
+      const { customerInfo } = await Purchases.purchasePackage(packageToPurchase);
+      setIsSubscribed(!!customerInfo.entitlements.active["Roster access"]);
+      return { success: true };
+    } catch (e) {
+      console.log("Error en compra:", e);
+      return { success: false, error: e };
+    }
+  };
+
+  // Función para restaurar compras
+  const restorePurchases = async () => {
+    if (DEBUG_SUBSCRIPTION) {
+      setIsSubscribed(true);
+      return { success: true };
+    }
+
+    try {
+      const customerInfo = await Purchases.restorePurchases();
+      setIsSubscribed(!!customerInfo.entitlements.active["Roster access"]);
+      return { success: true };
+    } catch (e) {
+      console.log("Error restaurando compras:", e);
+      return { success: false, error: e };
+    }
+  };
+
   // Devolvemos el estado de carga junto con los otros datos.
-  return { isSubscribed, offerings, loading };
+  return { 
+    isSubscribed, 
+    offerings, 
+    loading, 
+    purchasePackage, 
+    restorePurchases 
+  };
 }

@@ -13,6 +13,7 @@ import Calendar from "./Screens/Calendar";
 import CalculatorScreen from "./Screens/Calculator";
 import FlexScreen from "./Screens/Flex";
 import ViaticosScreen from "./Screens/Viaticos";
+import SubscriptionPage from "./Screens/SubscriptionPage"; // Nueva importación
 
 // --- Configuración global de idioma para los calendarios ---
 LocaleConfig.locales['es'] = {
@@ -30,7 +31,7 @@ LocaleConfig.defaultLocale = 'es';
 const Tab = createMaterialTopTabNavigator();
 const Stack = createNativeStackNavigator();
 
-function RosterStack({ isSubscribed, offerings, isDarkMode, setIsDarkMode }) {
+function RosterStack({ isSubscribed, offerings, purchasePackage, restorePurchases, isDarkMode, setIsDarkMode }) {
   return (
     <Stack.Navigator initialRouteName="RosterScreen">
       <Stack.Screen
@@ -50,6 +51,16 @@ function RosterStack({ isSubscribed, offerings, isDarkMode, setIsDarkMode }) {
             {...props}
             isSubscribed={isSubscribed}
             offerings={offerings}
+          />
+        )}
+      </Stack.Screen>
+      <Stack.Screen name="SubscriptionPage" options={{ title: "Planes de Suscripción" }}>
+        {(props) => (
+          <SubscriptionPage
+            {...props}
+            offerings={offerings}
+            purchasePackage={purchasePackage}
+            restorePurchases={restorePurchases}
           />
         )}
       </Stack.Screen>
@@ -90,7 +101,7 @@ function ViaticosStack() {
 }
 
 export default function App() {
-  const { isSubscribed, offerings, loading } = useSubscription();
+  const { isSubscribed, offerings, loading, purchasePackage, restorePurchases } = useSubscription();
   const [isDarkMode, setIsDarkMode] = useState(false);
 
   if (loading) {
@@ -158,6 +169,8 @@ export default function App() {
                 {...props}
                 isSubscribed={isSubscribed}
                 offerings={offerings}
+                purchasePackage={purchasePackage}
+                restorePurchases={restorePurchases}
                 isDarkMode={isDarkMode}
                 setIsDarkMode={setIsDarkMode}
               />

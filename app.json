@@ -19,7 +19,7 @@
       "permissions": [
         "BILLING"
       ],
-            "versionCode": 21,
+            "versionCode": 24,
 
       "package": "com.github1988.rosterapp",
       "adaptiveIcon": {

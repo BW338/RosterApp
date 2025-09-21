@@ -291,3 +291,7 @@ const DEBUG_SUBSCRIPTION = false; IAP activa
 
 83| Flex Styles:
 -Se ajustan un poco los estilos
+
+84| Subscription Plans:
+-Se setea desde playconsole (Android), RevenueCat y RosterApp 3 tipos de suscripcion
+(Mensual, semestral y anual). ya funcionan.

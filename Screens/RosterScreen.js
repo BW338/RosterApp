@@ -12,7 +12,7 @@ import styles from "../Styles/RosterScreenStyles";
 import EmptyRoster from "../Components/EmptyRoster";
 import Toast from "react-native-toast-message";
 
-export default function RosterScreen({ navigation, route, isDarkMode, setIsDarkMode }) {
+export default function RosterScreen({ navigation, route, isDarkMode, setIsDarkMode, isSubscribed }) {
   const [roster, setRoster] = useState([]);
   const sectionListRef = useRef(null);
   const hasScrolledRef = useRef(false);
@@ -118,6 +118,17 @@ export default function RosterScreen({ navigation, route, isDarkMode, setIsDarkM
     );
   };
 
+  // Función para manejar el botón "Cargar PDF"
+  const handleLoadPDF = () => {
+    if (isSubscribed) {
+      // Si está suscrito, va directo a cargar PDF
+      navigation.navigate("RosterPannel", { autoPick: true });
+    } else {
+      // Si no está suscrito, va a la pantalla de suscripción
+      navigation.navigate("SubscriptionPage");
+    }
+  };
+
   useEffect(() => {
     navigation.setOptions({
       headerStyle: {
@@ -154,9 +165,9 @@ export default function RosterScreen({ navigation, route, isDarkMode, setIsDarkM
             <Ionicons name="trash-outline" size={24} color={isDarkMode ? '#FF453A' : '#FF3B30'} />
           </TouchableOpacity>
 
-          {/* Botón Cargar PDF */}
+          {/* Botón Cargar PDF - Modificado */}
           <TouchableOpacity
-            onPress={() => navigation.navigate("RosterPannel", { autoPick: true })}
+            onPress={handleLoadPDF}
             style={{
               flexDirection: 'row',
               alignItems: 'center',
@@ -166,37 +177,41 @@ export default function RosterScreen({ navigation, route, isDarkMode, setIsDarkM
               borderRadius: 8,
             }}
           >
-            <Ionicons name="document-text-outline" size={18} color={isDarkMode ? '#AECBFA' : '#007AFF'} />
+            <Ionicons 
+              name={isSubscribed ? "document-text-outline" : "star-outline"} 
+              size={18} 
+              color={isDarkMode ? '#AECBFA' : '#007AFF'} 
+            />
             <Text style={{
               color: isDarkMode ? '#AECBFA' : '#007AFF',
               marginLeft: 6,
               fontWeight: '600',
               fontSize: 16,
-            }}>Cargar PDF</Text>
+            }}>
+              {isSubscribed ? 'Cargar PDF' : 'Premium'}
+            </Text>
           </TouchableOpacity>
         </View>
       ),
     });
-  }, [navigation, isDarkMode]);
+  }, [navigation, isDarkMode, isSubscribed]); // Agregado isSubscribed como dependencia
 
   // Cargar roster (param o AsyncStorage)
-useEffect(() => {
-  const loadRoster = async () => {
-    if (route.params?.roster?.length > 0) {
-    //  console.log("📌 Roster cargado desde route.params:", route.params.roster);
-      setRoster(route.params.roster);
-    } else {
-      const saved = await loadRosterFromStorage();
-      if (saved.length > 0) {
-       // console.log("💾 Roster cargado desde AsyncStorage:", saved);
-        setRoster(saved);
+  useEffect(() => {
+    const loadRoster = async () => {
+      if (route.params?.roster?.length > 0) {
+        setRoster(route.params.roster);
       } else {
-        console.log("⚠️ No se encontró roster en params ni en AsyncStorage");
+        const saved = await loadRosterFromStorage();
+        if (saved.length > 0) {
+          setRoster(saved);
+        } else {
+          console.log("⚠️ No se encontró roster en params ni en AsyncStorage");
+        }
       }
-    }
-  };
-  loadRoster();
-}, [route.params]);
+    };
+    loadRoster();
+  }, [route.params]);
 
   // Scroll automático al abrir
   useEffect(() => {
