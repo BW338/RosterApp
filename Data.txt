@@ -310,3 +310,6 @@ const DEBUG_SUBSCRIPTION = false; IAP activa
 88| Build IPA-6.AAB:
 -Se realiza el build para probar el flujo de solicitud de suscripcion.
 Funciona correctamente.
+
+89| DisclaimerModal.js:
+-Se Agrega el disclaimer y su flujo de funcionamiento.

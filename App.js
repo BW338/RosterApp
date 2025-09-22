@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { SafeAreaView, ActivityIndicator, Platform, StyleSheet } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
@@ -14,6 +14,11 @@ import CalculatorScreen from "./Screens/Calculator";
 import FlexScreen from "./Screens/Flex";
 import ViaticosScreen from "./Screens/Viaticos";
 import SubscriptionPage from "./Screens/SubscriptionPage"; // Nueva importación
+import DisclaimerModal from "./Components/DisclaimerModal"; // Importar el nuevo modal
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
+// --- Flag de Desarrollo ---
+const ALWAYS_SHOW_DISCLAIMER = true; // Poner en 'false' para el comportamiento normal
 
 // --- Configuración global de idioma para los calendarios ---
 LocaleConfig.locales['es'] = {
@@ -177,6 +182,35 @@ function MainTabs({ isDarkMode, setIsDarkMode, isSubscribed, offerings, purchase
 export default function App() {
   const { isSubscribed, offerings, loading, purchasePackage, restorePurchases } = useSubscription();
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [isDisclaimerVisible, setIsDisclaimerVisible] = useState(false);
+
+  // Al iniciar la app, verificar si el disclaimer ya fue aceptado
+  useEffect(() => {
+    const checkDisclaimer = async () => {
+      // Si el flag de desarrollo está activo, siempre mostramos el modal y salimos.
+      if (ALWAYS_SHOW_DISCLAIMER) {
+        setTimeout(() => setIsDisclaimerVisible(true), 500);
+        return;
+      }
+
+      try {
+        const hasAccepted = await AsyncStorage.getItem('disclaimer_accepted');
+        if (hasAccepted !== 'true') {
+          // Si no ha sido aceptado, mostrar el modal después de un breve instante
+          // para asegurar que la UI principal esté lista.
+          setTimeout(() => {
+            setIsDisclaimerVisible(true);
+          }, 500);
+        }
+      } catch (e) {
+        console.error("Fallo al leer la preferencia del disclaimer.", e);
+        // En caso de error, es más seguro mostrar el disclaimer.
+        setIsDisclaimerVisible(true);
+      }
+    };
+
+    checkDisclaimer();
+  }, []);
 
   if (loading) {
     return (
@@ -225,6 +259,12 @@ export default function App() {
         </Stack.Navigator>
         <Toast />
       </NavigationContainer>
+
+      {/* El modal del disclaimer se renderiza aquí, por encima de todo */}
+      <DisclaimerModal
+        visible={isDisclaimerVisible}
+        onClose={() => setIsDisclaimerVisible(false)}
+      />
     </SafeAreaView>
   );
 }
