@@ -306,3 +306,7 @@ const DEBUG_SUBSCRIPTION = false; IAP activa
 -Refact calendarInfo Se lleva el modal de info del calendario a CalendarInfo.
 -Le mismo se hace con Viaticos y Flex.
 -Se añade header a Flex.
+
+88| Build IPA-6.AAB:
+-Se realiza el build para probar el flujo de solicitud de suscripcion.
+Funciona correctamente.

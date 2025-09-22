@@ -5,7 +5,7 @@ import { Platform } from "react-native";
 // Switch para activar/desactivar la implementación de IAP.
 // true:  Modo debug, siempre suscrito. Para desarrollo.
 // false: Modo producción, usa RevenueCat para verificar suscripciones reales.
-const DEBUG_SUBSCRIPTION = true;
+const DEBUG_SUBSCRIPTION = false;
 
 export function useSubscription() {
   const [isSubscribed, setIsSubscribed] = useState(false);

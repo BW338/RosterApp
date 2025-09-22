@@ -74,22 +74,23 @@ const SubscriptionPage = ({ navigation, offerings, purchasePackage, restorePurch
   };
 
   const getPackageDetails = (packageItem) => {
-    const details = {
-      monthly: {
+    // Mapeo de detalles por TIPO de paquete (MONTHLY, ANNUAL, etc.)
+    const detailsByPackageType = {
+      MONTHLY: {
         title: 'Plan Mensual',
         description: 'Acceso completo por 1 mes',
         popular: false,
         savings: null,
         icon: 'calendar-outline'
       },
-      six_months: {
+      SIX_MONTH: {
         title: 'Plan Semestral',
         description: 'Acceso completo por 6 meses',
         popular: true,
         savings: 'Ahorra 11%',
         icon: 'medal-outline'
       },
-      annual: {
+      ANNUAL: {
         title: 'Plan Anual',
         description: 'Acceso completo por 1 año',
         popular: false,
@@ -98,7 +99,17 @@ const SubscriptionPage = ({ navigation, offerings, purchasePackage, restorePurch
       }
     };
 
-    return details[packageItem.identifier] || {
+    // Mapeo para modo DEBUG que usa 'identifier' en lugar de 'packageType'
+    const detailsByIdentifier = {
+      monthly: detailsByPackageType.MONTHLY,
+      six_months: detailsByPackageType.SIX_MONTH,
+      annual: detailsByPackageType.ANNUAL,
+    };
+
+    // Se prioriza 'packageType' (producción) y se usa 'identifier' como fallback (debug)
+    const details = detailsByPackageType[packageItem.packageType] || detailsByIdentifier[packageItem.identifier];
+
+    return details || { // Fallback final si no se encuentra por ninguno de los dos métodos
       title: packageItem.product?.title || 'Plan Desconocido',
       description: 'Acceso completo',
       popular: false,
@@ -207,14 +218,14 @@ const SubscriptionPage = ({ navigation, offerings, purchasePackage, restorePurch
         </View>
 
         {/* Restore Button */}
-        {/* <TouchableOpacity
+        <TouchableOpacity
           style={styles.restoreButton}
           onPress={handleRestore}
           disabled={loading}
         >
           <Ionicons name="refresh-outline" size={20} color="#666" />
           <Text style={styles.restoreText}>Restaurar compras</Text>
-        </TouchableOpacity> */}
+        </TouchableOpacity>
 
         {/* Footer */}
         <View style={styles.footer}>
