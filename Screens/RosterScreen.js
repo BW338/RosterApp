@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef, useCallback, useMemo } from "react";
-import { View, Text, SectionList, SafeAreaView, TouchableOpacity, Switch, Platform, StatusBar, Alert } from "react-native";
+import { View, Text, SectionList, SafeAreaView, TouchableOpacity, Platform, StatusBar, Alert } from "react-native";
 import FlightCard from "../Components/FlightCard/FlightCard";
 import { Ionicons } from "@expo/vector-icons";
 import { formatDateShort } from "../Helpers/dateInSpanish";
@@ -11,6 +11,8 @@ import { loadRosterFromStorage, clearAllData } from "../Helpers/StorageUtils";
 import styles from "../Styles/RosterScreenStyles";
 import EmptyRoster from "../Components/EmptyRoster";
 import Toast from "react-native-toast-message";
+import SettingsModal from "../Components/SettingsModal";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function RosterScreen({ navigation, route, isDarkMode, setIsDarkMode, isSubscribed }) {
   const [roster, setRoster] = useState([]);
@@ -22,6 +24,9 @@ export default function RosterScreen({ navigation, route, isDarkMode, setIsDarkM
   const headerHeightsRef = useRef({});  // { [sectionIndex]: height }
   const avgItemHeightRef = useRef(115); // Estimación inicial razonable
   const avgHeaderHeightRef = useRef(36);
+
+  const [isSettingsModalVisible, setIsSettingsModalVisible] = useState(false);
+  const [todayColor, setTodayColor] = useState('#FFD54F'); // Color por defecto
 
   // --- Memoización de Secciones ---
   const sections = useMemo(() => {
@@ -137,29 +142,13 @@ export default function RosterScreen({ navigation, route, isDarkMode, setIsDarkM
       headerTitleStyle: {
         color: isDarkMode ? 'white' : 'black',
       },
-      headerLeft: () => (
-        <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: Platform.OS === 'ios' ? 10 : 0, gap: 8 }}>
-          <Ionicons
-            name="sunny"
-            size={22}
-            color={isDarkMode ? '#8E8E93' : '#FFC300'} // Gris en modo oscuro, amarillo en modo claro
-          />
-          <Switch
-            trackColor={{ false: "#767577", true: "#81b0ff" }}
-            thumbColor={"#f4f3f4"}
-            ios_backgroundColor="#3e3e3e"
-            onValueChange={setIsDarkMode}
-            value={isDarkMode}
-          />
-          <Ionicons
-            name="moon"
-            size={22}
-            color={isDarkMode ? '#EAEAEA' : '#8E8E93'} // Blanco en modo oscuro, gris en modo claro
-          />
-        </View>
-      ),
       headerRight: () => (
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 20, marginRight: Platform.OS === 'ios' ? 10 : 15 }}>
+          {/* Botón de Configuración */}
+          <TouchableOpacity onPress={() => setIsSettingsModalVisible(true)}>
+            <Ionicons name="cog-outline" size={24} color={isDarkMode ? '#AECBFA' : '#007AFF'} />
+          </TouchableOpacity>
+
           {/* Botón para borrar storage (desarrollo) */}
           <TouchableOpacity onPress={handleClearAllStorage} testID="clear-storage-button">
             <Ionicons name="trash-outline" size={24} color={isDarkMode ? '#FF453A' : '#FF3B30'} />
@@ -196,6 +185,31 @@ export default function RosterScreen({ navigation, route, isDarkMode, setIsDarkM
     });
   }, [navigation, isDarkMode, isSubscribed]); // Agregado isSubscribed como dependencia
 
+  // Cargar y guardar configuración
+  useEffect(() => {
+    const loadSettings = async () => {
+      try {
+        const savedColor = await AsyncStorage.getItem('settings_todayColor');
+        if (savedColor) {
+          setTodayColor(savedColor);
+        }
+      } catch (e) {
+        console.error("Failed to load today's color setting.", e);
+      }
+    };
+    loadSettings();
+  }, []);
+
+  useEffect(() => {
+    const saveSettings = async () => {
+      try {
+        await AsyncStorage.setItem('settings_todayColor', todayColor);
+      } catch (e) {
+        console.error("Failed to save today's color setting.", e);
+      }
+    };
+    saveSettings();
+  }, [todayColor]);
   // Cargar roster (param o AsyncStorage)
   useEffect(() => {
     const loadRoster = async () => {
@@ -260,8 +274,8 @@ export default function RosterScreen({ navigation, route, isDarkMode, setIsDarkM
               const { title, fullDate, tv, tsv, checkin } = section;
               const te = subtractMinutes(tsv, 30);
               const today = isTodayStrict(fullDate);
-              const headerBgStyle = isDarkMode ? (index % 2 === 0 ? { backgroundColor: '#48484A' } : { backgroundColor: '#3A3A3C' }) : (index % 2 === 0 ? styles.sectionHeaderEven : styles.sectionHeaderOdd);
-              const todayBgStyle = today ? styles.todaySection : {};
+              const headerBgStyle = isDarkMode ? (index % 2 === 0 ? { backgroundColor: '#2C2C2E' } : { backgroundColor: '#1C1C1E' }) : (index % 2 === 0 ? styles.sectionHeaderEven : styles.sectionHeaderOdd);
+              const todayBgStyle = today ? { backgroundColor: todayColor } : {};
               const mainTextColor = today ? '#000' : (isDarkMode ? '#FFFFFF' : '#1C1C1E');
               const subTextColor = today ? '#333' : (isDarkMode ? '#EAEAEA' : '#555');
               const headerInfoLabelColor = today ? '#333' : (isDarkMode ? '#AEAEB2' : '#555');
@@ -314,6 +328,15 @@ export default function RosterScreen({ navigation, route, isDarkMode, setIsDarkM
         <EmptyRoster navigation={navigation} isDarkMode={isDarkMode} onUploadPress={handleLoadPDF} />
       )}
       </View>
+
+      <SettingsModal
+        visible={isSettingsModalVisible}
+        onClose={() => setIsSettingsModalVisible(false)}
+        isDarkMode={isDarkMode}
+        setIsDarkMode={setIsDarkMode}
+        todayColor={todayColor}
+        setTodayColor={setTodayColor}
+      />
     </SafeAreaView>
   );
 }

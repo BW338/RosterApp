@@ -313,3 +313,6 @@ Funciona correctamente.
 
 89| DisclaimerModal.js:
 -Se Agrega el disclaimer y su flujo de funcionamiento.
+
+90| RosterScreen Settings:
+-Se añade menu de preferencias para setear modo night y color dia HOY.

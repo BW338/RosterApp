@@ -15,9 +15,6 @@ export default StyleSheet.create({
         borderBottomWidth: 1,
         borderColor: '#e0e0e0',
     },
-    todaySection: {
-  backgroundColor: "#FFD54F", // Amarillo suave
-},
    noteText: {
     fontSize: 14,
     fontWeight: "500",

@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
-import { Modal, View, Text, StyleSheet, TouchableOpacity, ScrollView, Switch } from 'react-native';
+import { Modal, View, Text, ScrollView, Switch, TouchableOpacity } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
+import styles from '../Styles/DisclaimerStyles';
 
 const DisclaimerModal = ({ visible, onClose }) => {
-  const [dontShowAgain, setDontShowAgain] = useState(true); 
-
+  const [dontShowAgain, setDontShowAgain] = useState(true);
+  const [buttonPressed, setButtonPressed] = useState(false);
+  
   const handleAccept = async () => {
     if (dontShowAgain) {
       try {
@@ -22,38 +24,68 @@ const DisclaimerModal = ({ visible, onClose }) => {
       animationType="fade"
       transparent={true}
       visible={visible}
-      onRequestClose={handleAccept} // Permite cerrar con el botón de atrás en Android
+      onRequestClose={handleAccept}
+      statusBarTranslucent={true} // Para mejor integración en Android
     >
       <View style={styles.centeredView}>
         <View style={styles.modalView}>
-          <Ionicons name="shield-checkmark-outline" size={48} color="#3983f1" style={{ marginBottom: 15 }} />
+          {/* Contenedor del ícono con fondo */}
+          <View style={styles.iconContainer}>
+            <Ionicons 
+              name="shield-checkmark-outline" 
+              size={48} 
+              color="#3983f1" 
+            />
+          </View>
+          
           <Text style={styles.modalTitle}>Aviso Importante</Text>
-          <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+          <Text style={styles.modalSubtitle}>
+            Información sobre el uso de la aplicación
+          </Text>
+          
+          <ScrollView 
+            style={styles.scrollView} 
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{ paddingBottom: 8 }}
+          >
             <Text style={styles.disclaimerText}>
               Esta aplicación fue creada de manera independiente para ayudarte a organizar tu trabajo de forma más simple.
               {'\n\n'}
-              No pertenece ni está vinculada a ninguna aerolínea ni compañía aérea.
+              <Text style={styles.bold}>• No pertenece ni está vinculada</Text> a ninguna aerolínea ni compañía aérea.
               {'\n\n'}
-              Toda la información que ves en la app proviene únicamente de los archivos que vos mismo cargás (por ejemplo, tu plan de vuelo en PDF).
+              <Text style={styles.bold}>• Toda la información</Text> que ves en la app proviene únicamente de los archivos que vos mismo cargás (por ejemplo, tu plan de vuelo en PDF).
               {'\n\n'}
-              Los datos se procesan y guardan <Text style={styles.bold}>sólo en tu dispositivo</Text>: no se comparten ni almacenan en servidores externos.
+              <Text style={styles.bold}>• Los datos se procesan y guardan </Text>
+              <Text style={styles.highlight}>sólo en tu dispositivo</Text>: no se comparten ni almacenan en servidores externos.
               {'\n\n'}
-              El uso de la app es voluntario y queda bajo tu responsabilidad.
+              <Text style={styles.bold}>• El uso de la app</Text> es voluntario y queda bajo tu responsabilidad.
             </Text>
           </ScrollView>
 
           <View style={styles.switchContainer}>
             <Switch
-              trackColor={{ false: "#767577", true: "#81b0ff" }}
-              thumbColor={"#f4f3f4"}
-              ios_backgroundColor="#3e3e3e"
+              trackColor={{ false: "#d1d5db", true: "#93c5fd" }}
+              thumbColor={dontShowAgain ? "#3983f1" : "#f3f4f6"}
+              ios_backgroundColor="#d1d5db"
               onValueChange={setDontShowAgain}
               value={dontShowAgain}
             />
-            <Text style={styles.switchLabel}>No volver a mostrar</Text>
+            <Text style={styles.switchLabel}>No volver a mostrar este aviso</Text>
           </View>
 
-          <TouchableOpacity style={styles.acceptButton} onPress={handleAccept}>
+          <TouchableOpacity 
+            style={[
+              styles.acceptButton,
+              styles.accessibleButton,
+              buttonPressed && styles.acceptButtonPressed
+            ]}
+            onPress={handleAccept}
+            onPressIn={() => setButtonPressed(true)}
+            onPressOut={() => setButtonPressed(false)}
+            activeOpacity={0.9}
+            accessibilityRole="button"
+            accessibilityLabel="Acepto los términos y continuar"
+          >
             <Text style={styles.acceptButtonText}>Acepto y Continuar</Text>
           </TouchableOpacity>
         </View>
@@ -61,73 +93,5 @@ const DisclaimerModal = ({ visible, onClose }) => {
     </Modal>
   );
 };
-
-const styles = StyleSheet.create({
-  centeredView: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.7)',
-  },
-  modalView: {
-    margin: 20,
-    backgroundColor: 'white',
-    borderRadius: 20,
-    padding: 25,
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
-    width: '90%',
-    maxHeight: '85%',
-  },
-  modalTitle: {
-    marginBottom: 15,
-    textAlign: 'center',
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#333',
-  },
-  scrollView: {
-    width: '100%',
-    marginBottom: 20,
-  },
-  disclaimerText: {
-    fontSize: 15,
-    lineHeight: 22,
-    color: '#555',
-    textAlign: 'left',
-  },
-  bold: {
-    fontWeight: 'bold',
-  },
-  switchContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 20,
-    padding: 10,
-  },
-  switchLabel: {
-    marginLeft: 10,
-    fontSize: 16,
-    color: '#444',
-  },
-  acceptButton: {
-    backgroundColor: '#3983f1',
-    borderRadius: 10,
-    paddingVertical: 14,
-    paddingHorizontal: 20,
-    elevation: 2,
-    width: '100%',
-  },
-  acceptButtonText: {
-    color: 'white',
-    fontWeight: 'bold',
-    textAlign: 'center',
-    fontSize: 16,
-  },
-});
 
 export default DisclaimerModal;
