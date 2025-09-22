@@ -26,9 +26,17 @@ function getDuration(dep, arr) {
   }
 }
 
-export default function FlightCard({ flight, isLastOfDay, tv, tsv, te, isDarkMode }) {
+export default function FlightCard({ flight, isLastOfDay, tv, tsv, te, isDarkMode, isToday, todayColor }) {
   // Estilos dinámicos
-  const cardStyle = [styles.card, isDarkMode && styles.cardDark];
+  const cardStyle = [
+    styles.card, 
+    isDarkMode && styles.cardDark,
+    // Si es el día de hoy, aplicamos el color de fondo con opacidad.
+    // Esto sobreescribirá el backgroundColor de styles.card o styles.cardDark.
+    // Se usa una opacidad de ~20% (33 en hexadecimal)
+    isToday && { backgroundColor: `${todayColor}33` }
+  ];
+
   const routeStyle = [styles.route, isDarkMode && styles.routeDark];
   const textStyle = isDarkMode ? styles.textDark : {};
   const mutedTextStyle = isDarkMode ? styles.textDarkMuted : {};

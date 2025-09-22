@@ -40,8 +40,7 @@ function RosterStack({ isSubscribed, offerings, purchasePackage, restorePurchase
   return (
     <Stack.Navigator initialRouteName="RosterScreen">
       <Stack.Screen
-        name="RosterScreen"
-        options={{ title: "" }}>
+        name="RosterScreen">
         {(props) => (
           <RosterScreen
             {...props}

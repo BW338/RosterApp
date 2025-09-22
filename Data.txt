@@ -316,3 +316,6 @@ Funciona correctamente.
 
 90| RosterScreen Settings:
 -Se añade menu de preferencias para setear modo night y color dia HOY.
+
+91| Today activity:
+-Se setea para que el contenedor de la actividad de hoy, tenga el tono de color del header.

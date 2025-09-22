@@ -136,19 +136,18 @@ export default function RosterScreen({ navigation, route, isDarkMode, setIsDarkM
 
   useEffect(() => {
     navigation.setOptions({
+      headerTitle: 'Roster',
+      headerTitleAlign: 'left',
       headerStyle: {
         backgroundColor: isDarkMode ? '#1C1C1E' : '#F2F2F2',
       },
       headerTitleStyle: {
         color: isDarkMode ? 'white' : 'black',
+        fontWeight: '700',
+        fontSize: 22,
       },
       headerRight: () => (
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 20, marginRight: Platform.OS === 'ios' ? 10 : 15 }}>
-          {/* Botón de Configuración */}
-          <TouchableOpacity onPress={() => setIsSettingsModalVisible(true)}>
-            <Ionicons name="cog-outline" size={24} color={isDarkMode ? '#AECBFA' : '#007AFF'} />
-          </TouchableOpacity>
-
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 18, marginRight: Platform.OS === 'ios' ? 10 : 15 }}>
           {/* Botón para borrar storage (desarrollo) */}
           <TouchableOpacity onPress={handleClearAllStorage} testID="clear-storage-button">
             <Ionicons name="trash-outline" size={24} color={isDarkMode ? '#FF453A' : '#FF3B30'} />
@@ -157,33 +156,32 @@ export default function RosterScreen({ navigation, route, isDarkMode, setIsDarkM
           {/* Botón Cargar PDF - Modificado */}
           <TouchableOpacity
             onPress={handleLoadPDF}
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              backgroundColor: isDarkMode ? '#3A3A3C' : '#E5E5EA',
-              paddingHorizontal: 12,
-              paddingVertical: 6,
-              borderRadius: 8,
-            }}
+            style={[
+              styles.headerButton,
+              { backgroundColor: isDarkMode ? '#3A3A3C' : '#E5E5EA' }
+            ]}
           >
             <Ionicons 
               name={"cloud-upload-outline"} 
               size={18} 
               color={isDarkMode ? '#AECBFA' : '#007AFF'} 
             />
-            <Text style={{
-              color: isDarkMode ? '#AECBFA' : '#007AFF',
-              marginLeft: 6,
-              fontWeight: '600',
-              fontSize: 16,
-            }}>
+            <Text style={[
+              styles.headerButtonText,
+              { color: isDarkMode ? '#AECBFA' : '#007AFF' }
+            ]}>
               Cargar PDF
             </Text>
+          </TouchableOpacity>
+
+          {/* Botón de Configuración */}
+          <TouchableOpacity onPress={() => setIsSettingsModalVisible(true)}>
+            <Ionicons name="cog-outline" size={24} color={isDarkMode ? '#AECBFA' : '#007AFF'} />
           </TouchableOpacity>
         </View>
       ),
     });
-  }, [navigation, isDarkMode, isSubscribed]); // Agregado isSubscribed como dependencia
+  }, [navigation, isDarkMode, isSubscribed]);
 
   // Cargar y guardar configuración
   useEffect(() => {
@@ -256,15 +254,33 @@ export default function RosterScreen({ navigation, route, isDarkMode, setIsDarkM
             windowSize={11}
             renderItem={({ item, index, section }) => {
               if (!section) return null;
+
+              const today = isTodayStrict(section.fullDate);
+
               const isLastOfDay = index === (section.data?.length || 0) - 1;
               return (
+                // El contenedor ya no lleva el color de fondo
                 <View onLayout={(e) => handleItemLayout(section.sectionIndex, index, e.nativeEvent.layout.height)}>
                   {item.note && !item.flightNumber ? (
-                    <View style={[getActivityStyle(item.activity, isDarkMode), { justifyContent: 'center', alignItems: 'center', marginHorizontal: 10, marginVertical: 6, borderRadius: 8, padding: 15 }]}>
+                    <View style={[
+                      getActivityStyle(item.activity, isDarkMode), 
+                      { justifyContent: 'center', alignItems: 'center', marginHorizontal: 10, marginVertical: 6, borderRadius: 8, padding: 15 },
+                      // Aplicamos el color de fondo directamente aquí si es "hoy"
+                      today && { backgroundColor: `${todayColor}33` }
+                    ]}>
                       <Text style={{ color: isDarkMode ? '#FFF' : '#333', fontWeight: '500' }}>{item.note}</Text>
                     </View>
                   ) : (
-                    <FlightCard isDarkMode={isDarkMode} flight={item} isLastOfDay={isLastOfDay} tv={section.tv} tsv={section.tsv} te={section.te} />
+                    <FlightCard 
+                      isDarkMode={isDarkMode} 
+                      flight={item} 
+                      isLastOfDay={isLastOfDay} 
+                      tv={section.tv} 
+                      tsv={section.tsv} 
+                      te={section.te}
+                      isToday={today} // Prop para indicar si es el día de hoy
+                      todayColor={todayColor} // Prop para pasar el color
+                    />
                   )}
                 </View>
               );

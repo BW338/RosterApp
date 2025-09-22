@@ -67,5 +67,16 @@ todayButtonText: {
   color: "white",
   fontWeight: "bold",
 },
-
+headerButton: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  paddingHorizontal: 12,
+  paddingVertical: 6,
+  borderRadius: 8,
+},
+headerButtonText: {
+  marginLeft: 6,
+  fontWeight: '600',
+  fontSize: 16,
+},
 });
