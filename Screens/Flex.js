@@ -18,6 +18,7 @@ import { Calendar } from "react-native-calendars";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Ionicons } from '@expo/vector-icons';
 import styles from "../Styles/FlexStyles";
+import { getToday } from "../Helpers/dateManager";
 import FlexInfo from "../Components/FlexInfo";
 
 // Nueva función para obtener una clave única de mes y año
@@ -32,7 +33,7 @@ const FlexScreen = ({ navigation }) => {
   const [markedDates, setMarkedDates] = useState({});
   const [suma, setSuma] = useState({});
   // Usamos una clave que combina mes y año para el estado
-  const [currentMonthKey, setCurrentMonthKey] = useState(getMonthYearKey(new Date()));
+  const [currentMonthKey, setCurrentMonthKey] = useState(getMonthYearKey(getToday()));
   const [valorHr, setValorHr] = useState(0);
   const [isInfoModalVisible, setInfoModalVisible] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
@@ -67,7 +68,7 @@ const FlexScreen = ({ navigation }) => {
   useEffect(() => {
     loadPersistedData();
 
-    const currentDate = new Date();
+    const currentDate = getToday();
     const currentDay = currentDate.toLocaleDateString("es", { day: "2-digit" });
 
     if (Platform.OS === "android") {

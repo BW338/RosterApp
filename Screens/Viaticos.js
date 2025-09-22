@@ -5,6 +5,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Dropdown } from 'react-native-element-dropdown';
 import { Fontisto, FontAwesome, Ionicons } from '@expo/vector-icons';
 import styles from '../Styles/ViaticosStyles';
+import { getToday } from '../Helpers/dateManager';
 import ViaticosInfo from '../Components/ViaticosInfo';
 
 // Helper para obtener una clave única de mes y año (ej: "Septiembre-2024")
@@ -18,10 +19,10 @@ export default function ViaticosScreen({ navigation }) {
 
   const [markedDates, setMarkedDates] = useState({});
   const [suma, setSuma] = useState({});
-  const [currentMonthKey, setCurrentMonthKey] = useState(getMonthYearKey(new Date()));
+  const [currentMonthKey, setCurrentMonthKey] = useState(getMonthYearKey(getToday()));
   const [modalVisible, setModalVisible] = useState(false);
   const [isInfoModalVisible, setInfoModalVisible] = useState(false);
-  const [selectedMonth, setSelectedMonth] = useState(new Date().toLocaleDateString('es', { month: 'long' }));
+  const [selectedMonth, setSelectedMonth] = useState(getToday().toLocaleDateString('es', { month: 'long' }));
   const [aep, setAep] = useState('');
   const [cor, setCor] = useState('');
   const [mdz, setMdz] = useState('');
@@ -50,7 +51,7 @@ export default function ViaticosScreen({ navigation }) {
 useEffect(() => {
   loadPersistedData();
   
-  const currentDate = new Date();
+  const currentDate = getToday();
   const currentDay = currentDate.toLocaleDateString('es', { day: '2-digit' });
   
   if (Platform.OS === 'android') {

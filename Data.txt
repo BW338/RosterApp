@@ -319,3 +319,13 @@ Funciona correctamente.
 
 91| Today activity:
 -Se setea para que el contenedor de la actividad de hoy, tenga el tono de color del header.
+
+92| Calendar Header:
+-Se setea el header del calendar.
+
+93| Debug Values:
+-Se añaden valores y flags para modo desarrollo, para:
+-Mover dia de hoy a otra fecha
+-Mostrar siempre el disclaimer
+-suscripcion activa
+**Estos valores los encontramos rapidamente ingresando en el buscador "MODO DE PRUEBA"

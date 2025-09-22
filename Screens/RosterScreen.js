@@ -3,8 +3,9 @@ import { View, Text, SectionList, SafeAreaView, TouchableOpacity, Platform, Stat
 import FlightCard from "../Components/FlightCard/FlightCard";
 import { Ionicons } from "@expo/vector-icons";
 import { formatDateShort } from "../Helpers/dateInSpanish";
-import TodayButton from "../Components/Buttons/TodayButton";
-import { subtractMinutes, isToday, isTodayStrict } from "../Helpers/today";
+import TodayButton from "../Components/Buttons/TodayButton"; 
+import { subtractMinutes, isToday } from "../Helpers/today";
+import { isTodayWithOffset } from "../Helpers/dateManager"; // Importamos el nuevo manejador
 import { getDynamicStyle } from "../Helpers/styleUtils";
 import { getActivityStyle } from "../Helpers/activityStyleUtils";
 import { loadRosterFromStorage, clearAllData } from "../Helpers/StorageUtils";
@@ -57,7 +58,7 @@ export default function RosterScreen({ navigation, route, isDarkMode, setIsDarkM
     if (!sectionListRef.current || !sections.length) return;
 
     const todaySectionIndex = sections.findIndex(
-      d => d.fullDate && isTodayStrict(new Date(d.fullDate))
+      d => d.fullDate && isTodayWithOffset(new Date(d.fullDate))
     );
 
     if (todaySectionIndex === -1) {
@@ -255,7 +256,7 @@ export default function RosterScreen({ navigation, route, isDarkMode, setIsDarkM
             renderItem={({ item, index, section }) => {
               if (!section) return null;
 
-              const today = isTodayStrict(section.fullDate);
+              const today = isTodayWithOffset(section.fullDate);
 
               const isLastOfDay = index === (section.data?.length || 0) - 1;
               return (
@@ -289,7 +290,7 @@ export default function RosterScreen({ navigation, route, isDarkMode, setIsDarkM
               if (!section) return null;
               const { title, fullDate, tv, tsv, checkin } = section;
               const te = subtractMinutes(tsv, 30);
-              const today = isTodayStrict(fullDate);
+              const today = isTodayWithOffset(fullDate);
               const headerBgStyle = isDarkMode ? (index % 2 === 0 ? { backgroundColor: '#2C2C2E' } : { backgroundColor: '#1C1C1E' }) : (index % 2 === 0 ? styles.sectionHeaderEven : styles.sectionHeaderOdd);
               const todayBgStyle = today ? { backgroundColor: todayColor } : {};
               const mainTextColor = today ? '#000' : (isDarkMode ? '#FFFFFF' : '#1C1C1E');

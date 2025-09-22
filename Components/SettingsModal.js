@@ -12,6 +12,7 @@ const SettingsModal = ({
   setIsDarkMode,
   todayColor,
   setTodayColor,
+  onOpenInfo,
 }) => {
   return (
     <Modal visible={visible} onRequestClose={onClose} transparent={true} animationType="fade">
@@ -35,24 +36,41 @@ const SettingsModal = ({
           </View>
 
           {/* Section: Roster */}
-          <View style={styles.section}>
-            <Text style={[styles.sectionTitle, isDarkMode && styles.sectionTitleDark]}>Roster</Text>
-            <View style={[styles.optionRow, isDarkMode && styles.optionRowDark]}>
-              <Ionicons name="today-outline" size={24} color={isDarkMode ? '#FFF' : '#000'} />
-              <Text style={[styles.optionText, isDarkMode && styles.optionTextDark]}>Color del día "Hoy"</Text>
+          {setTodayColor && (
+            <View style={styles.section}>
+              <Text style={[styles.sectionTitle, isDarkMode && styles.sectionTitleDark]}>Roster</Text>
+              <View style={[styles.optionRow, isDarkMode && styles.optionRowDark]}>
+                <Ionicons name="today-outline" size={24} color={isDarkMode ? '#FFF' : '#000'} />
+                <Text style={[styles.optionText, isDarkMode && styles.optionTextDark]}>Color del día "Hoy"</Text>
+              </View>
+              <View style={styles.colorPickerContainer}>
+                {COLOR_OPTIONS.map(color => (
+                  <TouchableOpacity
+                    key={color}
+                    style={[styles.colorOption, { backgroundColor: color, borderWidth: todayColor === color ? 2 : 0 }]}
+                    onPress={() => setTodayColor(color)}
+                  >
+                    {todayColor === color && <Ionicons name="checkmark" size={20} color="white" />}
+                  </TouchableOpacity>
+                ))}
+              </View>
             </View>
-            <View style={styles.colorPickerContainer}>
-              {COLOR_OPTIONS.map(color => (
-                <TouchableOpacity
-                  key={color}
-                  style={[styles.colorOption, { backgroundColor: color, borderWidth: todayColor === color ? 2 : 0 }]}
-                  onPress={() => setTodayColor(color)}
-                >
-                  {todayColor === color && <Ionicons name="checkmark" size={20} color="white" />}
-                </TouchableOpacity>
-              ))}
+          )}
+
+          {/* Section: Ayuda (condicional) */}
+          {onOpenInfo && (
+            <View style={styles.section}>
+              <Text style={[styles.sectionTitle, isDarkMode && styles.sectionTitleDark]}>Ayuda</Text>
+              <TouchableOpacity 
+                style={[styles.optionRow, isDarkMode && styles.optionRowDark]}
+                onPress={onOpenInfo}
+              >
+                <Ionicons name="information-circle-outline" size={24} color={isDarkMode ? '#AECBFA' : '#007AFF'} />
+                <Text style={[styles.optionText, isDarkMode && styles.optionTextDark]}>Guía de Uso</Text>
+                <Ionicons name="chevron-forward-outline" size={20} color={isDarkMode ? '#8E8E93' : '#C7C7CD'} />
+              </TouchableOpacity>
             </View>
-          </View>
+          )}
 
           <TouchableOpacity style={[styles.closeButton, isDarkMode && styles.closeButtonDark]} onPress={onClose}>
             <Text style={[styles.closeButtonText, isDarkMode && styles.closeButtonTextDark]}>Cerrar</Text>

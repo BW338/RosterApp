@@ -1,4 +1,4 @@
-import { isTodayStrict } from "./today";
+import { isTodayWithOffset } from "../Helpers/dateManager";
 
 /**
  * Posiciona la SectionList en el día actual.
@@ -12,7 +12,7 @@ import { Platform } from 'react-native';
  */
 export const scrollToToday = (roster, sectionListRef) => {
   const todayIndex = roster.findIndex(
-    d => d.fullDate && isTodayStrict(new Date(d.fullDate))
+    d => d.fullDate && isTodayWithOffset(new Date(d.fullDate))
   );
 
   if (todayIndex === -1) {

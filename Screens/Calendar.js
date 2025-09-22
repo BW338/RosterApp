@@ -7,9 +7,10 @@ import styles from "../Styles/CalendarScreenStyles";
 import { useSubscription } from "../hooks/useSubscription";
 import EmptyRoster from "../Components/EmptyRoster";
 import CalendarInfo from "../Components/CalendarInfo";
+import SettingsModal from "../Components/SettingsModal";
 import ToDoList from "../Components/ToDoList/ToDoList.js";
 import { Ionicons } from "@expo/vector-icons";
-import { isTodayStrict } from "../Helpers/today";
+import { getToday, isTodayWithOffset } from "../Helpers/dateManager";
 
 const COLORS = {
   libre: { bg: "rgba(0, 255, 0, 0.15)", border: "#3cff00ff" },
@@ -217,6 +218,15 @@ export default function CalendarScreen({ navigation, isDarkMode, setIsDarkMode }
   const [tasks, setTasks] = useState({});
   const { isSubscribed } = useSubscription();
   const [isInfoModalVisible, setIsInfoModalVisible] = useState(false);
+  const [isSettingsModalVisible, setIsSettingsModalVisible] = useState(false);
+
+  // Función para abrir el modal de info desde el de configuración
+  const handleOpenInfo = () => {
+    setIsSettingsModalVisible(false); // Primero cerramos el modal de ajustes
+    setTimeout(() => {
+      setIsInfoModalVisible(true); // Luego abrimos el de información
+    }, 300); // Un pequeño delay para una transición más suave
+  };
 
   // --- Estado para la vista previa flotante ---
   const [previewTaskText, setPreviewTaskText] = useState('');
@@ -251,32 +261,18 @@ export default function CalendarScreen({ navigation, isDarkMode, setIsDarkMode }
     navigation.setOptions({
       headerShown: true,
       headerStyle: {
-        backgroundColor: isDarkMode ? '#1C1C1E' : '#F2F2F2',
-        maxHeight:30,
+        backgroundColor: isDarkMode ? '#1C1C1E' : '#F2F2F2'
       },
       headerTitleStyle: {
         color: isDarkMode ? 'white' : 'black',
+        fontWeight: '700',
+        fontSize: 22,
       },
       headerTitle: 'Calendario',
-      headerLeft: () => (
-        <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: Platform.OS === 'ios' ? 10 : 0, gap: 8 }}>
-          <Ionicons name="sunny" size={22} color={isDarkMode ? '#8E8E93' : '#FFC300'} />
-          <Switch
-            trackColor={{ false: "#767577", true: "#81b0ff" }}
-            thumbColor={"#f4f3f4"}
-            ios_backgroundColor="#3e3e3e"
-            onValueChange={setIsDarkMode}
-            value={isDarkMode}
-          />
-          <Ionicons name="moon" size={22} color={isDarkMode ? '#EAEAEA' : '#8E8E93'} />
-        </View>
-      ),
+      headerTitleAlign: 'left',
       headerRight: () => (
-        <TouchableOpacity
-          onPress={() => setIsInfoModalVisible(true)}
-          style={{ marginRight: 15 }}
-        >
-          <Ionicons name="information-circle-outline" size={26} color={isDarkMode ? '#AECBFA' : '#007AFF'} />
+        <TouchableOpacity onPress={() => setIsSettingsModalVisible(true)} style={{ marginRight: 15 }}>
+          <Ionicons name="cog-outline" size={24} color={isDarkMode ? '#AECBFA' : '#007AFF'} />
         </TouchableOpacity>
       ),
     });
@@ -350,7 +346,7 @@ export default function CalendarScreen({ navigation, isDarkMode, setIsDarkMode }
   
   // Seleccionar día actual
   useEffect(() => {
-    const today = new Date().toISOString().split("T")[0];
+    const today = getToday().toISOString().split("T")[0];
     const found = roster.find((d) => d.fullDate?.startsWith(today));
     setSelectedDay(found || null);
   }, [roster]);
@@ -363,7 +359,7 @@ export default function CalendarScreen({ navigation, isDarkMode, setIsDarkMode }
       if (!date) return;
 
       let estado = "libre";
-      const isToday = isTodayStrict(new Date(day.fullDate));
+      const isTodayDate = isTodayWithOffset(new Date(day.fullDate));
 
       if (day.flights?.some(f => f.type === "GUA")) estado = "gua";
       else if (day.flights?.some(f => f.type === "ESM")) estado = "esm";
@@ -379,7 +375,7 @@ export default function CalendarScreen({ navigation, isDarkMode, setIsDarkMode }
           },
           text: {
             // Si es hoy, aplica el color rojo del tema, si no, el color normal.
-            color: isToday ? (darkMode ? darkTheme.todayTextColor : lightTheme.todayTextColor) : (darkMode ? '#e0e0e0' : '#222'),
+            color: isTodayDate ? (darkMode ? darkTheme.todayTextColor : lightTheme.todayTextColor) : (darkMode ? '#e0e0e0' : '#222'),
             fontWeight: "600"
           },
         },
@@ -439,8 +435,8 @@ export default function CalendarScreen({ navigation, isDarkMode, setIsDarkMode }
     return `${symbol} ${dayName} ${activityText}`;
   };
 
-  const selectedDateString = selectedDay?.fullDate?.split("T")[0];
-  const isTodaySelected = selectedDateString === new Date().toISOString().split("T")[0];
+  const selectedDateString = selectedDay?.fullDate?.split("T")[0]; 
+  const isTodaySelected = selectedDateString === getToday().toISOString().split("T")[0];
 
   const legendItems = [
     { label: 'Vuelo / Actividad', color: COLORS.trabajo.border },
@@ -456,7 +452,7 @@ export default function CalendarScreen({ navigation, isDarkMode, setIsDarkMode }
         <>
           <Calendar
             key={isDarkMode ? 'dark-theme' : 'light-theme'} // Forzar re-renderizado al cambiar de tema
-            initialDate={new Date().toISOString().split("T")[0]}
+            initialDate={getToday().toISOString().split("T")[0]}
             markedDates={{
               ...markedDates,
               [selectedDateString]: {
@@ -550,6 +546,14 @@ export default function CalendarScreen({ navigation, isDarkMode, setIsDarkMode }
         onClose={() => setIsInfoModalVisible(false)}
         isDarkMode={isDarkMode}
         legendItems={legendItems}
+      />
+
+      <SettingsModal
+        visible={isSettingsModalVisible}
+        onClose={() => setIsSettingsModalVisible(false)}
+        isDarkMode={isDarkMode}
+        setIsDarkMode={setIsDarkMode}
+        onOpenInfo={handleOpenInfo} // Pasamos la nueva función
       />
     </View>
   );

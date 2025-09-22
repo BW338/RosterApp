@@ -18,6 +18,7 @@ import DisclaimerModal from "./Components/DisclaimerModal"; // Importar el nuevo
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // --- Flag de Desarrollo ---
+// MODO DE PRUEBA
 const ALWAYS_SHOW_DISCLAIMER = true; // Poner en 'false' para el comportamiento normal
 
 // --- Configuración global de idioma para los calendarios ---
@@ -68,7 +69,6 @@ function CalendarStack({ isDarkMode, setIsDarkMode }) {
     <Stack.Navigator>
       <Stack.Screen
         name="CalendarScreen"
-        options={{ headerShown: false }} // El header se gestiona dentro de la pantalla
       >
         {(props) => (
           <Calendar

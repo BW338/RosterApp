@@ -6,6 +6,7 @@ import { Platform } from "react-native";
 // true:  Modo debug, siempre suscrito. Para desarrollo.
 // false: Modo producción, usa RevenueCat para verificar suscripciones reales.
 const DEBUG_SUBSCRIPTION = true;
+//MODO DE PRUEBA
 
 export function useSubscription() {
   const [isSubscribed, setIsSubscribed] = useState(false);
