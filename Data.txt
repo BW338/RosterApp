@@ -329,3 +329,9 @@ Funciona correctamente.
 -Mostrar siempre el disclaimer
 -suscripcion activa
 **Estos valores los encontramos rapidamente ingresando en el buscador "MODO DE PRUEBA"
+
+94| IAP / WelcomwScreen.js:
+-Se realizan cambios con listener para reconocer cuando el usuario compra una suscripcion.
+-Se añade pantalla de bienvenida WelcomwScreen.js
+-Se corrige una cuestion que habia luego de cargar el PDF, resulta que quedaba la opcion en 
+header para volver a RosterPannel.

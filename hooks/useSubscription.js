@@ -62,6 +62,20 @@ export function useSubscription() {
     };
 
     init();
+
+    // Listener para actualizaciones en tiempo real del estado de la suscripción.
+    // Esto es crucial para que la app reaccione inmediatamente después de una compra.
+    const customerInfoUpdateHandler = (customerInfo) => {
+      console.log("ℹ️ Listener de RevenueCat: Información de cliente actualizada.");
+      setIsSubscribed(!!customerInfo.entitlements.active["Roster access"]);
+    };
+
+    Purchases.addCustomerInfoUpdateListener(customerInfoUpdateHandler);
+
+    // Limpiar el listener cuando el componente se desmonte para evitar fugas de memoria.
+    return () => {
+      Purchases.removeCustomerInfoUpdateListener(customerInfoUpdateHandler);
+    };
   }, []);
 
   // Función para comprar un package específico

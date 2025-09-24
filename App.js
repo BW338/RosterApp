@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { SafeAreaView, ActivityIndicator, Platform, StyleSheet } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
@@ -15,11 +15,13 @@ import FlexScreen from "./Screens/Flex";
 import ViaticosScreen from "./Screens/Viaticos";
 import SubscriptionPage from "./Screens/SubscriptionPage"; // Nueva importación
 import DisclaimerModal from "./Components/DisclaimerModal"; // Importar el nuevo modal
+import WelcomeScreen from "./Components/WelcomeScreen"; // Pantalla de bienvenida
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // --- Flag de Desarrollo ---
 // MODO DE PRUEBA
-const ALWAYS_SHOW_DISCLAIMER = true; // Poner en 'false' para el comportamiento normal
+const ALWAYS_SHOW_DISCLAIMER = false; // Poner en 'false' para el comportamiento normal
+const ALWAYS_SHOW_WELCOME = true; // Poner en 'false' para el comportamiento normal
 
 // --- Configuración global de idioma para los calendarios ---
 LocaleConfig.locales['es'] = {
@@ -37,7 +39,7 @@ LocaleConfig.defaultLocale = 'es';
 const Tab = createMaterialTopTabNavigator();
 const Stack = createNativeStackNavigator();
 
-function RosterStack({ isSubscribed, offerings, purchasePackage, restorePurchases, isDarkMode, setIsDarkMode }) {
+function RosterStack({ isSubscribed, offerings, isDarkMode, setIsDarkMode }) {
   return (
     <Stack.Navigator initialRouteName="RosterScreen">
       <Stack.Screen
@@ -107,7 +109,7 @@ function FlexStack() {
   );
 }
 
-function MainTabs({ isDarkMode, setIsDarkMode, isSubscribed, offerings, purchasePackage, restorePurchases }) {
+function MainTabs({ isDarkMode, setIsDarkMode, isSubscribed, offerings }) {
   return (
     <Tab.Navigator
       tabBarPosition="bottom" // Mueve la barra de pestañas a la parte inferior
@@ -160,8 +162,6 @@ function MainTabs({ isDarkMode, setIsDarkMode, isSubscribed, offerings, purchase
             {...props}
             isSubscribed={isSubscribed}
             offerings={offerings}
-            purchasePackage={purchasePackage}
-            restorePurchases={restorePurchases}
             isDarkMode={isDarkMode}
             setIsDarkMode={setIsDarkMode}
           />
@@ -182,9 +182,36 @@ export default function App() {
   const { isSubscribed, offerings, loading, purchasePackage, restorePurchases } = useSubscription();
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [isDisclaimerVisible, setIsDisclaimerVisible] = useState(false);
+  const [appState, setAppState] = useState('loading'); // 'loading', 'welcome', 'ready'
 
-  // Al iniciar la app, verificar si el disclaimer ya fue aceptado
   useEffect(() => {
+    const prepareApp = async () => {
+      // Si el flag de desarrollo está activo, siempre mostramos la bienvenida.
+      if (ALWAYS_SHOW_WELCOME) {
+        setAppState('welcome');
+        return;
+      }
+
+      try {
+        const hasOpenedBefore = await AsyncStorage.getItem('has_opened_before');
+        if (!hasOpenedBefore) {
+          setAppState('welcome');
+        } else {
+          setAppState('ready');
+        }
+      } catch (e) {
+        console.warn('Error checking first open', e);
+        setAppState('ready'); // En caso de error, continuar a la app
+      }
+    };
+
+    prepareApp();
+  }, []);
+
+  // El disclaimer se verifica solo cuando la app está lista (después de la bienvenida)
+  useEffect(() => {
+    if (appState !== 'ready') return;
+
     const checkDisclaimer = async () => {
       // Si el flag de desarrollo está activo, siempre mostramos el modal y salimos.
       if (ALWAYS_SHOW_DISCLAIMER) {
@@ -209,9 +236,23 @@ export default function App() {
     };
 
     checkDisclaimer();
+  }, [appState]);
+
+  const handleWelcomeFinish = useCallback(async () => {
+    try {
+      await AsyncStorage.setItem('has_opened_before', 'true');
+    } catch (e) {
+      console.warn('Failed to save first open flag', e);
+    }
+    setAppState('ready');
   }, []);
 
-  if (loading) {
+  if (appState === 'welcome') {
+    return <WelcomeScreen onFinish={handleWelcomeFinish} />;
+  }
+
+  // Muestra el loader mientras se prepara la app o se cargan las suscripciones
+  if (appState === 'loading' || loading) {
     return (
       <SafeAreaView
         style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
@@ -231,8 +272,6 @@ export default function App() {
                 {...props}
                 isSubscribed={isSubscribed}
                 offerings={offerings}
-                purchasePackage={purchasePackage}
-                restorePurchases={restorePurchases}
                 isDarkMode={isDarkMode}
                 setIsDarkMode={setIsDarkMode}
               />

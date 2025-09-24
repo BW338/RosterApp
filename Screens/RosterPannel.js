@@ -1,14 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { View, Button, Alert } from "react-native";
 import { WebView } from "react-native-webview";
-import Purchases from "react-native-purchases";
 import { parseRosterText } from "../Functions/parseRosterText";
 import { pickPdfFile } from "../Functions/pickPdf";
 import PrimaryButton from "../Components/Buttons/PrimaryButton";
 import Toast from "react-native-toast-message";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-export default function RosterPannelScreen({ isSubscribed, offerings, navigation, route }) {
+export default function RosterPannelScreen({ navigation, route }) {
   const [pdfData, setPdfData] = useState(null);
   const [roster, setRoster] = useState([]);
   const [isPicking, setIsPicking] = useState(false);
@@ -61,7 +60,6 @@ const handleClearStorage = async () => {
   // Abrir selector de PDF
   const handlePickPdf = async (isAutoPicking = false) => {
     if (isPicking) return;
-    if (!isSubscribed) return; // Seguridad extra
     setIsPicking(true);
     const base64 = await pickPdfFile();
     if (base64) {
@@ -71,36 +69,6 @@ const handleClearStorage = async () => {
       navigation.goBack();
     }
     setIsPicking(false);
-  };
-
-  // Suscribirse
-  const handleSubscribe = async () => {
-    if (!offerings || !offerings.availablePackages.length) {
-      Toast.show({
-        type: "error",
-        text1: "Error",
-        text2: "No hay suscripciones disponibles.",
-      });
-      return;
-    }
-
-    try {
-      const purchaseInfo = await Purchases.purchasePackage(
-        offerings.availablePackages[0]
-      );
-
-      if (purchaseInfo.customerInfo.entitlements.active["Roster access"]) {
-        Toast.show({ type: "success", text1: "¡Suscripción activa!" });
-      }
-    } catch (e) {
-      if (!e.userCancelled) {
-        Toast.show({
-          type: "error",
-          text1: "Error",
-          text2: "No se pudo completar la compra.",
-        });
-      }
-    }
   };
 
   // Mostrar PDF si ya fue seleccionado
@@ -143,7 +111,7 @@ const handleClearStorage = async () => {
             </html>
           `,
         }}
-        onMessage={(event) => {
+        onMessage={async (event) => {
           try {
             const data = event.nativeEvent.data;
             if (data.startsWith("{")) {
@@ -159,9 +127,17 @@ const handleClearStorage = async () => {
               }
             }
             const parsed = parseRosterText(data);
-            setRoster(parsed);
+            // Guardamos el roster en el storage antes de navegar para asegurar la persistencia
+            if (parsed && parsed.length > 0) {
+              await AsyncStorage.setItem("roster", JSON.stringify(parsed));
+            }
             setPdfData(null);
-            navigation.navigate("RosterScreen", { roster: parsed });
+            // Usamos reset para que la pantalla de carga no quede en el historial de navegación.
+            // Esto evita que el usuario pueda "volver" a esta pantalla desde el Roster.
+            navigation.reset({
+              index: 0,
+              routes: [{ name: 'RosterScreen', params: { roster: parsed } }],
+            });
           } catch (err) {
             console.error("Error procesando mensaje WebView:", err);
             Toast.show({
@@ -177,11 +153,7 @@ const handleClearStorage = async () => {
 
   return (
     <View style={{ flex: 1, padding: 10, marginTop: 50 }}>
-      {isSubscribed ? (
-        <PrimaryButton title="Cargar PDF" onPress={handlePickPdf} disabled={isPicking} />
-      ) : (
-        <PrimaryButton title="Suscribirse" onPress={handleSubscribe} />
-      )}
+      <PrimaryButton title="Cargar PDF" onPress={handlePickPdf} disabled={isPicking} />
      <View style={{ marginTop: 20 }}>
   <View style={{ marginTop: 20 }}>
   <PrimaryButton
