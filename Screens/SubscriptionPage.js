@@ -53,16 +53,19 @@ const SubscriptionPage = ({ navigation, offerings, purchasePackage, restorePurch
     try {
       const result = await restorePurchases();
       
-      if (result.success) {
+      // Verificamos si la API tuvo éxito Y si se encontró una suscripción activa.
+      if (result.success && result.restored) {
         Alert.alert(
           'Compras restauradas',
-          'Tus suscripciones han sido restauradas exitosamente.',
+          'Tu suscripción activa ha sido restaurada exitosamente.',
           [{ text: 'Continuar', onPress: () => navigation.goBack() }]
         );
       } else {
+        // Esto cubre el caso donde la API funciona pero no hay compras activas,
+        // o si la API falló por alguna razón.
         Alert.alert(
-          'No se encontraron compras',
-          'No se encontraron suscripciones previas en tu cuenta.',
+          'Sin compras activas',
+          'No se encontró una suscripción activa para restaurar en tu cuenta.',
           [{ text: 'OK' }]
         );
       }

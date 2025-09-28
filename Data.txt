@@ -340,5 +340,13 @@ header para volver a RosterPannel.
 -Se realizan cambios en el chequeo de suscripcion del usuario.
 -Se agregan componentes como DebugBanner.js y algunos Toast para desarrollo,
 la finalidad es ver como se comporta el sistema en cuanto a comprobacion de suscripcion.
+-----
+**Que comprobar que todo funcione, se acabaron las compilaciones disponibles asi que habra que
+esperar dos dias a que cambie el mes y se refresque el cupo de EAS.
+
+96| Restore purchases:
+-Se realizan cambios en el funcionamiento y notificaciones del boton restaurar compras.
+Mas que nada para dar mas transparencia en el mensaje que devuevle.
+-----
 **Que comprobar que todo funcione, se acabaron las compilaciones disponibles asi que habra que
 esperar dos dias a que cambie el mes y se refresque el cupo de EAS.
