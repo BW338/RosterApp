@@ -335,3 +335,10 @@ Funciona correctamente.
 -Se añade pantalla de bienvenida WelcomwScreen.js
 -Se corrige una cuestion que habia luego de cargar el PDF, resulta que quedaba la opcion en 
 header para volver a RosterPannel.
+
+95| IAP / DEBUG Componentes:
+-Se realizan cambios en el chequeo de suscripcion del usuario.
+-Se agregan componentes como DebugBanner.js y algunos Toast para desarrollo,
+la finalidad es ver como se comporta el sistema en cuanto a comprobacion de suscripcion.
+**Que comprobar que todo funcione, se acabaron las compilaciones disponibles asi que habra que
+esperar dos dias a que cambie el mes y se refresque el cupo de EAS.

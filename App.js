@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { SafeAreaView, ActivityIndicator, Platform, StyleSheet } from "react-native";
+import { SafeAreaView, ActivityIndicator, Platform, StyleSheet, View } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
@@ -13,9 +13,10 @@ import Calendar from "./Screens/Calendar";
 import CalculatorScreen from "./Screens/Calculator";
 import FlexScreen from "./Screens/Flex";
 import ViaticosScreen from "./Screens/Viaticos";
-import SubscriptionPage from "./Screens/SubscriptionPage"; // Nueva importación
-import DisclaimerModal from "./Components/DisclaimerModal"; // Importar el nuevo modal
-import WelcomeScreen from "./Components/WelcomeScreen"; // Pantalla de bienvenida
+import SubscriptionPage from "./Screens/SubscriptionPage"; 
+import DisclaimerModal from "./Components/DisclaimerModal"; 
+import DebugBanner from "./Components/DebugBanner"; 
+import WelcomeScreen from "./Components/WelcomeScreen"; 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // --- Flag de Desarrollo ---
@@ -179,7 +180,7 @@ function MainTabs({ isDarkMode, setIsDarkMode, isSubscribed, offerings }) {
 }
 
 export default function App() {
-  const { isSubscribed, offerings, loading, purchasePackage, restorePurchases } = useSubscription();
+  const { isSubscribed, offerings, loading, purchasePackage, restorePurchases, showDebugBanner, activeSubscription, appUserID } = useSubscription();
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [isDisclaimerVisible, setIsDisclaimerVisible] = useState(false);
   const [appState, setAppState] = useState('loading'); // 'loading', 'welcome', 'ready'
@@ -263,47 +264,59 @@ export default function App() {
   }
 
   return (
-    <SafeAreaView style={[styles.safeArea, isDarkMode && styles.safeAreaDark]}>
-      <NavigationContainer>
-        <Stack.Navigator screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="Main">
-            {(props) => (
-              <MainTabs
-                {...props}
-                isSubscribed={isSubscribed}
-                offerings={offerings}
-                isDarkMode={isDarkMode}
-                setIsDarkMode={setIsDarkMode}
-              />
-            )}
-          </Stack.Screen>
-          <Stack.Screen
-            name="SubscriptionPage"
-            options={{
-              presentation: 'modal',
-              headerShown: true,
-              title: "Planes de Suscripción",
-            }}
-          >
-            {(props) => (
-              <SubscriptionPage
-                {...props}
-                offerings={offerings}
-                purchasePackage={purchasePackage}
-                restorePurchases={restorePurchases}
-              />
-            )}
-          </Stack.Screen>
-        </Stack.Navigator>
-        <Toast />
-      </NavigationContainer>
+    // Envolvemos todo en un View para que Toast sea el último elemento y se superponga.
+    <View style={{ flex: 1 }}>
+      <SafeAreaView style={[styles.safeArea, isDarkMode && styles.safeAreaDark]}>
+        {/* El banner de depuración se renderiza aquí, por encima de todo */}
+        <DebugBanner
+          show={showDebugBanner}
+          isSubscribed={isSubscribed}
+          offerings={offerings}
+          activeSubscription={activeSubscription}
+          appUserID={appUserID}
+        />
+        <NavigationContainer>
+          <Stack.Navigator screenOptions={{ headerShown: false }}>
+            <Stack.Screen name="Main">
+              {(props) => (
+                <MainTabs
+                  {...props}
+                  isSubscribed={isSubscribed}
+                  offerings={offerings}
+                  isDarkMode={isDarkMode}
+                  setIsDarkMode={setIsDarkMode}
+                />
+              )}
+            </Stack.Screen>
+            <Stack.Screen
+              name="SubscriptionPage"
+              options={{
+                presentation: 'modal',
+                headerShown: true,
+                title: "Planes de Suscripción",
+              }}
+            >
+              {(props) => (
+                <SubscriptionPage
+                  {...props}
+                  offerings={offerings}
+                  purchasePackage={purchasePackage}
+                  restorePurchases={restorePurchases}
+                />
+              )}
+            </Stack.Screen>
+          </Stack.Navigator>
+        </NavigationContainer>
 
-      {/* El modal del disclaimer se renderiza aquí, por encima de todo */}
-      <DisclaimerModal
-        visible={isDisclaimerVisible}
-        onClose={() => setIsDisclaimerVisible(false)}
-      />
-    </SafeAreaView>
+        {/* El modal del disclaimer se renderiza aquí, por encima de todo */}
+        <DisclaimerModal
+          visible={isDisclaimerVisible}
+          onClose={() => setIsDisclaimerVisible(false)}
+        />
+      </SafeAreaView>
+      {/* El Toast se renderiza al final para asegurar que se muestre sobre todos los elementos */}
+      <Toast />
+    </View>
   );
 }
 
