@@ -360,3 +360,9 @@ esperar dos dias a que cambie el mes y se refresque el cupo de EAS.
 -Se modifican los estilos y formato del componente.
 **Queda comprobar que todo funcione, se acabaron las compilaciones disponibles asi que habra que
 esperar dos dias a que cambie el mes y se refresque el cupo de EAS.
+
+99| General improvements:
+-Se desactiva el bloqueo de cambio de mes para el dia 1 para viaticos
+-Se desactiva el bloqueo de cambio de mes para el dia 1 para Flex
+-Se ajusta el estilo del calendario y carteles Flex. 
+-Se corrige discrepancia de 1 mes en flex.

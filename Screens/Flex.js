@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { 
   View,
+  Alert,
   Text,
   ToastAndroid,
   TextInput,
@@ -50,6 +51,7 @@ const FlexScreen = ({ navigation }) => {
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.08,
         shadowRadius: 4,
+        height: 90, // Ajustamos la altura del header
         elevation: 3,
       },
       headerTitleStyle: {
@@ -58,31 +60,31 @@ const FlexScreen = ({ navigation }) => {
         fontWeight: '700',
       },
       headerRight: () => (
-        <TouchableOpacity onPress={() => setInfoModalVisible(true)} style={{ marginRight: 15 }}>
-          <Ionicons name="information-circle-outline" size={26} color="#007AFF" />
-        </TouchableOpacity>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16, marginRight: 15 }}>
+          {/* Botón para borrar datos de Flex (desarrollo) */}
+          <TouchableOpacity onPress={handleClearFlexData}>
+            <Ionicons name="trash-outline" size={24} color={'#FF3B30'} />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => setInfoModalVisible(true)}>
+            <Ionicons name="information-circle-outline" size={26} color="#007AFF" />
+          </TouchableOpacity>
+        </View>
       ),
     });
-  }, [navigation]);
+  }, [navigation]); // No es necesario añadir handleClearFlexData a las dependencias si se usa useCallback
 
   useEffect(() => {
     loadPersistedData();
-
-    const currentDate = getToday();
-    const currentDay = currentDate.toLocaleDateString("es", { day: "2-digit" });
 
     if (Platform.OS === "android") {
       ToastAndroid.show("Cargando datos...", ToastAndroid.SHORT);
     }
 
-    if (currentDay === "01") {
-      console.log("Cambio de mes deshabilitado");
-      setHideArrows(true);
-      setSweep(false);
-    } else {
-      setHideArrows(false);
-      setSweep(true);
-    }
+    // --- PARCHE DESACTIVADO ---
+    // Se desactiva la lógica que bloqueaba el cambio de mes el día 1.
+    setHideArrows(false);
+    setSweep(true);
+
   }, []);
 
   useEffect(() => {
@@ -112,6 +114,33 @@ const FlexScreen = ({ navigation }) => {
     } catch (error) {
       console.log("Error al guardar los datos:", error);
     }
+  };
+
+  // Función para borrar los datos de Flex
+  const handleClearFlexData = async () => {
+    Alert.alert(
+      "Borrar Datos de Flex",
+      "¿Estás seguro de que quieres borrar todos los datos de Horas Flex? Esta acción no se puede deshacer.",
+      [
+        { text: "Cancelar", style: "cancel" },
+        {
+          text: "Borrar",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              await AsyncStorage.removeItem("calendarDataFlex");
+              // Reseteamos el estado local para reflejar el cambio en la UI
+              setMarkedDates({});
+              setSuma({});
+              setValorHr(0);
+              if (Platform.OS === 'android') ToastAndroid.show("Datos de Flex borrados", ToastAndroid.SHORT);
+            } catch (e) {
+              console.error("Error borrando datos de Flex:", e);
+            }
+          },
+        },
+      ]
+    );
   };
 
   const handleDayPress = (day) => {
@@ -147,9 +176,11 @@ const FlexScreen = ({ navigation }) => {
   };
 
   const handleMonthChange = (newMonth) => {
-    const selectedDate = new Date(newMonth.timestamp);
-    // Actualizamos la clave de mes y año al cambiar de mes en el calendario
-    setCurrentMonthKey(getMonthYearKey(selectedDate));
+    // Usamos el mes y año que provee el calendario para evitar desfases por zona horaria.
+    // El mes en JS es 0-indexado (0=Enero), por eso restamos 1.
+    const date = new Date(newMonth.year, newMonth.month - 1, 1);
+    // Actualizamos la clave del mes/año actual para que coincida con el calendario.
+    setCurrentMonthKey(getMonthYearKey(date));
   };
 
   const AbrirModal = () => setModalVisible(true);
@@ -161,60 +192,56 @@ const FlexScreen = ({ navigation }) => {
     <>
       <StatusBar barStyle="dark-content" />
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <ImageBackground source={require("../assets/bgFlex.jpg")} style={styles.fondoViaticos}>
-         <Calendar
-  hideExtraDays={true}
-  enableSwipeMonths={sweep}
-  hideArrows={hideArrows}
-  style={styles.calendarStyle}
-  theme={styles.calendarTheme}
-  markedDates={markedDates}
-  markingType={"custom"}
-  onDayPress={handleDayPress}
-  onMonthChange={handleMonthChange}
-  renderDay={(day) => {
-    let customStyle = {};
-    let textStyle = { color: 'black' }; // Color de texto por defecto
-    if (markedDates[day.dateString]) {
-      const dayStyles = markedDates[day.dateString].customStyles;
-      customStyle = dayStyles?.container || {};
-      // Si el día está marcado (tiene fondo), el texto es blanco
-      if (customStyle.backgroundColor) textStyle.color = 'white';
-    }
-    return (
-      <View style={[styles.almanaque, customStyle]}>
-        <Text style={styles.dayText}>{day.day}</Text>
-      </View>
-    );
-  }}
-/>
-
-
-  
-     <View style={{ flexDirection: "row", alignItems: "center" }}>
-        <Text style={styles.text}>
-          Horas Flex
-         <Text style={styles.textMonth}> {displayMonth}  </Text>
-          <Text style={styles.totalHr}> {suma[currentMonthKey] || 0} </Text>
-        </Text>
-      </View>
-
-        <View style={styles.sumacontainer}>
-              <Text style={styles.sumatext}>Suma Total: $ {valorHr * (suma[currentMonthKey] || 0)}</Text>
+        <ImageBackground source={require("../assets/bgFlex.jpg")} style={styles.container}>
+          <View style={styles.contentWrapper}>
+            <View style={styles.calendarWrapper}>
+              <Calendar
+                hideExtraDays={true}
+                enableSwipeMonths={sweep}
+                hideArrows={hideArrows}
+                style={styles.calendarStyle}
+                theme={styles.calendarTheme}
+                markedDates={markedDates}
+                markingType={"custom"}
+                onDayPress={handleDayPress}
+                onMonthChange={handleMonthChange}
+                renderDay={(day) => {
+                  let customStyle = {};
+                  if (markedDates[day.dateString]) {
+                    const dayStyles = markedDates[day.dateString].customStyles;
+                    customStyle = dayStyles?.container || {};
+                  }
+                  return (
+                    <View style={[styles.almanaque, customStyle]}>
+                      <Text style={[styles.dayText, customStyle.backgroundColor && { color: 'white' }]}>{day.day}</Text>
+                    </View>
+                  );
+                }}
+              />
             </View>
 
-        
-            <TouchableOpacity style={styles.valorcontainer} onPress={AbrirModal}>
-              <Text style={styles.valortext}>Valor Hora:</Text>
-              <Text style={styles.valortext}>$ {valorHr || 0}</Text>
-            </TouchableOpacity>
+            <View style={{ flexDirection: "row", alignItems: "center" }}>
+              <Text style={styles.text}>
+                Horas Flex
+                <Text style={styles.textMonth}> {displayMonth} </Text>
+                <Text style={styles.totalHr}> {suma[currentMonthKey] || 0} </Text>
+              </Text>
+            </View>
+          </View>
 
-          
+          <View style={styles.footer}>
+            <View style={styles.sumacontainer}>
+              <Text style={styles.sumatext}>Suma Total: $ {valorHr * (suma[currentMonthKey] || 0)}</Text>
+            </View>
+            <TouchableOpacity style={styles.valorcontainer} onPress={AbrirModal}>
+              <Text style={styles.valortext}>Valor Hora: $ {valorHr || 0}</Text>
+            </TouchableOpacity>
+          </View>
 
           <Modal visible={modalVisible} animationType="fade" transparent={true}>
             <KeyboardAvoidingView
               style={styles.modalContainer}
-              behavior={Platform.OS === "ios" ? "padding" : "height"}
+              behavior={Platform.OS === "ios" ? "padding" : "padding"}
             >
               <View style={styles.modalView}>
                 <Text style={styles.modalTitle}>INGRESA EL VALOR DE TU HORA FLEX</Text>

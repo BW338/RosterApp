@@ -48,7 +48,7 @@ const WelcomeScreen = ({ onFinish }) => {
         </View>
         <Animated.View style={{ transform: [{ translateY: slideAnim }] }}>
           <Text style={styles.title}>Bienvenido a TimePicker</Text>
-          <Text style={styles.subtitle}>Tu asistente de vuelo personal. V16</Text>
+          <Text style={styles.subtitle}>Tu asistente de vuelo personal. V19</Text>
         </Animated.View>
       </Animated.View>
     </View>

@@ -8,7 +8,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 // true:  Modo debug, siempre suscrito. Para desarrollo.
 // false: Modo producción, usa RevenueCat para verificar suscripciones reales.
 //MODO DE PRUEBA
-const DEBUG_SUBSCRIPTION = false;
+const DEBUG_SUBSCRIPTION = true;
 const SHOW_DEBUG_BANNER = true; // Forzar a que el banner se muestre siempre para depuración.
 
 export function useSubscription() {

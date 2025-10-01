@@ -51,20 +51,14 @@ export default function ViaticosScreen({ navigation }) {
 useEffect(() => {
   loadPersistedData();
   
-  const currentDate = getToday();
-  const currentDay = currentDate.toLocaleDateString('es', { day: '2-digit' });
-  
   if (Platform.OS === 'android') {
     ToastAndroid.show('Cargando datos...', ToastAndroid.LONG);
   }
 
-  if(currentDay === '01'){
-    setHideArrows(true);
-    setSweep(false)
-  } else {
-    setHideArrows(false);
-    setSweep(true)
-  }
+  // --- PARCHE DESACTIVADO ---
+  // Se desactiva la lógica que bloqueaba el cambio de mes el día 1.
+  setHideArrows(false);
+  setSweep(true);
 }, []);
 
 useEffect(() => {

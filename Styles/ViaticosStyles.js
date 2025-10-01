@@ -242,6 +242,7 @@ header: {
   shadowRadius: 4,
   elevation: 3,
   borderColor: "#000",
+  height: 50, // Ajustamos la altura del header
   borderWidth:1,
 },
 headerTitle: {

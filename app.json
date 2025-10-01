@@ -18,7 +18,9 @@
         "CFBundleDocumentTypes": [
           {
             "CFBundleTypeName": "PDF Document",
-            "LSItemContentTypes": ["com.adobe.pdf"],
+            "LSItemContentTypes": [
+              "com.adobe.pdf"
+            ],
             "LSHandlerRank": "Alternate"
           }
         ]
@@ -38,7 +40,9 @@
       "intentFilters": [
         {
           "action": "SEND",
-          "category": ["DEFAULT"],
+          "category": [
+            "DEFAULT"
+          ],
           "data": {
             "mimeType": "application/pdf"
           }
@@ -52,6 +56,9 @@
       "eas": {
         "projectId": "ed3a9d47-e110-44fe-a969-2fc171973a16"
       }
-    }
+    },
+    "plugins": [
+      "expo-font"
+    ]
   }
 }

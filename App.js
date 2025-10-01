@@ -258,22 +258,31 @@ export default function App() {
     console.log("Archivo compartido detectado:", url);
     Toast.show({ type: 'info', text1: 'Procesando PDF', text2: 'Abriendo archivo compartido...' });
 
+    if (!navigationRef.current) {
+      console.warn("La navegación no está lista para manejar el archivo compartido.");
+      return;
+    }
+
     try {
-      // Esperar a que la navegación esté lista
-      if (navigationRef.current) {
-        const fileInfo = await FileSystem.getInfoAsync(url);
-        if (fileInfo.exists) {
-          // Navegamos a la pantalla de RosterPannel y le pasamos la URI del archivo
-          navigationRef.current.navigate('RosterPannel', { sharedFileUri: url });
-        } else {
-          Toast.show({ type: 'error', text1: 'Error', text2: 'El archivo compartido no existe.' });
-        }
+      const fileInfo = await FileSystem.getInfoAsync(url);
+      if (!fileInfo.exists) {
+        Toast.show({ type: 'error', text1: 'Error', text2: 'El archivo compartido no existe.' });
+        return;
+      }
+
+      // --- LÓGICA DE SUSCRIPCIÓN (Igual que en RosterScreen y Calendar) ---
+      if (isSubscribed) {
+        // Si está suscrito, procesa el archivo.
+        navigationRef.current.navigate('RosterPannel', { sharedFileUri: url });
+      } else {
+        // Si no está suscrito, lo envía a la página de planes.
+        navigationRef.current.navigate('SubscriptionPage');
       }
     } catch (error) {
       console.error("Error al manejar archivo compartido:", error);
       Toast.show({ type: 'error', text1: 'Error', text2: 'No se pudo abrir el archivo.' });
     }
-  }, []);
+  }, [isSubscribed]); // Añadimos isSubscribed como dependencia
 
   useEffect(() => {
     // Maneja el caso en que la app se abre desde cero con un archivo compartido

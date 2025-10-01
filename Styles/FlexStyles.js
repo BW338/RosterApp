@@ -1,34 +1,43 @@
 import { StyleSheet } from "react-native";
 
 export default StyleSheet.create({
-  fondoViaticos: { flex: 1, resizeMode: "cover", justifyContent: "flex-start", alignItems: "center", marginTop:0 },
+  container: {
+    flex: 1,
+    resizeMode: "cover",
+  },
+  contentWrapper: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+  },
   tituloFlex: { fontSize: 28, fontWeight: "bold", color: "white", textAlign: "center", marginVertical: 24, textShadowColor: "#000", textShadowOffset: { width: 1, height: 1 }, textShadowRadius: 4 },
   
   calendarStyle: {
-    borderWidth: 2,
-    borderColor: "white",
-    borderRadius: 20,
-    padding: 5,
-    marginHorizontal: 7,
-    marginTop:20,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+    borderRadius: 16,
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+    // Se quita el margen horizontal para que el calendario ocupe todo el ancho del contenedor.
   },
   calendarTheme: {
-    monthTextColor: "#008b8b",
-    textMonthFontSize: 24,
+    calendarBackground: "transparent",
+    monthTextColor: "#FFFFFF",
+    textMonthFontSize: 20,
     textMonthFontWeight: "bold",
-    arrowColor: "pink",
-    arrowHeight: 60,
-    arrowWidth: 60,
-    calendarBackground: "black",
+    arrowColor: "#FFFFFF",
     dayTextColor: "white",
-    textInactiveColor: "red",
-    textSectionTitleColor: "#008b8b",
-    textDayFontSize: 20,
-    textDisabledColor: "grey",
+    textDisabledColor: "rgba(255, 255, 255, 0.5)",
+    textSectionTitleColor: "rgba(255, 255, 255, 0.8)",
+    textDayFontSize: 14,
+  },
+  calendarWrapper: {
+    width: '100%',
+    paddingHorizontal: 10,
+    marginTop: 10,
   },
 
   text: { color: "white", borderWidth: 3, borderColor: "white", textAlign: "center", fontWeight: "bold", borderRadius: 10, padding: 9, marginHorizontal: 5, backgroundColor: "black", marginTop: 16, fontSize: 18 },
-  textMonth: { fontWeight: "bold", fontStyle: "italic", textTransform: "uppercase", backgroundColor: 'transparent', borderWidth: 0 },
+  textMonth: { fontWeight: "bold", fontStyle: "italic", textTransform: "uppercase", backgroundColor: 'transparent', borderWidth: 0, color: '#AECBFA' },
   totalHr: { color: "black", backgroundColor: "lightgrey", fontWeight: "bold", fontSize: 24, paddingHorizontal: 8, borderRadius: 5, overflow: 'hidden' },
   
   // Contenedor de cálculos
@@ -36,6 +45,16 @@ export default StyleSheet.create({
     alignItems: 'center',
     marginTop: 20,
     marginBottom: 20,
+  },
+  footer: {
+    padding: 15,
+    paddingBottom: 25, // Más espacio en la parte inferior
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.3)',
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(255,255,255,0.1)',
   },
   sumacontainer: {
     flexDirection: 'row',
@@ -45,7 +64,6 @@ export default StyleSheet.create({
     borderRadius: 10,
     borderWidth: 1,
     borderColor: '#7cfc00',
-    marginTop:6,
   },
     valorcontainer: {
     flexDirection: 'row',
@@ -55,7 +73,6 @@ export default StyleSheet.create({
     borderRadius: 10,
     borderWidth: 1,
     borderColor: '#00000065',
-    marginTop:6,
   },
   sumatext: {
     color: 'white',
@@ -64,10 +81,9 @@ export default StyleSheet.create({
     marginRight: 8,
   },
     valortext: {
-    color: '#474747d7',
+    color: 'white',
     fontSize: 18,
     fontWeight: 'bold',
-    marginRight: 8,
   },
   valorHrValue: {
     color: '#7cfc00', // Verde lima para resaltar
@@ -92,6 +108,6 @@ export default StyleSheet.create({
   modalButtonContainer: { marginTop: 20 },
 
   // Estilos del día en el calendario
-  almanaque: { alignItems: "center", justifyContent: "center", width: 32, height: 32, borderRadius: 16, borderWidth: 2, borderColor: "#000" },
-  dayText: { fontSize: 16 },
+  almanaque: { alignItems: "center", justifyContent: "center", width: 32, height: 32, borderRadius: 16, borderWidth: 2, borderColor: "#000" }, // Este borde negro se sobreescribe por el color de la actividad
+  dayText: { fontSize: 16, color: 'black' }, // El color del texto del día se maneja en Flex.js
 });
