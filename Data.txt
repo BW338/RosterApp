@@ -341,12 +341,22 @@ header para volver a RosterPannel.
 -Se agregan componentes como DebugBanner.js y algunos Toast para desarrollo,
 la finalidad es ver como se comporta el sistema en cuanto a comprobacion de suscripcion.
 -----
-**Que comprobar que todo funcione, se acabaron las compilaciones disponibles asi que habra que
+**Queda comprobar que todo funcione, se acabaron las compilaciones disponibles asi que habra que
 esperar dos dias a que cambie el mes y se refresque el cupo de EAS.
 
 96| Restore purchases:
 -Se realizan cambios en el funcionamiento y notificaciones del boton restaurar compras.
 Mas que nada para dar mas transparencia en el mensaje que devuevle.
 -----
-**Que comprobar que todo funcione, se acabaron las compilaciones disponibles asi que habra que
+**Queda comprobar que todo funcione, se acabaron las compilaciones disponibles asi que habra que
+esperar dos dias a que cambie el mes y se refresque el cupo de EAS.
+
+97| Share PDF:
+-Se hacen modificaciones al App.js para ver si se puede adjuntar PDF seleccionado el icono de PDF y "compartir".
+**Queda comprobar que todo funcione, se acabaron las compilaciones disponibles asi que habra que
+esperar dos dias a que cambie el mes y se refresque el cupo de EAS.
+
+98| SubscriptionPage Format:
+-Se modifican los estilos y formato del componente.
+**Queda comprobar que todo funcione, se acabaron las compilaciones disponibles asi que habra que
 esperar dos dias a que cambie el mes y se refresque el cupo de EAS.

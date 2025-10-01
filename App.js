@@ -1,11 +1,13 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { SafeAreaView, ActivityIndicator, Platform, StyleSheet, View } from "react-native";
+import { SafeAreaView, ActivityIndicator, Platform, StyleSheet, View, AppState as RNAppState } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import Toast from "react-native-toast-message";
 import { LocaleConfig } from "react-native-calendars";
 import { Ionicons } from "@expo/vector-icons";
+import * as Linking from 'expo-linking';
+import * as FileSystem from 'expo-file-system';
 import { useSubscription } from "./hooks/useSubscription";
 import RosterPannelScreen from "./Screens/RosterPannel";
 import RosterScreen from "./Screens/RosterScreen";
@@ -184,6 +186,7 @@ export default function App() {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [isDisclaimerVisible, setIsDisclaimerVisible] = useState(false);
   const [appState, setAppState] = useState('loading'); // 'loading', 'welcome', 'ready'
+  const navigationRef = React.useRef(null);
 
   useEffect(() => {
     const prepareApp = async () => {
@@ -248,6 +251,44 @@ export default function App() {
     setAppState('ready');
   }, []);
 
+  // --- Manejo de Archivos Compartidos ---
+  const handleSharedFile = useCallback(async (url) => {
+    if (!url) return;
+
+    console.log("Archivo compartido detectado:", url);
+    Toast.show({ type: 'info', text1: 'Procesando PDF', text2: 'Abriendo archivo compartido...' });
+
+    try {
+      // Esperar a que la navegación esté lista
+      if (navigationRef.current) {
+        const fileInfo = await FileSystem.getInfoAsync(url);
+        if (fileInfo.exists) {
+          // Navegamos a la pantalla de RosterPannel y le pasamos la URI del archivo
+          navigationRef.current.navigate('RosterPannel', { sharedFileUri: url });
+        } else {
+          Toast.show({ type: 'error', text1: 'Error', text2: 'El archivo compartido no existe.' });
+        }
+      }
+    } catch (error) {
+      console.error("Error al manejar archivo compartido:", error);
+      Toast.show({ type: 'error', text1: 'Error', text2: 'No se pudo abrir el archivo.' });
+    }
+  }, []);
+
+  useEffect(() => {
+    // Maneja el caso en que la app se abre desde cero con un archivo compartido
+    Linking.getInitialURL().then(url => {
+      if (url) handleSharedFile(url);
+    });
+
+    // Maneja el caso en que un archivo se comparte mientras la app ya está abierta
+    const subscription = Linking.addEventListener('url', (event) => {
+      handleSharedFile(event.url);
+    });
+
+    return () => subscription.remove();
+  }, [handleSharedFile]);
+
   if (appState === 'welcome') {
     return <WelcomeScreen onFinish={handleWelcomeFinish} />;
   }
@@ -275,7 +316,7 @@ export default function App() {
           activeSubscription={activeSubscription}
           appUserID={appUserID}
         />
-        <NavigationContainer>
+        <NavigationContainer ref={navigationRef}>
           <Stack.Navigator screenOptions={{ headerShown: false }}>
             <Stack.Screen name="Main">
               {(props) => (

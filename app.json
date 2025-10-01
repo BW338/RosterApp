@@ -13,20 +13,37 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "CFBundleDocumentTypes": [
+          {
+            "CFBundleTypeName": "PDF Document",
+            "LSItemContentTypes": ["com.adobe.pdf"],
+            "LSHandlerRank": "Alternate"
+          }
+        ]
+      }
     },
     "android": {
       "permissions": [
         "BILLING"
       ],
-            "versionCode": 26,
-
+      "versionCode": 26,
       "package": "com.github1988.rosterapp",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "intentFilters": [
+        {
+          "action": "SEND",
+          "category": ["DEFAULT"],
+          "data": {
+            "mimeType": "application/pdf"
+          }
+        }
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"

@@ -44,6 +44,23 @@ export default function RosterPannelScreen({ navigation, route }) {
     if (route.params?.autoPick) {
       handlePickPdf(true);
     }
+
+    // 🔹 Si se recibe una URI de un archivo compartido
+    if (route.params?.sharedFileUri) {
+      const processSharedFile = async () => {
+        try {
+          const base64 = await FileSystem.readAsStringAsync(route.params.sharedFileUri, {
+            encoding: FileSystem.EncodingType.Base64,
+          });
+          setPdfData(base64);
+        } catch (error) {
+          console.error("Error leyendo archivo compartido:", error);
+          Toast.show({ type: 'error', text1: 'Error', text2: 'No se pudo leer el archivo PDF.' });
+          navigation.goBack();
+        }
+      };
+      processSharedFile();
+    }
   }, [route.params?.autoPick]);
 
    // 📌 Borrar roster del storage

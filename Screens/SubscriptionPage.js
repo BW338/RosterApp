@@ -3,13 +3,13 @@ import {
   View,
   Text,
   TouchableOpacity,
-  StyleSheet,
   ScrollView,
   Alert,
   ActivityIndicator,
   SafeAreaView
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import styles from '../Styles/SubscriptionPageStyles';
 
 const SubscriptionPage = ({ navigation, offerings, purchasePackage, restorePurchases }) => {
   const [loading, setLoading] = useState(false);
@@ -53,7 +53,6 @@ const SubscriptionPage = ({ navigation, offerings, purchasePackage, restorePurch
     try {
       const result = await restorePurchases();
       
-      // Verificamos si la API tuvo éxito Y si se encontró una suscripción activa.
       if (result.success && result.restored) {
         Alert.alert(
           'Compras restauradas',
@@ -61,8 +60,6 @@ const SubscriptionPage = ({ navigation, offerings, purchasePackage, restorePurch
           [{ text: 'Continuar', onPress: () => navigation.goBack() }]
         );
       } else {
-        // Esto cubre el caso donde la API funciona pero no hay compras activas,
-        // o si la API falló por alguna razón.
         Alert.alert(
           'Sin compras activas',
           'No se encontró una suscripción activa para restaurar en tu cuenta.',
@@ -77,44 +74,41 @@ const SubscriptionPage = ({ navigation, offerings, purchasePackage, restorePurch
   };
 
   const getPackageDetails = (packageItem) => {
-    // Mapeo de detalles por TIPO de paquete (MONTHLY, ANNUAL, etc.)
     const detailsByPackageType = {
       MONTHLY: {
-        title: 'Plan Mensual',
-        description: 'Acceso completo por 1 mes',
+        title: 'Mensual',
+        period: '/mes',
         popular: false,
         savings: null,
         icon: 'calendar-outline'
       },
       SIX_MONTH: {
-        title: 'Plan Semestral',
-        description: 'Acceso completo por 6 meses',
+        title: 'Semestral',
+        period: '/6 meses',
         popular: true,
         savings: 'Ahorra 11%',
         icon: 'medal-outline'
       },
       ANNUAL: {
-        title: 'Plan Anual',
-        description: 'Acceso completo por 1 año',
+        title: 'Anual',
+        period: '/año',
         popular: false,
         savings: 'Ahorra 16%',
         icon: 'trophy-outline'
       }
     };
 
-    // Mapeo para modo DEBUG que usa 'identifier' en lugar de 'packageType'
     const detailsByIdentifier = {
       monthly: detailsByPackageType.MONTHLY,
       six_months: detailsByPackageType.SIX_MONTH,
       annual: detailsByPackageType.ANNUAL,
     };
 
-    // Se prioriza 'packageType' (producción) y se usa 'identifier' como fallback (debug)
     const details = detailsByPackageType[packageItem.packageType] || detailsByIdentifier[packageItem.identifier];
 
-    return details || { // Fallback final si no se encuentra por ninguno de los dos métodos
+    return details || {
       title: packageItem.product?.title || 'Plan Desconocido',
-      description: 'Acceso completo',
+      period: '',
       popular: false,
       savings: null,
       icon: 'star-outline'
@@ -132,38 +126,48 @@ const SubscriptionPage = ({ navigation, offerings, purchasePackage, restorePurch
     );
   }
 
+  const premiumFeatures = [
+    { icon: 'airplane-outline', text: 'Tu plan de vuelo siempre disponible, incluso offline' },
+    { icon: 'document-text-outline', text: 'Resumen de cada vuelo en un solo vistazo' },
+    { icon: 'calendar-outline', text: 'Calendario mensual con tu actividad reflejada' },
+    { icon: 'create-outline', text: 'Espacio personal para anotar tus pendientes' }
+  ];
+
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.headerTitle}>Elegí tu plan</Text>
-          
-          {/* <Text style={styles.headerSubtitle}>
-            Desbloquea todas las funciones premium de RosterApp
-          </Text> */}
+          <View style={styles.headerContent}>
+            <View style={styles.iconContainer}>
+              <Ionicons name="rocket-outline" size={40} color="#3983f1" />
+            </View>
+            <View style={styles.headerTextContainer}>
+              <Text style={styles.headerTitle}>Acceso Completo</Text>
+              <Text style={styles.headerSubtitle}>
+                Desbloquea todas las funcionalidades premium
+              </Text>
+            </View>
+          </View>
         </View>
 
         {/* Features */}
-        {/* <View style={styles.featuresContainer}>
-          <Text style={styles.featuresTitle}>Incluye:</Text>
-          <View style={styles.featureItem}>
-            <Ionicons name="checkmark-circle" size={20} color="#4CAF50" />
-            <Text style={styles.featureText}>Acceso completo al calendario</Text>
-          </View>
-          <View style={styles.featureItem}>
-            <Ionicons name="checkmark-circle" size={20} color="#4CAF50" />
-            <Text style={styles.featureText}>Calculadora de viáticos</Text>
-          </View>
-          <View style={styles.featureItem}>
-            <Ionicons name="checkmark-circle" size={20} color="#4CAF50" />
-            <Text style={styles.featureText}>Gestión de horarios flex</Text>
-          </View>
-          <View style={styles.featureItem}>
-            <Ionicons name="checkmark-circle" size={20} color="#4CAF50" />
-            <Text style={styles.featureText}>Sincronización en la nube</Text>
-          </View>
-        </View> */}
+        <View style={styles.featuresContainer}>
+          {premiumFeatures.map((feature, index) => (
+            <View key={index} style={styles.featureItem}>
+              <View style={styles.featureIconContainer}>
+                <Ionicons name={feature.icon} size={24} color="#3983f1" />
+              </View>
+              <Text style={styles.featureText}>{feature.text}</Text>
+            </View>
+          ))}
+        </View>
+
+        {/* Packages Title */}
+        <View style={styles.packagesTitleContainer}>
+          <Text style={styles.packagesTitle}>Planes disponibles</Text>
+          <Text style={styles.packagesSubtitle}>Todos incluyen las mismas funciones</Text>
+        </View>
 
         {/* Packages */}
         <View style={styles.packagesContainer}>
@@ -184,35 +188,39 @@ const SubscriptionPage = ({ navigation, offerings, purchasePackage, restorePurch
               >
                 {details.popular && (
                   <View style={styles.popularBadge}>
+                    <Ionicons name="star" size={12} color="#fff" />
                     <Text style={styles.popularText}>MÁS POPULAR</Text>
                   </View>
                 )}
                 
-                <View style={styles.packageHeader}>
-                  <Ionicons name={details.icon} size={32} color="#3983f1" />
-                  <View style={styles.packageTitleContainer}>
-                    <Text style={styles.packageTitle}>{details.title}</Text>
-                    <Text style={styles.packageDescription}>{details.description}</Text>
-                  </View>
-                  {details.savings && (
-                    <View style={styles.savingsBadge}>
-                      <Text style={styles.savingsText}>{details.savings}</Text>
+                <View style={styles.packageContent}>
+                  <View style={styles.packageLeft}>
+                    <View style={styles.packageIconCircle}>
+                      <Ionicons name={details.icon} size={24} color="#3983f1" />
                     </View>
-                  )}
-                </View>
+                    <View style={styles.packageInfo}>
+                      <Text style={styles.packageTitle}>{details.title}</Text>
+                      {details.savings && (
+                        <View style={styles.savingsBadge}>
+                          <Text style={styles.savingsText}>{details.savings}</Text>
+                        </View>
+                      )}
+                    </View>
+                  </View>
 
-                <View style={styles.packagePrice}>
-                  <Text style={styles.priceText}>
-                    {packageItem.product?.priceString || 'Precio no disponible'}
-                  </Text>
+                  <View style={styles.packageRight}>
+                    <Text style={styles.priceText}>
+                      {packageItem.product?.priceString || 'N/A'}
+                    </Text>
+                    <Text style={styles.periodText}>{details.period}</Text>
+                  </View>
                 </View>
 
                 {isLoading ? (
-                  <ActivityIndicator size="small" color="#fff" style={styles.packageLoader} />
+                  <ActivityIndicator size="small" color="#3983f1" style={styles.packageLoader} />
                 ) : (
                   <View style={styles.selectButton}>
-                    <Text style={styles.selectButtonText}>Seleccionar</Text>
-                    <Ionicons name="arrow-forward" size={16} color="#fff" />
+                    <Text style={styles.selectButtonText}>Suscribirme</Text>
                   </View>
                 )}
               </TouchableOpacity>
@@ -233,8 +241,7 @@ const SubscriptionPage = ({ navigation, offerings, purchasePackage, restorePurch
         {/* Footer */}
         <View style={styles.footer}>
           <Text style={styles.footerText}>
-            Las suscripciones se renuevan automáticamente. Puedes cancelar en cualquier momento
-            desde la configuración de tu cuenta.
+            Renovación automática. Cancela en cualquier momento desde tu cuenta.
           </Text>
         </View>
       </ScrollView>
@@ -242,181 +249,4 @@ const SubscriptionPage = ({ navigation, offerings, purchasePackage, restorePurch
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f8f9fa',
-  },
-  scrollView: {
-    flex: 1,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  loadingText: {
-    marginTop: 16,
-    fontSize: 16,
-    color: '#666',
-  },
-  header: {
-    padding: 24,
-    alignItems: 'center',
-  },
-  headerTitle: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 8,
-  },
-  headerSubtitle: {
-    fontSize: 16,
-    color: '#666',
-    textAlign: 'center',
-    lineHeight: 24,
-  },
-  featuresContainer: {
-    margin: 24,
-    padding: 20,
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  featuresTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#333',
-    marginBottom: 16,
-  },
-  featureItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  featureText: {
-    marginLeft: 12,
-    fontSize: 16,
-    color: '#555',
-  },
-  packagesContainer: {
-    paddingHorizontal: 24,
-  },
-  packageCard: {
-    backgroundColor: '#fff',
-    borderRadius: 16,
-    padding: 20,
-    marginBottom: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 5,
-    borderWidth: 2,
-    borderColor: 'transparent',
-  },
-  popularPackage: {
-    borderColor: '#3983f1',
-    transform: [{ scale: 1.02 }],
-  },
-  loadingPackage: {
-    opacity: 0.7,
-  },
-  popularBadge: {
-    position: 'absolute',
-    top: -8,
-    left: 20,
-    backgroundColor: '#3983f1',
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    borderRadius: 12,
-  },
-  popularText: {
-    color: '#fff',
-    fontSize: 12,
-    fontWeight: 'bold',
-  },
-  packageHeader: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    marginBottom: 16,
-  },
-  packageTitleContainer: {
-    flex: 1,
-    marginLeft: 16,
-  },
-  packageTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 4,
-  },
-  packageDescription: {
-    fontSize: 14,
-    color: '#666',
-  },
-  savingsBadge: {
-    backgroundColor: '#4CAF50',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 8,
-  },
-  savingsText: {
-    color: '#fff',
-    fontSize: 12,
-    fontWeight: 'bold',
-  },
-  packagePrice: {
-    marginBottom: 16,
-  },
-  priceText: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#333',
-  },
-  packageLoader: {
-    paddingVertical: 12,
-  },
-  selectButton: {
-    backgroundColor: '#3983f1',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 12,
-    borderRadius: 8,
-  },
-  selectButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
-    marginRight: 8,
-  },
-  restoreButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    margin: 24,
-    padding: 16,
-  },
-  restoreText: {
-    marginLeft: 8,
-    fontSize: 16,
-    color: '#666',
-  },
-  footer: {
-    padding: 24,
-    paddingTop: 0,
-  },
-  footerText: {
-    fontSize: 12,
-    color: '#999',
-    textAlign: 'center',
-    lineHeight: 18,
-  },
-});
-
-export default SubscriptionPage
+export default SubscriptionPage;
