@@ -366,3 +366,8 @@ esperar dos dias a que cambie el mes y se refresque el cupo de EAS.
 -Se desactiva el bloqueo de cambio de mes para el dia 1 para Flex
 -Se ajusta el estilo del calendario y carteles Flex. 
 -Se corrige discrepancia de 1 mes en flex.
+
+100| General improvements:
+-Se agrega selector de pantalla de inicio en SettingsModal.js.
+-Se Elimina el borde de FLightCard
+-Se agregan opciones de colores para HOY.

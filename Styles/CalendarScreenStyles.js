@@ -3,7 +3,7 @@ import { StyleSheet } from "react-native";
 export default StyleSheet.create({
   container: {
     flex: 1,
-    marginTop: 18,
+    marginTop: 0,
     backgroundColor: "#f9f9f9",
   },
   // Info del día

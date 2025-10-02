@@ -7,10 +7,6 @@ export default StyleSheet.create({
     marginVertical: 6,
     borderRadius: 10,
     shadowColor: "#000",
-    shadowOpacity: 0.05,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 4,
-    elevation: 2,
   },
   cardDark: {
     backgroundColor: "#2C2C2E", // Un gris más claro para que contraste con el fondo

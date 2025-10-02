@@ -28,6 +28,7 @@ export default function RosterScreen({ navigation, route, isDarkMode, setIsDarkM
 
   const [isSettingsModalVisible, setIsSettingsModalVisible] = useState(false);
   const [todayColor, setTodayColor] = useState('#FFD54F'); // Color por defecto
+  const [initialScreen, setInitialScreen] = useState('Roster');
 
   // --- Memoización de Secciones ---
   const sections = useMemo(() => {
@@ -189,26 +190,39 @@ export default function RosterScreen({ navigation, route, isDarkMode, setIsDarkM
     const loadSettings = async () => {
       try {
         const savedColor = await AsyncStorage.getItem('settings_todayColor');
-        if (savedColor) {
-          setTodayColor(savedColor);
-        }
+        if (savedColor) setTodayColor(savedColor);
+
+        const savedInitialScreen = await AsyncStorage.getItem('settings_initialScreen');
+        if (savedInitialScreen) setInitialScreen(savedInitialScreen);
+
       } catch (e) {
-        console.error("Failed to load today's color setting.", e);
+        console.error("Failed to load settings.", e);
       }
     };
     loadSettings();
   }, []);
 
   useEffect(() => {
-    const saveSettings = async () => {
+    const saveColorSetting = async () => {
       try {
         await AsyncStorage.setItem('settings_todayColor', todayColor);
       } catch (e) {
         console.error("Failed to save today's color setting.", e);
       }
     };
-    saveSettings();
+    saveColorSetting();
   }, [todayColor]);
+
+  useEffect(() => {
+    const saveInitialScreenSetting = async () => {
+      try {
+        await AsyncStorage.setItem('settings_initialScreen', initialScreen);
+      } catch (e) {
+        console.error("Failed to save initial screen setting.", e);
+      }
+    };
+    saveInitialScreenSetting();
+  }, [initialScreen]);
   // Cargar roster (param o AsyncStorage)
   useEffect(() => {
     const loadRoster = async () => {
@@ -353,6 +367,8 @@ export default function RosterScreen({ navigation, route, isDarkMode, setIsDarkM
         setIsDarkMode={setIsDarkMode}
         todayColor={todayColor}
         setTodayColor={setTodayColor}
+        initialScreen={initialScreen}
+        setInitialScreen={setInitialScreen}
       />
     </SafeAreaView>
   );

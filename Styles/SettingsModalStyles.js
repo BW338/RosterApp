@@ -1,4 +1,6 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Dimensions } from 'react-native';
+
+const { height } = Dimensions.get('window');
 
 export default StyleSheet.create({
   modalOverlay: {
@@ -10,7 +12,8 @@ export default StyleSheet.create({
   modalContent: {
     width: '90%',
     maxWidth: 400,
-    backgroundColor: '#FFFFFF',
+    maxHeight: height * 0.85, // El modal no ocupará más del 85% de la altura
+    backgroundColor: '#FFFFFF', 
     borderRadius: 16,
     padding: 24,
     shadowColor: '#000',
@@ -67,43 +70,95 @@ export default StyleSheet.create({
   optionTextDark: {
     color: '#FFFFFF',
   },
-  colorPickerContainer: {
+  // --- Estilos para la fila de vista previa ---
+  colorPreviewRow: {
+    flex: 1,
     flexDirection: 'row',
-    justifyContent: 'space-around',
-    backgroundColor: '#F2F2F7',
-    padding: 16,
+    alignItems: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    margin: -16, // Truco para que ocupe todo el espacio del 'optionRow'
     borderRadius: 10,
-    marginTop: 8,
   },
-  colorOption: {
+  colorPreviewRowText: {
+    flex: 1,
+    fontSize: 17,
+    color: '#000',
+    marginLeft: 16,
+    fontWeight: '600', // Un poco más de peso para que se lea bien
+  },
+  // --- Estilos para la Rueda de Colores ---
+  colorWheelContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 24,
+    height: 180, // Altura fija para contener la rueda
+  },
+  colorWheel: {
     width: 40,
     height: 40,
-    borderRadius: 20,
     justifyContent: 'center',
     alignItems: 'center',
-    borderColor: 'rgba(255,255,255,0.8)',
+  },
+  colorOption: {
+    position: 'absolute',
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.2,
-    shadowRadius: 2,
-    elevation: 2,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+    borderWidth: 3,
+    borderColor: 'transparent',
   },
-  closeButton: {
-    marginTop: 16,
+  colorOptionSelected: {
+    borderColor: 'white',
+    transform: [{ scale: 1.1 }],
+    elevation: 8,
+  },
+  closeIcon: {
+    position: 'absolute',
+    top: 12,
+    right: 12,
+    zIndex: 1, // Asegura que esté por encima del contenido
+    padding: 4,
+  },
+  // --- Estilos para el selector de pantalla de inicio ---
+  selectorContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'flex-start',
+    width: '100%',
+  },
+  selectorOption: {
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 8,
     backgroundColor: '#E5E5EA',
-    paddingVertical: 14,
-    borderRadius: 10,
+    margin: 4,
   },
-  closeButtonDark: {
-    backgroundColor: '#3A3A3C',
+  selectorOptionDark: {
+    backgroundColor: '#555',
   },
-  closeButtonText: {
-    color: '#007AFF',
-    fontSize: 17,
-    fontWeight: '600',
-    textAlign: 'center',
+  selectorOptionActive: {
+    backgroundColor: '#007AFF',
+    shadowColor: '#007AFF',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.4,
+    shadowRadius: 3,
+    elevation: 4,
   },
-  closeButtonTextDark: {
-    color: '#AECBFA',
+  selectorText: {
+    color: '#000',
+    fontWeight: '500',
+  },
+  selectorTextDark: {
+    color: '#FFF',
+  },
+  selectorTextActive: {
+    color: '#fff',
+    fontWeight: 'bold',
   },
 });

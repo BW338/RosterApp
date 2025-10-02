@@ -2,7 +2,7 @@
 // 0 = Funcionamiento normal (hoy es hoy).
 // 1 = Simula que "hoy" es mañana.
 // 2 = Simula que "hoy" es pasado mañana.
-const DATE_OFFSET = 0;  
+const DATE_OFFSET = 23;  
 
 /**
  * Devuelve la fecha "actual" para toda la aplicación.

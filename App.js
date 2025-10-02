@@ -112,9 +112,10 @@ function FlexStack() {
   );
 }
 
-function MainTabs({ isDarkMode, setIsDarkMode, isSubscribed, offerings }) {
+function MainTabs({ isDarkMode, setIsDarkMode, isSubscribed, offerings, initialRouteName }) {
   return (
     <Tab.Navigator
+      initialRouteName={initialRouteName}
       tabBarPosition="bottom" // Mueve la barra de pestañas a la parte inferior
       screenOptions={({ route }) => ({
         tabBarActiveTintColor: isDarkMode ? "#AECBFA" : "#3983f1",
@@ -186,10 +187,23 @@ export default function App() {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [isDisclaimerVisible, setIsDisclaimerVisible] = useState(false);
   const [appState, setAppState] = useState('loading'); // 'loading', 'welcome', 'ready'
+  const [initialScreen, setInitialScreen] = useState('Roster'); // Estado para la pantalla inicial
   const navigationRef = React.useRef(null);
 
   useEffect(() => {
     const prepareApp = async () => {
+      // Cargar la pantalla de inicio preferida por el usuario
+      try {
+        const savedInitialScreen = await AsyncStorage.getItem('settings_initialScreen');
+        if (savedInitialScreen) {
+          setInitialScreen(savedInitialScreen);
+        }
+      } catch (e) {
+        console.warn('Error loading initial screen preference', e);
+        // Si hay un error, se usa el valor por defecto 'Roster'
+      }
+
+
       // Si el flag de desarrollo está activo, siempre mostramos la bienvenida.
       if (ALWAYS_SHOW_WELCOME) {
         setAppState('welcome');
@@ -335,6 +349,7 @@ export default function App() {
                   offerings={offerings}
                   isDarkMode={isDarkMode}
                   setIsDarkMode={setIsDarkMode}
+                  initialRouteName={initialScreen}
                 />
               )}
             </Stack.Screen>
