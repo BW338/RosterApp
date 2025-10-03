@@ -319,11 +319,16 @@ useEffect(() => {
 
       </View>
     ),
-    headerTitle: 'Viáticos',
     headerShown: true,
     headerTitleAlign: 'left',
     headerStyle: styles.header,
-    headerTitleStyle: styles.headerTitle,
+    headerTitle: () => (
+      <Text
+        style={styles.headerTitle}
+        numberOfLines={1}
+        adjustsFontSizeToFit
+      >Tus Viaticos</Text>
+    ),
   });
 }, [navigation, AbrirModal, Reset]);
 

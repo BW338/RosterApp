@@ -44,7 +44,6 @@ const FlexScreen = ({ navigation }) => {
   useEffect(() => {
     navigation.setOptions({
       headerShown: true,
-      headerTitle: 'Control Horas Flex',
       headerStyle: {
         backgroundColor: '#fff',
         shadowColor: '#000',
@@ -54,11 +53,13 @@ const FlexScreen = ({ navigation }) => {
         height: 90, // Ajustamos la altura del header
         elevation: 3,
       },
-      headerTitleStyle: {
-        color: '#111827',
-        fontSize: 20,
-        fontWeight: '700',
-      },
+      headerTitle: () => (
+        <Text
+          style={{ color: '#111827', fontSize: 20, fontWeight: '700' }}
+          numberOfLines={1}
+          adjustsFontSizeToFit
+        >Tus Horas Flex</Text>
+      ),
       headerRight: () => (
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16, marginRight: 15 }}>
           {/* Botón para borrar datos de Flex (desarrollo) */}

@@ -191,6 +191,24 @@ export default function App() {
   const navigationRef = React.useRef(null);
 
   useEffect(() => {
+    // Guardar la preferencia de modo oscuro cada vez que cambie
+    const saveDarkModePreference = async () => {
+      try {
+        // No guardamos el valor inicial (false) para no sobreescribir una preferencia existente
+        // antes de que se haya cargado.
+        if (appState !== 'loading') {
+          await AsyncStorage.setItem('settings_isDarkMode', JSON.stringify(isDarkMode));
+        }
+      } catch (e) {
+        console.warn('Error saving dark mode preference', e);
+      }
+    };
+
+    saveDarkModePreference();
+  }, [isDarkMode, appState]);
+
+
+  useEffect(() => {
     const prepareApp = async () => {
       // Cargar la pantalla de inicio preferida por el usuario
       try {
@@ -203,6 +221,13 @@ export default function App() {
         // Si hay un error, se usa el valor por defecto 'Roster'
       }
 
+      // Cargar la preferencia de modo oscuro
+      try {
+        const savedDarkMode = await AsyncStorage.getItem('settings_isDarkMode');
+        if (savedDarkMode !== null) {
+          setIsDarkMode(JSON.parse(savedDarkMode));
+        }
+      } catch (e) { console.warn('Error loading dark mode preference', e); }
 
       // Si el flag de desarrollo está activo, siempre mostramos la bienvenida.
       if (ALWAYS_SHOW_WELCOME) {

@@ -362,6 +362,7 @@ esperar dos dias a que cambie el mes y se refresque el cupo de EAS.
 esperar dos dias a que cambie el mes y se refresque el cupo de EAS.
 
 99| General improvements:
+**Se compila y confirmamos que funciona todo lo relativo a IAP como corresponde.
 -Se desactiva el bloqueo de cambio de mes para el dia 1 para viaticos
 -Se desactiva el bloqueo de cambio de mes para el dia 1 para Flex
 -Se ajusta el estilo del calendario y carteles Flex. 
@@ -371,3 +372,8 @@ esperar dos dias a que cambie el mes y se refresque el cupo de EAS.
 -Se agrega selector de pantalla de inicio en SettingsModal.js.
 -Se Elimina el borde de FLightCard
 -Se agregan opciones de colores para HOY.
+
+101| General improvements:
+-Se setea recordatorio de modo oscuro.
+-Seteamos formato de titulo de los header.
+-Se agregan datos a detalles del calendario

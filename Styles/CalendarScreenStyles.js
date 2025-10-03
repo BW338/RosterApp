@@ -86,16 +86,31 @@ export default StyleSheet.create({
   },
 
   // Detalles de vuelos
-  flightDetails: {
+  flightDetailsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     marginVertical: 3,
-    fontSize: 14,
-    color: "#555",
     backgroundColor: "#f8f8f8",
     padding: 10,
     borderRadius: 8,
     borderLeftWidth: 3,
     borderLeftColor: "#673ab7",
+  },
+  flightDetailsText: {
+    flex: 1, // Permite que el texto se ajuste si es largo
+    fontSize: 14,
+    color: "#555",
     lineHeight: 18,
+    paddingRight: 8, // Espacio para que no se pegue a la duración
+  },
+  flightDuration: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#673ab7',
+  },
+  flightDurationDark: {
+    color: '#AECBFA',
   },
 
   // Timeline de horas
@@ -202,9 +217,20 @@ export default StyleSheet.create({
     color: "#333",
     lineHeight: 24,
     textAlign: "left",
+    flexShrink: 1, // Permite que el texto se encoja si no hay espacio
   },
   timeInfoSection: {
     alignItems: 'flex-end',
+  },
+  // Estilos para TSV y TTEE
+  serviceTimesContainer: {
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    gap: 16, // Espacio entre TSV y TTEE
+    marginTop: 6, // Espacio respecto al título principal
+  },
+  serviceTimesContainerDark: {
+    // No necesita un fondo oscuro si está dentro del header
   },
   
   // Horarios horizontales (nueva versión)
@@ -324,10 +350,12 @@ export default StyleSheet.create({
   timeLabelDark: {
     color: '#8E8E93',
   },
-  flightDetailsDark: {
+  flightDetailsContainerDark: {
     backgroundColor: '#2C2C2E',
-    color: '#EAEAEA',
     borderLeftColor: '#AECBFA',
+  },
+  flightDetailsTextDark: {
+    color: '#EAEAEA',
   },
   timelineContainerDark: {
     borderColor: '#48484A',

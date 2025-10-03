@@ -138,16 +138,19 @@ export default function RosterScreen({ navigation, route, isDarkMode, setIsDarkM
 
   useEffect(() => {
     navigation.setOptions({
-      headerTitle: 'Roster',
       headerTitleAlign: 'left',
       headerStyle: {
         backgroundColor: isDarkMode ? '#1C1C1E' : '#F2F2F2',
       },
-      headerTitleStyle: {
-        color: isDarkMode ? 'white' : 'black',
-        fontWeight: '700',
-        fontSize: 22,
-      },
+      headerTitle: () => (
+        <Text
+          style={{ color: isDarkMode ? 'white' : 'black', fontWeight: '700', fontSize: 22 }}
+          numberOfLines={1}
+          adjustsFontSizeToFit
+        >
+          Tu actividad
+        </Text>
+      ),
       headerRight: () => (
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 18, marginRight: Platform.OS === 'ios' ? 10 : 15 }}>
           {/* Botón para borrar storage (desarrollo) */}

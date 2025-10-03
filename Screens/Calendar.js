@@ -11,6 +11,8 @@ import SettingsModal from "../Components/SettingsModal";
 import ToDoList from "../Components/ToDoList/ToDoList.js";
 import { Ionicons } from "@expo/vector-icons";
 import { getToday, isTodayWithOffset } from "../Helpers/dateManager";
+import { subtractMinutes } from "../Helpers/time";
+import moment from "moment";
 
 const COLORS = {
   libre: { bg: "rgba(0, 255, 0, 0.15)", border: "#3cff00ff" },
@@ -211,6 +213,59 @@ const renderTimeInfo = (day, isDarkMode) => {
   );
 };
 
+// Función para renderizar TSV y TTEE
+const renderServiceTimes = (day, isDarkMode) => {
+  if (!day || getDayType(day) !== 'vuelo') return null;
+
+  const tsv = day.tsv;
+  const ttee = tsv ? subtractMinutes(tsv, 30) : null;
+
+  if (!tsv && !ttee) return null;
+
+  // Lógica para el color del TTEE
+  let tteeStyle = {};
+  if (ttee) {
+    const [hours, minutes] = ttee.split(':').map(Number);
+    if (hours > 8 || (hours === 8 && minutes > 0)) {
+      tteeStyle = { color: '#28a745' }; // Verde para TTEE > 8hs
+    }
+  }
+
+  return (
+    <View style={[styles.serviceTimesContainer, isDarkMode && styles.serviceTimesContainerDark]}>
+      {tsv && (
+        <View style={styles.timeColumn}>
+          <Text style={[styles.timeValue, isDarkMode && styles.timeValueDark]}>{tsv}</Text>
+          <Text style={[styles.timeLabel, isDarkMode && styles.timeLabelDark]}>TSV</Text>
+        </View>
+      )}
+      {ttee && (
+        <View style={styles.timeColumn}>
+          <Text style={[styles.timeValue, isDarkMode && styles.timeValueDark, tteeStyle]}>{ttee}</Text>
+          <Text style={[styles.timeLabel, isDarkMode && styles.timeLabelDark]}>TTEE</Text>
+        </View>
+      )}
+    </View>
+  );
+};
+
+// Función para calcular la duración de un vuelo
+const calculateDuration = (depTime, arrTime) => {
+  if (!depTime || !arrTime || !moment(depTime, 'HH:mm', true).isValid() || !moment(arrTime, 'HH:mm', true).isValid()) {
+    return null;
+  }
+
+  const start = moment(depTime, 'HH:mm');
+  const end = moment(arrTime, 'HH:mm');
+
+  if (end.isBefore(start)) {
+    end.add(1, 'day');
+  }
+
+  const duration = moment.duration(end.diff(start));
+  return `${String(Math.floor(duration.asHours())).padStart(2, '0')}:${String(duration.minutes()).padStart(2, '0')}hs`;
+};
+
 export default function CalendarScreen({ navigation, isDarkMode, setIsDarkMode }) {
   const [roster, setRoster] = useState([]);
   const [markedDates, setMarkedDates] = useState({});
@@ -263,12 +318,15 @@ export default function CalendarScreen({ navigation, isDarkMode, setIsDarkMode }
       headerStyle: {
         backgroundColor: isDarkMode ? '#1C1C1E' : '#F2F2F2'
       },
-      headerTitleStyle: {
-        color: isDarkMode ? 'white' : 'black',
-        fontWeight: '700',
-        fontSize: 22,
-      },
-      headerTitle: 'Calendario',
+      headerTitle: () => (
+        <Text
+          style={{ color: isDarkMode ? 'white' : 'black', fontWeight: '700', fontSize: 22 }}
+          numberOfLines={1}
+          adjustsFontSizeToFit
+        >
+          Tu Calendario
+        </Text>
+      ),
       headerTitleAlign: 'left',
       headerRight: () => (
         <TouchableOpacity onPress={() => setIsSettingsModalVisible(true)} style={{ marginRight: 15 }}>
@@ -421,18 +479,16 @@ export default function CalendarScreen({ navigation, isDarkMode, setIsDarkMode }
     let activityText = "";
 
     if (type === "libre") {
-      symbol = "😴";
       activityText = "Libre";
     } else if (type === "vuelo") {
-      symbol = ACTIVITY_SYMBOLS.vuelo;
       activityText = "Vuelo";
     } else {
-      const activityType = firstActivity?.type?.toLowerCase();
-      symbol = ACTIVITY_SYMBOLS[activityType] || ACTIVITY_SYMBOLS[type] || "📋";
       activityText = firstActivity?.type || type.toUpperCase();
     }
 
-    return `${symbol} ${dayName} ${activityText}`;
+    symbol = ACTIVITY_SYMBOLS[type] || ACTIVITY_SYMBOLS[firstActivity?.type?.toLowerCase()] || "📋";
+
+    return `${symbol} ${dayName} | ${activityText}`;
   };
 
   const selectedDateString = selectedDay?.fullDate?.split("T")[0]; 
@@ -492,8 +548,11 @@ export default function CalendarScreen({ navigation, isDarkMode, setIsDarkMode }
             {selectedDay ? (
               <>
                 <View style={[styles.dayHeaderContainer, isDarkMode && styles.dayHeaderContainerDark]}>
-                  <View style={styles.dayTitleSection}>
-                    <Text style={[styles.dayTitle, isDarkMode && styles.dayTitleDark]}>{formatDayTitleSimple(selectedDay)}</Text>
+                  <View style={styles.dayTitleSection}> 
+                    <Text style={[styles.dayTitle, isDarkMode && styles.dayTitleDark]} numberOfLines={1} adjustsFontSizeToFit>
+                      {formatDayTitleSimple(selectedDay)}
+                    </Text>
+                    {renderServiceTimes(selectedDay, isDarkMode)}
                   </View>
                   <View style={styles.timeInfoSection}>
                     {renderTimeInfo(selectedDay, isDarkMode)}
@@ -501,11 +560,17 @@ export default function CalendarScreen({ navigation, isDarkMode, setIsDarkMode }
                 </View>
 
                 {selectedDay.flights?.length > 0 ? (
-                  selectedDay.flights.map((f, i) => (
-                    <Text key={i} style={[styles.flightDetails, isDarkMode && styles.flightDetailsDark]}>
-                      {f.flightNumber} {f.origin} {f.depTime} - {f.arrTime} {f.destination}
-                    </Text>
-                  ))
+                  selectedDay.flights.map((f, i) => {
+                    const duration = calculateDuration(f.depTime, f.arrTime);
+                    return (
+                      <View key={i} style={[styles.flightDetailsContainer, isDarkMode && styles.flightDetailsContainerDark]}>
+                        <Text style={[styles.flightDetailsText, isDarkMode && styles.flightDetailsTextDark]}>
+                          {f.flightNumber} {f.origin} {f.depTime} - {f.arrTime} {f.destination}
+                        </Text>
+                        {duration && <Text style={[styles.flightDuration, isDarkMode && styles.flightDurationDark]}>| {duration}</Text>}
+                      </View>
+                    );
+                  })
                 ) : (
                   <Text style={[styles.empty, isDarkMode && styles.emptyDark]}>Sin vuelos ni actividad</Text>
                 )}
