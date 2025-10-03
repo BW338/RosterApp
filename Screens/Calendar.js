@@ -426,7 +426,7 @@ export default function CalendarScreen({ navigation, isDarkMode, setIsDarkMode }
 
       if (day.flights?.some(f => f.type === "GUA")) estado = "gua";
       else if (day.flights?.some(f => f.type === "ESM")) estado = "esm";
-      else if (day.flights?.some(f => f.type === "OP" || f.type.startsWith("AR"))) estado = "trabajo";
+      else if (day.flights?.some(f => f.type === "OP" || f.type.startsWith("AR") || f.type === "HTL")) estado = "trabajo";
 
       marks[date] = {
         customStyles: {

@@ -381,3 +381,6 @@ esperar dos dias a que cambie el mes y se refresque el cupo de EAS.
 102| Maps:
 -Se añade la opcion Maps con los destinos del mes.
 ****Hay que añadir ApiKeys para Android. (Aun no esta hecho)
+
+103| Fix HTL:
+-Se pinta HTL en amarillo en calendar.js
