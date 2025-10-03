@@ -17,6 +17,7 @@ import FlexScreen from "./Screens/Flex";
 import ViaticosScreen from "./Screens/Viaticos";
 import SubscriptionPage from "./Screens/SubscriptionPage"; 
 import DisclaimerModal from "./Components/DisclaimerModal"; 
+import MapScreen from "./Screens/MapScreen";
 import DebugBanner from "./Components/DebugBanner"; 
 import WelcomeScreen from "./Components/WelcomeScreen"; 
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -26,6 +27,13 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 const ALWAYS_SHOW_DISCLAIMER = false; // Poner en 'false' para el comportamiento normal
 const ALWAYS_SHOW_WELCOME = true; // Poner en 'false' para el comportamiento normal
 
+/*
+  "android": {
+    "config": {
+      "googleMaps": { "apiKey": "AQUI_VA_TU_API_KEY_DE_GOOGLE_MAPS" }
+    }
+  },
+*/
 // --- Configuración global de idioma para los calendarios ---
 LocaleConfig.locales['es'] = {
   monthNames: [
@@ -70,7 +78,7 @@ function RosterStack({ isSubscribed, offerings, isDarkMode, setIsDarkMode }) {
 }
 
 function CalendarStack({ isDarkMode, setIsDarkMode }) {
-  return (
+  return ( 
     <Stack.Navigator>
       <Stack.Screen
         name="CalendarScreen"
@@ -83,6 +91,21 @@ function CalendarStack({ isDarkMode, setIsDarkMode }) {
           />
         )}
       </Stack.Screen>
+      <Stack.Screen
+        name="MapScreen"
+        component={MapScreen}
+        options={{
+          headerShown: true,
+          title: 'Mapa de Actividad',
+          headerStyle: {
+            backgroundColor: isDarkMode ? '#1C1C1E' : '#F2F2F2',
+          },
+          headerTitleStyle: {
+            color: isDarkMode ? 'white' : 'black',
+          },
+          headerTintColor: isDarkMode ? 'white' : 'black',
+        }}
+      />
     </Stack.Navigator>
   );
 }

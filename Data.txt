@@ -377,3 +377,7 @@ esperar dos dias a que cambie el mes y se refresque el cupo de EAS.
 -Se setea recordatorio de modo oscuro.
 -Seteamos formato de titulo de los header.
 -Se agregan datos a detalles del calendario
+
+102| Maps:
+-Se añade la opcion Maps con los destinos del mes.
+****Hay que añadir ApiKeys para Android. (Aun no esta hecho)

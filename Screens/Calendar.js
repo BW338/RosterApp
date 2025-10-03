@@ -329,9 +329,14 @@ export default function CalendarScreen({ navigation, isDarkMode, setIsDarkMode }
       ),
       headerTitleAlign: 'left',
       headerRight: () => (
-        <TouchableOpacity onPress={() => setIsSettingsModalVisible(true)} style={{ marginRight: 15 }}>
-          <Ionicons name="cog-outline" size={24} color={isDarkMode ? '#AECBFA' : '#007AFF'} />
-        </TouchableOpacity>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 20, marginRight: 15 }}>
+          <TouchableOpacity onPress={() => navigation.navigate('MapScreen', { roster: roster })}>
+            <Ionicons name="map-outline" size={24} color={isDarkMode ? '#AECBFA' : '#007AFF'} />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => setIsSettingsModalVisible(true)}>
+            <Ionicons name="cog-outline" size={24} color={isDarkMode ? '#AECBFA' : '#007AFF'} />
+          </TouchableOpacity>
+        </View>
       ),
     });
   }, [navigation, isDarkMode]);
