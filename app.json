@@ -15,6 +15,7 @@
     "ios": {
       "supportsTablet": true,
       "infoPlist": {
+        "NSCalendarsUsageDescription": "Esta aplicación necesita acceso a tu calendario para poder agregar tus eventos de vuelo y actividades.",
         "CFBundleDocumentTypes": [
           {
             "CFBundleTypeName": "PDF Document",
@@ -28,6 +29,7 @@
     },
     "android": {
       "permissions": [
+        "android.permission.READ_CALENDAR", "android.permission.WRITE_CALENDAR",
         "BILLING"
       ],
       "versionCode": 26,

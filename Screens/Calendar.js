@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { View, Text, ScrollView, Switch, Platform, StatusBar, Keyboard, Animated, TouchableOpacity } from "react-native";
+import { View, Text, ScrollView, Switch, Platform, StatusBar, Keyboard, Animated, TouchableOpacity, Alert } from "react-native";
 import { Calendar } from "react-native-calendars";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect } from "@react-navigation/native";
@@ -12,6 +12,7 @@ import ToDoList from "../Components/ToDoList/ToDoList.js";
 import { Ionicons } from "@expo/vector-icons";
 import { getToday, isTodayWithOffset } from "../Helpers/dateManager";
 import { subtractMinutes } from "../Helpers/time";
+import * as ExpoCalendar from 'expo-calendar';
 import moment from "moment";
 
 const COLORS = {
@@ -330,6 +331,9 @@ export default function CalendarScreen({ navigation, isDarkMode, setIsDarkMode }
       headerTitleAlign: 'left',
       headerRight: () => (
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 20, marginRight: 15 }}>
+          <TouchableOpacity onPress={handleExportToCalendar}>
+            <Ionicons name="share-outline" size={24} color={isDarkMode ? '#AECBFA' : '#007AFF'} />
+          </TouchableOpacity>
           <TouchableOpacity onPress={() => navigation.navigate('MapScreen', { roster: roster })}>
             <Ionicons name="map-outline" size={24} color={isDarkMode ? '#AECBFA' : '#007AFF'} />
           </TouchableOpacity>
@@ -339,7 +343,91 @@ export default function CalendarScreen({ navigation, isDarkMode, setIsDarkMode }
         </View>
       ),
     });
-  }, [navigation, isDarkMode]);
+  }, [navigation, isDarkMode, roster]); // Dependemos de roster para que la función de exportar lo tenga actualizado
+
+  // --- Lógica para Exportar a Calendario con Expo ---
+  const handleExportToCalendar = async () => {
+    if (!roster || roster.length === 0) {
+      Alert.alert("Sin datos", "No hay actividades en el roster para exportar.");
+      return;
+    }
+
+    // 1. Pedir permiso para acceder al calendario
+    const { status } = await ExpoCalendar.requestCalendarPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert("Permiso denegado", "No se puede continuar sin acceso al calendario.");
+      return;
+    }
+
+    // 2. Obtener el calendario por defecto (necesario para Android)
+    async function getDefaultCalendarId() {
+      if (Platform.OS === 'ios') {
+        const defaultCalendar = await ExpoCalendar.getDefaultCalendarAsync();
+        return defaultCalendar.id;
+      }
+      // En Android, buscamos uno que sea escribible
+      const calendars = await ExpoCalendar.getCalendarsAsync(ExpoCalendar.EntityTypes.EVENT);
+      const writableCalendars = calendars.filter(cal => cal.allowsModifications);
+      if (writableCalendars.length > 0) {
+        return writableCalendars[0].id; // Usamos el primero que encontramos
+      }
+      return null;
+    }
+
+    const calendarId = await getDefaultCalendarId();
+    if (!calendarId) {
+      Alert.alert("Error", "No se encontró un calendario válido en tu dispositivo para guardar los eventos.");
+      return;
+    }
+
+    // 3. Confirmar con el usuario antes de agregar los eventos
+    Alert.alert(
+      "Exportar Calendario",
+      `Se encontraron ${roster.length} días con actividad. ¿Deseas agregarlos a tu calendario? Esto puede tardar unos segundos.`,
+      [
+        { text: "Cancelar", style: "cancel" },
+        {
+          text: "Exportar",
+          onPress: async () => {
+            let eventsAdded = 0;
+            for (const day of roster) {
+              const type = getDayType(day);
+              if (type === 'libre' || !day.fullDate) continue;
+
+              const startDate = moment.utc(day.fullDate);
+              let endDate = moment.utc(day.fullDate);
+              let title = `Actividad: ${type.toUpperCase()}`;
+              let notes = `Actividad registrada desde RosterApp.\nTipo: ${type}`;
+
+              if (day.checkin) {
+                const [h, m] = day.checkin.split(':');
+                startDate.hour(h).minute(m);
+                endDate.hour(h).minute(m).add(1, 'hour'); // Duración por defecto de 1 hora
+              }
+
+              if (type === 'vuelo' && day.flights.length > 0) {
+                const lastFlight = day.flights[day.flights.length - 1];
+                const checkout = lastFlight?.checkout || lastFlight?.arrTime;
+                title = `Vuelos: ${day.flights.map(f => f.flightNumber).join(', ')}`;
+                notes = day.flights.map(f => `${f.flightNumber}: ${f.origin} (${f.depTime}) - ${f.destination} (${f.arrTime})`).join('\n');
+                if (checkout) {
+                  const [h, m] = checkout.split(':');
+                  endDate.hour(h).minute(m);
+                  if (endDate.isBefore(startDate)) endDate.add(1, 'day');
+                }
+              }
+
+              try {
+                await ExpoCalendar.createEventAsync(calendarId, { title, startDate: startDate.toDate(), endDate: endDate.toDate(), notes, timeZone: 'UTC' });
+                eventsAdded++;
+              } catch (error) { console.error(`Error al crear evento para ${day.fullDate}:`, error); }
+            }
+            Alert.alert("Finalizado", `Se han agregado ${eventsAdded} eventos a tu calendario.`);
+          },
+        },
+      ]
+    );
+  };
 
   // Temas para el componente Calendar
   const lightTheme = {

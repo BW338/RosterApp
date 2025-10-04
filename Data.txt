@@ -384,3 +384,7 @@ esperar dos dias a que cambie el mes y se refresque el cupo de EAS.
 
 103| Fix HTL:
 -Se pinta HTL en amarillo en calendar.js
+
+104| Google Calendar:
+-Se añade funcion exportar a google calendar.
+**resta setear como y que datos se enviam.
