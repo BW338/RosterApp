@@ -61,6 +61,13 @@ export const parseRosterText = (text) => {
         if (lastDayNumber === 0 || parsed.length === 0) {
           currentMonthIndex = startMonthIndex;
           currentYear = startYear;
+          // --- CORRECCIÓN DE CAMBIO DE MES INICIAL ---
+          // Si el primer día del roster (ej: 1) es menor que el día de inicio del período (ej: 31),
+          // significa que ya estamos en el siguiente mes.
+          if (dayNumber < startDay) {
+            currentMonthIndex = (startMonthIndex + 1) % 12;
+            if (currentMonthIndex === 0) currentYear++; // Si pasamos de Diciembre a Enero, aumentamos el año.
+          }
         } else {
           const prev = parsed[parsed.length - 1];
           if (dayNumber < lastDayNumber) {

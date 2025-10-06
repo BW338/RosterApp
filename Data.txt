@@ -387,4 +387,8 @@ esperar dos dias a que cambie el mes y se refresque el cupo de EAS.
 
 104| Google Calendar:
 -Se añade funcion exportar a google calendar.
-**resta setear como y que datos se enviam.
+**resta setear como y que datos se envian.
+
+105| Fixing parse:
+-Se corrige parseRosterText, ya que si subia un reporte, por ejemplo 31AUG25 - 30SEP25
+me armaba el roster como si fuera el mes Agosto.

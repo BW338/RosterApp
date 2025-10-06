@@ -57,7 +57,8 @@ const getDayType = (day) => {
 // Render timeline de vuelos/guardias
 const renderTimeline = (dayData, isDarkMode) => {
   // No mostrar timeline si no hay datos o es un día libre
-  if (!dayData || getDayType(dayData) === 'libre') {
+  // Tampoco mostrar si es un vuelo nocturno que solo tiene llegada (sin checkin)
+  if (!dayData || getDayType(dayData) === 'libre' || (getDayType(dayData) === 'vuelo' && !dayData.checkin)) {
     return null;
   }
   const type = getDayType(dayData);
@@ -331,6 +332,9 @@ export default function CalendarScreen({ navigation, isDarkMode, setIsDarkMode }
       headerTitleAlign: 'left',
       headerRight: () => (
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 20, marginRight: 15 }}>
+          <TouchableOpacity onPress={handleDeleteCalendarEvents} testID="delete-calendar-button">
+            <Ionicons name="trash-bin-outline" size={24} color={isDarkMode ? '#FF453A' : '#FF3B30'} />
+          </TouchableOpacity>
           <TouchableOpacity onPress={handleExportToCalendar}>
             <Ionicons name="share-outline" size={24} color={isDarkMode ? '#AECBFA' : '#007AFF'} />
           </TouchableOpacity>
@@ -387,17 +391,36 @@ export default function CalendarScreen({ navigation, isDarkMode, setIsDarkMode }
       [
         { text: "Cancelar", style: "cancel" },
         {
-          text: "Exportar",
+          text: "Reemplazar",
           onPress: async () => {
+            // --- NUEVO: Primero, borramos los eventos antiguos ---
+            try {
+              const oldEventIdsJson = await AsyncStorage.getItem('roster_calendar_event_ids');
+              const oldEventIds = oldEventIdsJson ? JSON.parse(oldEventIdsJson) : [];
+              if (oldEventIds.length > 0) {
+                console.log(`Borrando ${oldEventIds.length} eventos antiguos...`);
+                for (const id of oldEventIds) {
+                  try { await ExpoCalendar.deleteEventAsync(id); } catch (e) { /* El evento ya no existía, no hay problema */ }
+                }
+              }
+            } catch (error) {
+              console.error("Error borrando eventos antiguos:", error);
+            }
+            // --- FIN DEL NUEVO BLOQUE ---
+
             let eventsAdded = 0;
+            console.log("--- INICIANDO EXPORTACIÓN A CALENDARIO ---");
+            const newEventIds = []; // Array para guardar los IDs de los nuevos eventos
+
             for (const day of roster) {
               const type = getDayType(day);
               if (type === 'libre' || !day.fullDate) continue;
 
+              const symbol = ACTIVITY_SYMBOLS[type] || ACTIVITY_SYMBOLS[day.flights?.[0]?.type?.toLowerCase()] || "📋";
               const startDate = moment.utc(day.fullDate);
               let endDate = moment.utc(day.fullDate);
-              let title = `Actividad: ${type.toUpperCase()}`;
-              let notes = `Actividad registrada desde RosterApp.\nTipo: ${type}`;
+              let title = `${symbol} ${type.toUpperCase()}`; // Título por defecto más limpio
+              let notes = `Actividad registrada desde RosterApp.\n\nTipo: ${type.toUpperCase()}`;
 
               if (day.checkin) {
                 const [h, m] = day.checkin.split(':');
@@ -405,24 +428,114 @@ export default function CalendarScreen({ navigation, isDarkMode, setIsDarkMode }
                 endDate.hour(h).minute(m).add(1, 'hour'); // Duración por defecto de 1 hora
               }
 
+              // --- Lógica mejorada para VUELOS ---
               if (type === 'vuelo' && day.flights.length > 0) {
                 const lastFlight = day.flights[day.flights.length - 1];
                 const checkout = lastFlight?.checkout || lastFlight?.arrTime;
-                title = `Vuelos: ${day.flights.map(f => f.flightNumber).join(', ')}`;
-                notes = day.flights.map(f => `${f.flightNumber}: ${f.origin} (${f.depTime}) - ${f.destination} (${f.arrTime})`).join('\n');
+
+                // Título: "Vuelo AEP - USH - EZE"
+                const route = [day.flights[0].origin, ...day.flights.map(f => f.destination)].join(' - ');
+                title = `${symbol} Vuelo: ${route}`;
+
+                // --- Construcción de las notas con el nuevo formato ---
+                let newNotes = [];
+
+                // 1. Línea de Inicio y Fin
+                if (day.checkin && checkout) {
+                  newNotes.push(`Inicio ${day.checkin} | Fin ${checkout}`);
+                }
+
+                // 2. Línea de TSV y TTEE
+                const ttee = day.tsv ? subtractMinutes(day.tsv, 30) : null;
+                if (day.tsv && ttee) {
+                  newNotes.push(`TSV: ${day.tsv} | TTEE: ${ttee}`);
+                }
+
+                // 3. Detalle de cada tramo
+                const flightDetails = day.flights.map(f => {
+                  const duration = calculateDuration(f.depTime, f.arrTime);
+                  return `${f.flightNumber} ${f.origin} (${f.depTime}) - ${f.destination} (${f.arrTime}) | ${duration || ''}`;
+                }).join('\n');
+
+                notes = `${newNotes.join('\n')}\n\n${flightDetails}`;
+
                 if (checkout) {
                   const [h, m] = checkout.split(':');
                   endDate.hour(h).minute(m);
                   if (endDate.isBefore(startDate)) endDate.add(1, 'day');
                 }
+              } else if (type !== 'libre') {
+                // --- Lógica para OTRAS ACTIVIDADES (GUA, ESM, etc.) ---
+                const activity = day.flights[0];
+                title = `${symbol} ${activity.type}`; // Título como "📚 ESM" o "🟠 GUA"
+
+                // Si la actividad tiene horarios, los agregamos a las notas
+                if (activity.depTime && activity.arrTime) {
+                  notes += `\nHorario: ${activity.depTime} - ${activity.arrTime}`;
+                  const [h, m] = activity.arrTime.split(':');
+                  endDate.hour(h).minute(m);
+                }
               }
 
               try {
-                await ExpoCalendar.createEventAsync(calendarId, { title, startDate: startDate.toDate(), endDate: endDate.toDate(), notes, timeZone: 'UTC' });
+                console.log(`📄 Creando evento: Título="${title}", Inicio="${startDate.toISOString()}", Fin="${endDate.toISOString()}"`);
+                const eventId = await ExpoCalendar.createEventAsync(calendarId, { title, startDate: startDate.toDate(), endDate: endDate.toDate(), notes, timeZone: 'UTC' });
+                newEventIds.push(eventId); // Guardamos el ID del evento creado
                 eventsAdded++;
               } catch (error) { console.error(`Error al crear evento para ${day.fullDate}:`, error); }
             }
+
+            // Guardar los nuevos IDs en AsyncStorage, añadiéndolos a los existentes
+            try {
+              // Ahora solo guardamos los IDs de la última exportación
+              await AsyncStorage.setItem('roster_calendar_event_ids', JSON.stringify(newEventIds));
+            } catch (error) {
+              console.error("Error guardando IDs de eventos:", error);
+            }
+
+            console.log(`--- EXPORTACIÓN FINALIZADA: ${eventsAdded} eventos agregados. ---`);
             Alert.alert("Finalizado", `Se han agregado ${eventsAdded} eventos a tu calendario.`);
+          },
+        },
+      ]
+    );
+  };
+
+  // --- Lógica para BORRAR eventos del Calendario ---
+  const handleDeleteCalendarEvents = async () => {
+    Alert.alert(
+      "Borrar Eventos del Calendario",
+      "¿Estás seguro de que quieres eliminar todos los eventos que se exportaron desde RosterApp? Esta acción no se puede deshacer.",
+      [
+        { text: "Cancelar", style: "cancel" },
+        {
+          text: "Borrar",
+          style: "destructive",
+          onPress: async () => {
+            const { status } = await ExpoCalendar.requestCalendarPermissionsAsync();
+            if (status !== 'granted') {
+              Alert.alert("Permiso denegado", "Se necesita acceso al calendario para borrar eventos.");
+              return;
+            }
+
+            try {
+              const eventIdsJson = await AsyncStorage.getItem('roster_calendar_event_ids');
+              const eventIds = eventIdsJson ? JSON.parse(eventIdsJson) : [];
+
+              if (eventIds.length === 0) {
+                Alert.alert("Sin eventos", "No se encontraron eventos para borrar.");
+                return;
+              }
+
+              console.log(`--- INICIANDO BORRADO DE ${eventIds.length} EVENTOS ---`);
+              for (const id of eventIds) {
+                try { await ExpoCalendar.deleteEventAsync(id); console.log(`🗑️ Evento borrado: ${id}`); } catch (e) { console.log(`⚠️ Evento ${id} no encontrado, probablemente ya fue borrado.`); }
+              }
+
+              await AsyncStorage.removeItem('roster_calendar_event_ids');
+              Alert.alert("Finalizado", `Se han eliminado ${eventIds.length} eventos del calendario.`);
+              console.log("--- BORRADO FINALIZADO ---");
+            } catch (error) { console.error("Error al borrar eventos:", error); Alert.alert("Error", "No se pudieron borrar los eventos."); }
           },
         },
       ]
@@ -510,6 +623,11 @@ export default function CalendarScreen({ navigation, isDarkMode, setIsDarkMode }
       if (!date) return;
 
       let estado = "libre";
+      let dotColor = COLORS.libre.border; // Color por defecto para el punto
+
+      // Definimos los colores de los puntos según la actividad
+      const dotColors = { trabajo: COLORS.trabajo.border, gua: COLORS.gua.border, esm: COLORS.esm.border, libre: COLORS.libre.border };
+
       const isTodayDate = isTodayWithOffset(new Date(day.fullDate));
 
       if (day.flights?.some(f => f.type === "GUA")) estado = "gua";
@@ -517,6 +635,8 @@ export default function CalendarScreen({ navigation, isDarkMode, setIsDarkMode }
       else if (day.flights?.some(f => f.type === "OP" || f.type.startsWith("AR") || f.type === "HTL")) estado = "trabajo";
 
       marks[date] = {
+        // Añadimos la configuración de los puntos (dots)
+        dots: [{ key: estado, color: dotColors[estado] || COLORS.libre.border }],
         customStyles: {
           container: {
             backgroundColor: COLORS[estado].bg,
@@ -533,7 +653,7 @@ export default function CalendarScreen({ navigation, isDarkMode, setIsDarkMode }
       };
 
       // Añadir un punto si el día tiene tareas
-      const dateTasks = currentTasks[date];
+      const dateTasks = currentTasks && currentTasks[date];
       if (dateTasks && dateTasks.length > 0) {
         marks[date].marked = true;
       }
@@ -565,21 +685,20 @@ export default function CalendarScreen({ navigation, isDarkMode, setIsDarkMode }
       weekday: "long" 
     }).replace(/^\w/, c => c.toUpperCase());
 
-    const type = getDayType(day);
-    const firstActivity = day.flights?.[0];
-    
-    let symbol = "";
-    let activityText = "";
+    const type = getDayType(day);    
+    const symbol = ACTIVITY_SYMBOLS[type] || ACTIVITY_SYMBOLS[day.flights?.[0]?.type?.toLowerCase()] || "📋";
+    let activityText;
 
     if (type === "libre") {
       activityText = "Libre";
     } else if (type === "vuelo") {
-      activityText = "Vuelo";
+      // Para vuelos, mostramos la ruta completa en el título
+      const route = [day.flights[0].origin, ...day.flights.map(f => f.destination)].join(' - ');
+      activityText = `Vuelo: ${route}`;
     } else {
-      activityText = firstActivity?.type || type.toUpperCase();
+      // Para otras actividades, mostramos el tipo
+      activityText = day.flights?.[0]?.type || type.toUpperCase();
     }
-
-    symbol = ACTIVITY_SYMBOLS[type] || ACTIVITY_SYMBOLS[firstActivity?.type?.toLowerCase()] || "📋";
 
     return `${symbol} ${dayName} | ${activityText}`;
   };
@@ -655,12 +774,16 @@ export default function CalendarScreen({ navigation, isDarkMode, setIsDarkMode }
                 {selectedDay.flights?.length > 0 ? (
                   selectedDay.flights.map((f, i) => {
                     const duration = calculateDuration(f.depTime, f.arrTime);
+                    // No mostrar nada si es un vuelo de solo llegada (parte de un nocturno)
+                    if (!f.flightNumber && !f.origin && f.destination) return null;
+
                     return (
                       <View key={i} style={[styles.flightDetailsContainer, isDarkMode && styles.flightDetailsContainerDark]}>
                         <Text style={[styles.flightDetailsText, isDarkMode && styles.flightDetailsTextDark]}>
-                          {f.flightNumber} {f.origin} {f.depTime} - {f.arrTime} {f.destination}
+                          {/* Formato mejorado: Vuelo: AEP (13:00) - USH (16:40) */}
+                          {f.flightNumber}: {f.origin} ({f.depTime}) - {f.destination} ({f.arrTime})
                         </Text>
-                        {duration && <Text style={[styles.flightDuration, isDarkMode && styles.flightDurationDark]}>| {duration}</Text>}
+                        {duration && <Text style={[styles.flightDuration, isDarkMode && styles.flightDurationDark]}>{duration}</Text>}
                       </View>
                     );
                   })
