@@ -195,52 +195,40 @@ export default StyleSheet.create({
   },
 
   // NUEVOS ESTILOS PARA HEADER HORIZONTAL
+  // Contenedor principal para el título y la fila de horarios
   dayHeaderContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: 15,
-    paddingVertical: 12,
-    paddingHorizontal: 12,
-    backgroundColor: "#f8f9ff",
-    borderRadius: 12,
-    borderLeftWidth: 4,
-    borderLeftColor: "#673ab7",
+    flexDirection: 'column', // Apila el título y los horarios verticalmente
+    paddingHorizontal: 16,
+    paddingTop: 12,
+    paddingBottom: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: '#e5e7eb',
   },
-  dayTitleSection: {
-    flex: 1,
-    paddingRight: 12,
-  },
+  // Título (Fecha y ruta)
   dayTitle: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: "700",
-    color: "#333",
-    lineHeight: 24,
-    textAlign: "left",
-    flexShrink: 1, // Permite que el texto se encoja si no hay espacio
+    color: '#111827',
+    marginBottom: 10, // Espacio entre el título y la fila de horarios
   },
-  timeInfoSection: {
-    alignItems: 'flex-end',
+  // Contenedor para la fila de horarios (Inicio, Fin, TSV, TTEE)
+  dayTimesContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between', // <--- ¡Este es el cambio clave!
+    // gap: 20, // Ya no es necesario, space-between se encarga del espacio
   },
   // Estilos para TSV y TTEE
   serviceTimesContainer: {
     flexDirection: 'row',
-    justifyContent: 'flex-start',
-    gap: 16, // Espacio entre TSV y TTEE
-    marginTop: 6, // Espacio respecto al título principal
-  },
-  serviceTimesContainerDark: {
-    // No necesita un fondo oscuro si está dentro del header
+    gap: 1, // Espacio entre TSV y TTEE
   },
   
   // Horarios horizontales (nueva versión)
   timeInfoHorizontal: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(103, 58, 183, 0.08)',
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderRadius: 8,
+    gap: 1, // Espacio entre Inicio y Fin
   },
   timeColumn: {
     alignItems: 'center',
@@ -263,6 +251,13 @@ export default StyleSheet.create({
     color: '#999',
     marginHorizontal: 12,
   },
+  // --- Dark Mode Styles ---
+  dayHeaderContainerDark: {
+    borderBottomColor: '#3A3A3C',
+  },
+  dayTitleDark: {
+    color: '#FFFFFF',
+  },
 
   // Estilos antiguos del título (mantenidos por compatibilidad)
   dayTitleContainer: {
@@ -273,6 +268,16 @@ export default StyleSheet.create({
     borderRadius: 12,
     borderLeftWidth: 4,
     borderLeftColor: "#673ab7",
+  },
+  // --- Estilos que ya no se usan en el nuevo layout ---
+  dayTitleSection: {
+    // Ya no se usa
+  },
+  timeInfoSection: {
+    // Ya no se usa
+  },
+  serviceTimesContainerDark: {
+    // Ya no se usa
   },
   activitySymbol: {
     fontSize: 20,
@@ -332,15 +337,6 @@ export default StyleSheet.create({
     backgroundColor: '#e0e0e0',
     marginVertical: 12,
   },
-  // --- Dark Mode Styles ---
-  infoBoxDark: {
-    backgroundColor: '#1C1C1E',
-    borderColor: '#272729',
-  },
-  dayHeaderContainerDark: {
-    backgroundColor: '#2C2C2E',
-    borderLeftColor: '#AECBFA',
-  },
   dayTitleDark: {
     color: '#FFFFFF',
   },
@@ -349,6 +345,10 @@ export default StyleSheet.create({
   },
   timeLabelDark: {
     color: '#8E8E93',
+  },
+  infoBoxDark: {
+    backgroundColor: '#1C1C1E',
+    borderColor: '#272729',
   },
   flightDetailsContainerDark: {
     backgroundColor: '#2C2C2E',

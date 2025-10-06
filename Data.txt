@@ -396,3 +396,6 @@ me armaba el roster como si fuera el mes Agosto.
 106| app.json:
 -Se setea el app.json para que compile el bundle id en IOS para actuazliar la app existente Timpicker (com.guido1988.TP), 
 y al mismo tiempo el bundle id de Android coincide con el de la prubea cerrada (com.github1988.rosterapp). 
+
+107| Calendar Details Styles:
+-Se ajustan los estilos de ruta y datos de vuelos del calendario. 

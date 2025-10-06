@@ -694,7 +694,7 @@ export default function CalendarScreen({ navigation, isDarkMode, setIsDarkMode }
     } else if (type === "vuelo") {
       // Para vuelos, mostramos la ruta completa en el título
       const route = [day.flights[0].origin, ...day.flights.map(f => f.destination)].join(' - ');
-      activityText = `Vuelo: ${route}`;
+      activityText = ` ${route}`;
     } else {
       // Para otras actividades, mostramos el tipo
       activityText = day.flights?.[0]?.type || type.toUpperCase();
@@ -759,17 +759,17 @@ export default function CalendarScreen({ navigation, isDarkMode, setIsDarkMode }
           <ScrollView style={[styles.infoBox, isDarkMode && styles.infoBoxDark]}>
             {selectedDay ? (
               <>
+                {/* --- INICIO: Bloque de información del día modificado --- */}
                 <View style={[styles.dayHeaderContainer, isDarkMode && styles.dayHeaderContainerDark]}>
-                  <View style={styles.dayTitleSection}> 
-                    <Text style={[styles.dayTitle, isDarkMode && styles.dayTitleDark]} numberOfLines={1} adjustsFontSizeToFit>
-                      {formatDayTitleSimple(selectedDay)}
-                    </Text>
+                  <Text style={[styles.dayTitle, isDarkMode && styles.dayTitleDark]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7}>
+                    {formatDayTitleSimple(selectedDay)}
+                  </Text>
+                  <View style={styles.dayTimesContainer}>
+                    {renderTimeInfo(selectedDay, isDarkMode)}
                     {renderServiceTimes(selectedDay, isDarkMode)}
                   </View>
-                  <View style={styles.timeInfoSection}>
-                    {renderTimeInfo(selectedDay, isDarkMode)}
-                  </View>
                 </View>
+                {/* --- FIN: Bloque de información del día modificado --- */}
 
                 {selectedDay.flights?.length > 0 ? (
                   selectedDay.flights.map((f, i) => {
