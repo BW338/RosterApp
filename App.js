@@ -7,7 +7,7 @@ import Toast from "react-native-toast-message";
 import { LocaleConfig } from "react-native-calendars";
 import { Ionicons } from "@expo/vector-icons";
 import * as Linking from 'expo-linking';
-import * as FileSystem from 'expo-file-system';
+import * as FileSystem from 'expo-file-system/legacy';
 import { useSubscription } from "./hooks/useSubscription";
 import RosterPannelScreen from "./Screens/RosterPannel";
 import RosterScreen from "./Screens/RosterScreen";
@@ -20,12 +20,8 @@ import DisclaimerModal from "./Components/DisclaimerModal";
 import MapScreen from "./Screens/MapScreen";
 import DebugBanner from "./Components/DebugBanner"; 
 import WelcomeScreen from "./Components/WelcomeScreen"; 
+import { AppConfig } from "./Helpers/debugConfig"; 
 import AsyncStorage from "@react-native-async-storage/async-storage";
-
-// --- Flag de Desarrollo ---
-// MODO DE PRUEBA
-const ALWAYS_SHOW_DISCLAIMER = false; // Poner en 'false' para el comportamiento normal
-const ALWAYS_SHOW_WELCOME = true; // Poner en 'false' para el comportamiento normal
 
 /*
   "android": {
@@ -50,7 +46,7 @@ LocaleConfig.defaultLocale = 'es';
 const Tab = createMaterialTopTabNavigator();
 const Stack = createNativeStackNavigator();
 
-function RosterStack({ isSubscribed, offerings, isDarkMode, setIsDarkMode }) {
+function RosterStack({ offerings, isDarkMode, setIsDarkMode }) {
   return (
     <Stack.Navigator initialRouteName="RosterScreen">
       <Stack.Screen
@@ -60,7 +56,6 @@ function RosterStack({ isSubscribed, offerings, isDarkMode, setIsDarkMode }) {
             {...props}
             isDarkMode={isDarkMode}
             setIsDarkMode={setIsDarkMode}
-            isSubscribed={isSubscribed}
           />
         )}
       </Stack.Screen>
@@ -68,7 +63,6 @@ function RosterStack({ isSubscribed, offerings, isDarkMode, setIsDarkMode }) {
         {(props) => (
           <RosterPannelScreen
             {...props}
-            isSubscribed={isSubscribed}
             offerings={offerings}
           />
         )}
@@ -135,7 +129,7 @@ function FlexStack() {
   );
 }
 
-function MainTabs({ isDarkMode, setIsDarkMode, isSubscribed, offerings, initialRouteName }) {
+function MainTabs({ isDarkMode, setIsDarkMode, offerings, initialRouteName }) {
   return (
     <Tab.Navigator
       initialRouteName={initialRouteName}
@@ -187,7 +181,6 @@ function MainTabs({ isDarkMode, setIsDarkMode, isSubscribed, offerings, initialR
         {(props) => (
           <RosterStack
             {...props}
-            isSubscribed={isSubscribed}
             offerings={offerings}
             isDarkMode={isDarkMode}
             setIsDarkMode={setIsDarkMode}
@@ -195,7 +188,13 @@ function MainTabs({ isDarkMode, setIsDarkMode, isSubscribed, offerings, initialR
         )}
       </Tab.Screen>
       <Tab.Screen name="Calendario">
-        {(props) => <CalendarStack {...props} isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} />}
+        {(props) => (
+          <CalendarStack
+            {...props}
+            isDarkMode={isDarkMode}
+            setIsDarkMode={setIsDarkMode}
+          />
+        )}
       </Tab.Screen>
       <Tab.Screen name="Calculador" component={CalculatorScreen} />
       <Tab.Screen name="Viaticos" component={ViaticosStack} />
@@ -253,7 +252,7 @@ export default function App() {
       } catch (e) { console.warn('Error loading dark mode preference', e); }
 
       // Si el flag de desarrollo está activo, siempre mostramos la bienvenida.
-      if (ALWAYS_SHOW_WELCOME) {
+      if (AppConfig.ALWAYS_SHOW_WELCOME) { // <--- 2. Usamos la configuración central
         setAppState('welcome');
         return;
       }
@@ -280,7 +279,7 @@ export default function App() {
 
     const checkDisclaimer = async () => {
       // Si el flag de desarrollo está activo, siempre mostramos el modal y salimos.
-      if (ALWAYS_SHOW_DISCLAIMER) {
+      if (AppConfig.ALWAYS_SHOW_DISCLAIMER) { // <--- 3. Usamos la configuración central
         setTimeout(() => setIsDisclaimerVisible(true), 500);
         return;
       }
@@ -358,7 +357,7 @@ export default function App() {
     });
 
     return () => subscription.remove();
-  }, [handleSharedFile]);
+  }, [handleSharedFile, isSubscribed]);
 
   if (appState === 'welcome') {
     return <WelcomeScreen onFinish={handleWelcomeFinish} />;
@@ -393,7 +392,6 @@ export default function App() {
               {(props) => (
                 <MainTabs
                   {...props}
-                  isSubscribed={isSubscribed}
                   offerings={offerings}
                   isDarkMode={isDarkMode}
                   setIsDarkMode={setIsDarkMode}

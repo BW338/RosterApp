@@ -6,12 +6,14 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { parseRosterText } from "../Functions/parseRosterText";
 import { pickPdfFile } from "../Functions/pickPdf";
 import PrimaryButton from "../Components/Buttons/PrimaryButton";
-import * as FileSystem from "expo-file-system";
+import { useSubscription } from "../hooks/useSubscription"; // 1. Importar el hook
+import * as FileSystem from "expo-file-system/legacy";
 
-export default function RosterPannelScreen({ navigation, route }) {
+export default function RosterPannelScreen({ navigation, route }) { // Eliminamos isSubscribed de las props
   const [pdfData, setPdfData] = useState(null);
   const [roster, setRoster] = useState([]);
   const [isPicking, setIsPicking] = useState(false);
+  const { isSubscribed, loading } = useSubscription(); // Obtenemos el estado y el flag de carga
 
    // 🔹 Al iniciar, intentar recuperar el roster guardado
   useEffect(() => {
@@ -42,8 +44,20 @@ export default function RosterPannelScreen({ navigation, route }) {
 
   // 🔹 Si se navega con `autoPick`, iniciar el selector de archivos
   useEffect(() => {
-    if (route.params?.autoPick) {
-      handlePickPdf(true);
+    // Solo actuar si `autoPick` es true y el estado de la suscripción ya no está cargando
+    if (route.params?.autoPick && !loading) {
+      // 3. Verificar la suscripción ANTES de intentar abrir el picker
+      Alert.alert(
+        'Debug: Verificación de Suscripción (RosterPannel)',
+        `El estado de 'isSubscribed' es: ${isSubscribed}`,
+        [{ text: 'OK' }]
+      );
+      if (isSubscribed) {
+        handlePickPdf(true);
+      } else {
+        // Si no está suscrito, lo enviamos a la página de planes y evitamos el bucle.
+        navigation.replace("SubscriptionPage"); // Usamos replace para una mejor experiencia de usuario
+      }
     }
 
     // 🔹 Si se recibe una URI de un archivo compartido
@@ -62,7 +76,7 @@ export default function RosterPannelScreen({ navigation, route }) {
       };
       processSharedFile();
     }
-  }, [route.params?.autoPick]);
+  }, [route.params?.autoPick, route.params?.sharedFileUri, isSubscribed, loading]);
 
    // 📌 Borrar roster del storage
 const handleClearStorage = async () => {

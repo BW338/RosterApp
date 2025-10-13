@@ -1,8 +1,4 @@
-// --- MODO DE PRUEBA ---
-// 0 = Funcionamiento normal (hoy es hoy).
-// 1 = Simula que "hoy" es mañana.
-// 2 = Simula que "hoy" es pasado mañana.
-const DATE_OFFSET = 0;  
+import { AppConfig } from "../Helpers/debugConfig";
 
 /**
  * Devuelve la fecha "actual" para toda la aplicación.
@@ -11,8 +7,8 @@ const DATE_OFFSET = 0;
  */
 export function getToday() {
     const today = new Date();
-    if (DATE_OFFSET > 0) {
-        today.setDate(today.getDate() + DATE_OFFSET);
+    if (AppConfig.DATE_OFFSET > 0) { // <--- 2. Usamos la configuración central
+        today.setDate(today.getDate() + AppConfig.DATE_OFFSET);
     }
     return today;
 }

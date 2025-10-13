@@ -14,8 +14,9 @@ import EmptyRoster from "../Components/EmptyRoster";
 import Toast from "react-native-toast-message";
 import SettingsModal from "../Components/SettingsModal";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useSubscription } from "../hooks/useSubscription"; // 1. Importamos el hook
 
-export default function RosterScreen({ navigation, route, isDarkMode, setIsDarkMode, isSubscribed }) {
+export default function RosterScreen({ navigation, route, isDarkMode, setIsDarkMode }) { // 2. Quitamos isSubscribed de las props
   const [roster, setRoster] = useState([]);
   const sectionListRef = useRef(null);
   const hasScrolledRef = useRef(false);
@@ -25,6 +26,8 @@ export default function RosterScreen({ navigation, route, isDarkMode, setIsDarkM
   const headerHeightsRef = useRef({});  // { [sectionIndex]: height }
   const avgItemHeightRef = useRef(115); // Estimación inicial razonable
   const avgHeaderHeightRef = useRef(36);
+
+  const { isSubscribed } = useSubscription(); // 3. Obtenemos el estado directamente de la fuente de verdad
 
   const [isSettingsModalVisible, setIsSettingsModalVisible] = useState(false);
   const [todayColor, setTodayColor] = useState('#FFD54F'); // Color por defecto
@@ -127,6 +130,11 @@ export default function RosterScreen({ navigation, route, isDarkMode, setIsDarkM
 
   // Función para manejar el botón "Cargar PDF"
   const handleLoadPDF = () => {
+    Alert.alert(
+      'Debug: Verificación de Suscripción (RosterScreen)',
+      `El estado de 'isSubscribed' es: ${isSubscribed}`,
+      [{ text: 'OK' }]
+    );
     if (isSubscribed) {
       // Si está suscrito, va directo a cargar PDF
       navigation.navigate("RosterPannel", { autoPick: true });

@@ -2,7 +2,7 @@
   "expo": {
     "name": "RosterApp",
     "slug": "RosterApp",
-    "version": "1.3.0",
+    "version": "1.3.7",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -12,19 +12,44 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
+    "usesNonExemptEncryption": false,
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.guido1988.TP",
-      "buildNumber": "13",
+      "buildNumber": "14",
       "infoPlist": {
         "NSCalendarsUsageDescription": "Esta aplicación necesita acceso a tu calendario para poder agregar tus eventos de vuelo y actividades.",
         "CFBundleDocumentTypes": [
           {
             "CFBundleTypeName": "PDF Document",
-            "LSItemContentTypes": ["com.adobe.pdf"],
+            "LSItemContentTypes": [
+              "com.adobe.pdf"
+            ],
+            "LSHandlerRank": "Alternate"
+          },
+          {
+            "CFBundleTypeName": "PDF Document",
+            "LSItemContentTypes": [
+              "com.adobe.pdf"
+            ],
+            "LSHandlerRank": "Alternate"
+          },
+          {
+            "CFBundleTypeName": "PDF Document",
+            "LSItemContentTypes": [
+              "com.adobe.pdf"
+            ],
+            "LSHandlerRank": "Alternate"
+          },
+          {
+            "CFBundleTypeName": "PDF Document",
+            "LSItemContentTypes": [
+              "com.adobe.pdf"
+            ],
             "LSHandlerRank": "Alternate"
           }
-        ]
+        ],
+        "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {
@@ -43,7 +68,9 @@
       "intentFilters": [
         {
           "action": "SEND",
-          "category": ["DEFAULT"],
+          "category": [
+            "DEFAULT"
+          ],
           "data": {
             "mimeType": "application/pdf"
           }

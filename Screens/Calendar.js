@@ -3,8 +3,8 @@ import { View, Text, ScrollView, Switch, Platform, StatusBar, Keyboard, Animated
 import { Calendar } from "react-native-calendars";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect } from "@react-navigation/native";
+import { useSubscription } from "../hooks/useSubscription"; // 1. Importamos el hook
 import styles from "../Styles/CalendarScreenStyles";
-import { useSubscription } from "../hooks/useSubscription";
 import EmptyRoster from "../Components/EmptyRoster";
 import CalendarInfo from "../Components/CalendarInfo";
 import SettingsModal from "../Components/SettingsModal";
@@ -268,12 +268,12 @@ const calculateDuration = (depTime, arrTime) => {
   return `${String(Math.floor(duration.asHours())).padStart(2, '0')}:${String(duration.minutes()).padStart(2, '0')}hs`;
 };
 
-export default function CalendarScreen({ navigation, isDarkMode, setIsDarkMode }) {
+export default function CalendarScreen({ navigation, isDarkMode, setIsDarkMode }) { // 2. Quitamos isSubscribed de las props
   const [roster, setRoster] = useState([]);
   const [markedDates, setMarkedDates] = useState({});
   const [selectedDay, setSelectedDay] = useState(null);
   const [tasks, setTasks] = useState({});
-  const { isSubscribed } = useSubscription();
+  const { isSubscribed } = useSubscription(); // 3. Obtenemos el estado directamente
   const [isInfoModalVisible, setIsInfoModalVisible] = useState(false);
   const [isSettingsModalVisible, setIsSettingsModalVisible] = useState(false);
 
@@ -669,6 +669,11 @@ export default function CalendarScreen({ navigation, isDarkMode, setIsDarkMode }
   };
 
   const handleUploadPress = () => {
+    Alert.alert(
+      'Debug: Verificación de Suscripción (Calendar)',
+      `El estado de 'isSubscribed' es: ${isSubscribed}`,
+      [{ text: 'OK' }]
+    );
     if (isSubscribed) {
       navigation.navigate("RosterPannel", { autoPick: true });
     } else {

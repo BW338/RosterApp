@@ -2,14 +2,8 @@ import { useState, useEffect, useCallback } from 'react';
 import Purchases from "react-native-purchases";
 import { Platform, AppState } from "react-native";
 import Toast from "react-native-toast-message";
+import { AppConfig } from '../Helpers/debugConfig'; 
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
-// Switch para activar/desactivar la implementación de IAP.
-// true:  Modo debug, siempre suscrito. Para desarrollo.
-// false: Modo producción, usa RevenueCat para verificar suscripciones reales.
-//MODO DE PRUEBA
-const DEBUG_SUBSCRIPTION = true;
-const SHOW_DEBUG_BANNER = false; // Forzar a que el banner se muestre siempre para depuración.
 
 export function useSubscription() {
   const [isSubscribed, setIsSubscribed] = useState(false);
@@ -45,7 +39,7 @@ export function useSubscription() {
 
   useEffect(() => {
     // Si estamos en modo debug, simulamos la suscripción y terminamos.
-    if (DEBUG_SUBSCRIPTION) {
+    if (AppConfig.DEBUG_SUBSCRIPTION) { // <--- 2. Usamos la configuración central
       setIsSubscribed(true);
       // Mock con los 3 packages para testing (precios reales)
       setOfferings({
@@ -69,7 +63,7 @@ export function useSubscription() {
         // 1. CONFIGURAR PRIMERO
         await Purchases.configure({
           apiKey: Platform.select({
-            ios: "appl_xxx_tuApiKeyRevenueCat", // Reemplazar con tu clave de iOS
+            ios: "appl_abcgxldPDkQOPraTBlIeQAmCtfm", // Reemplazar con tu clave de iOS
             android: "goog_VthLntOZIMTTEsBySxJZRsHZVco",
             default: "rc_xxx_tuApiKeyPublica", // Reemplazar con tu Public API Key
           }),
@@ -141,7 +135,7 @@ export function useSubscription() {
 
   // Función para comprar un package específico
   const purchasePackage = async (packageToPurchase) => {
-    if (DEBUG_SUBSCRIPTION) {
+    if (AppConfig.DEBUG_SUBSCRIPTION) {
       // En modo debug, simula compra exitosa
       setIsSubscribed(true);
       return { success: true };
@@ -166,7 +160,7 @@ export function useSubscription() {
 
   // Función para restaurar compras
   const restorePurchases = async () => {
-    if (DEBUG_SUBSCRIPTION) {
+    if (AppConfig.DEBUG_SUBSCRIPTION) {
       setIsSubscribed(true);
       return { success: true };
     }
@@ -193,7 +187,7 @@ export function useSubscription() {
     loading, 
     purchasePackage, 
     restorePurchases,
-    showDebugBanner: SHOW_DEBUG_BANNER,
+    showDebugBanner: AppConfig.SHOW_DEBUG_BANNER, // <--- 3. Usamos la configuración central
     activeSubscription,
     appUserID, // Exponemos el ID de usuario
   };

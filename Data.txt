@@ -399,3 +399,9 @@ y al mismo tiempo el bundle id de Android coincide con el de la prubea cerrada (
 
 107| Calendar Details Styles:
 -Se ajustan los estilos de ruta y datos de vuelos del calendario. 
+
+108| Several improvements:
+-Se centralizan las variables de DEBUGUE en debugConfig.js.
+-Se implementa IAP de IOS. 
+-Funciona correctamente IAP en Android y IOS.
+-Resta agregar las opciones de suscripcion en la app. 

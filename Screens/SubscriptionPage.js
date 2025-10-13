@@ -28,17 +28,20 @@ const SubscriptionPage = ({ navigation, offerings, purchasePackage, restorePurch
           'Ya tienes acceso completo a todas las funciones de la aplicación.',
           [{ text: 'Continuar', onPress: () => navigation.goBack() }]
         );
-      } else {
+      } else if (!result.error?.userCancelled) {
+        // Si no fue exitoso y el usuario NO canceló, mostramos un error más detallado.
+        const errorCode = result.error?.code || 'N/A';
+        const errorMessage = result.error?.message || 'No se pudo completar la suscripción. Intenta de nuevo.';
         Alert.alert(
           'Error en la compra',
-          'No se pudo completar la suscripción. Intenta de nuevo.',
+          `${errorMessage}\n\n(Código: ${errorCode})`,
           [{ text: 'OK' }]
         );
       }
     } catch (error) {
       Alert.alert(
         'Error',
-        'Ocurrió un problema inesperado. Intenta de nuevo.',
+        `Ocurrió un problema inesperado. Intenta de nuevo.\n\n(Error: ${error.message})`,
         [{ text: 'OK' }]
       );
     } finally {
