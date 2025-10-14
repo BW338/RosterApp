@@ -17,6 +17,9 @@ const DebugSettings = {
   // Muestra el banner flotante con info de la suscripción.
   SHOW_DEBUG_BANNER: true,
 
+  // Muestra alertas con el estado de la suscripción en puntos clave.
+  SHOW_SUBSCRIPTION_ALERTS: false,
+
   // Desplaza la fecha "hoy" N días. (0 = normal)
   DATE_OFFSET: 0,
 

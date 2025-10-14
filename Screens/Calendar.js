@@ -4,6 +4,7 @@ import { Calendar } from "react-native-calendars";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect } from "@react-navigation/native";
 import { useSubscription } from "../hooks/useSubscription"; // 1. Importamos el hook
+import { AppConfig } from "../Helpers/debugConfig";
 import styles from "../Styles/CalendarScreenStyles";
 import EmptyRoster from "../Components/EmptyRoster";
 import CalendarInfo from "../Components/CalendarInfo";
@@ -669,11 +670,13 @@ export default function CalendarScreen({ navigation, isDarkMode, setIsDarkMode }
   };
 
   const handleUploadPress = () => {
-    Alert.alert(
-      'Debug: Verificación de Suscripción (Calendar)',
-      `El estado de 'isSubscribed' es: ${isSubscribed}`,
-      [{ text: 'OK' }]
-    );
+    if (AppConfig.SHOW_SUBSCRIPTION_ALERTS) {
+      Alert.alert(
+        'Debug: Verificación de Suscripción (Calendar)',
+        `El estado de 'isSubscribed' es: ${isSubscribed}`,
+        [{ text: 'OK' }]
+      );
+    }
     if (isSubscribed) {
       navigation.navigate("RosterPannel", { autoPick: true });
     } else {

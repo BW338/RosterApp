@@ -404,4 +404,11 @@ y al mismo tiempo el bundle id de Android coincide con el de la prubea cerrada (
 -Se centralizan las variables de DEBUGUE en debugConfig.js.
 -Se implementa IAP de IOS. 
 -Funciona correctamente IAP en Android y IOS.
--Resta agregar las opciones de suscripcion en la app. 
+-Resta agregar las opciones de suscripcion en la app.
+
+109| DayInfoModal.js:
+-Se crea el componente DayInfoModal.js mediante el cual se muestran los detalles del vuelo.
+-Se agrega al componente DayInfoModal.js el valor ult-ETD.
+-Se ajusta diseño general del componente
+-Se llevan los estilos a DayInfoModalStyles.js
+*Se lleva la variable que maneja los Alert de debugueo a debugConfig.

@@ -14,6 +14,8 @@ import EmptyRoster from "../Components/EmptyRoster";
 import Toast from "react-native-toast-message";
 import SettingsModal from "../Components/SettingsModal";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import DayInfoModal from "../Components/DayInfoModal"; // 1. Importamos el nuevo modal
+import { AppConfig } from "../Helpers/debugConfig";
 import { useSubscription } from "../hooks/useSubscription"; // 1. Importamos el hook
 
 export default function RosterScreen({ navigation, route, isDarkMode, setIsDarkMode }) { // 2. Quitamos isSubscribed de las props
@@ -30,6 +32,10 @@ export default function RosterScreen({ navigation, route, isDarkMode, setIsDarkM
   const { isSubscribed } = useSubscription(); // 3. Obtenemos el estado directamente de la fuente de verdad
 
   const [isSettingsModalVisible, setIsSettingsModalVisible] = useState(false);
+  // 2. Añadimos el estado para el nuevo modal
+  const [isDayInfoModalVisible, setIsDayInfoModalVisible] = useState(false);
+  const [selectedDayData, setSelectedDayData] = useState(null);
+
   const [todayColor, setTodayColor] = useState('#FFD54F'); // Color por defecto
   const [initialScreen, setInitialScreen] = useState('Roster');
 
@@ -56,6 +62,12 @@ export default function RosterScreen({ navigation, route, isDarkMode, setIsDarkM
   const handleHeaderLayout = useCallback((sectionIndex, height) => {
     headerHeightsRef.current[sectionIndex] = height;
   }, []);
+
+  // 3. Función para abrir el modal con los datos del día
+  const handleHeaderPress = (dayData) => {
+    setSelectedDayData(dayData);
+    setIsDayInfoModalVisible(true);
+  };
 
   // --- Lógica de Scroll ---
   const scrollToToday = useCallback(() => {
@@ -130,11 +142,13 @@ export default function RosterScreen({ navigation, route, isDarkMode, setIsDarkM
 
   // Función para manejar el botón "Cargar PDF"
   const handleLoadPDF = () => {
-    Alert.alert(
-      'Debug: Verificación de Suscripción (RosterScreen)',
-      `El estado de 'isSubscribed' es: ${isSubscribed}`,
-      [{ text: 'OK' }]
-    );
+    if (AppConfig.SHOW_SUBSCRIPTION_ALERTS) {
+      Alert.alert(
+        'Debug: Verificación de Suscripción (RosterScreen)',
+        `El estado de 'isSubscribed' es: ${isSubscribed}`,
+        [{ text: 'OK' }]
+      );
+    }
     if (isSubscribed) {
       // Si está suscrito, va directo a cargar PDF
       navigation.navigate("RosterPannel", { autoPick: true });
@@ -324,43 +338,46 @@ export default function RosterScreen({ navigation, route, isDarkMode, setIsDarkM
               const headerInfoValueColor = today ? '#000' : (isDarkMode ? '#FFFFFF' : '#1C1C1E');
               const borderStyle = isDarkMode ? { borderBottomColor: '#48484A' } : {};
               return (
-                <View onLayout={(e) => { handleHeaderLayout(section.sectionIndex, e.nativeEvent.layout.height); }} style={[styles.sectionHeader, headerBgStyle, todayBgStyle, borderStyle, { flexDirection: "row", alignItems: "center" }]}>
-                  {/* Fecha a la izquierda */}
-                  <View style={{ flex: 1 }}>
-                    <Text style={[styles.sectionHeaderText, { color: mainTextColor }]}>{formatDateShort(title)}</Text>
-                    <Text style={{ fontSize: 10, color: subTextColor, marginLeft: 4 }}>
-                      {(() => {
-                        const d = new Date(fullDate);
-                        const mes = d.toLocaleDateString("es-ES", { month: "long" });
-                        return mes.charAt(0).toUpperCase() + mes.slice(1);
-                      })()}
-                    </Text>
-                  </View>
+                // 4. Envolvemos el header en un TouchableOpacity
+                <TouchableOpacity activeOpacity={0.7} onPress={() => handleHeaderPress(section)}>
+                  <View onLayout={(e) => { handleHeaderLayout(section.sectionIndex, e.nativeEvent.layout.height); }} style={[styles.sectionHeader, headerBgStyle, todayBgStyle, borderStyle, { flexDirection: "row", alignItems: "center" }]}>
+                    {/* Fecha a la izquierda */}
+                    <View style={{ flex: 1 }}>
+                      <Text style={[styles.sectionHeaderText, { color: mainTextColor }]}>{formatDateShort(title)}</Text>
+                      <Text style={{ fontSize: 10, color: subTextColor, marginLeft: 4 }}>
+                        {(() => {
+                          const d = new Date(fullDate);
+                          const mes = d.toLocaleDateString("es-ES", { month: "long" });
+                          return mes.charAt(0).toUpperCase() + mes.slice(1);
+                        })()}
+                      </Text>
+                    </View>
 
-                  {/* Report en el medio */}
-                  <View style={{ flex: 1, alignItems: 'center' }}>
-                    {checkin && (
-                      <View style={{ alignItems: 'center' }}>
-                        <Text style={{ fontSize: 11, color: headerInfoLabelColor, fontWeight: '600', textTransform: 'uppercase' }}>Report</Text>
-                        <Text style={{ fontSize: 14, color: headerInfoValueColor, fontWeight: '700' }}>{checkin}</Text>
-                      </View>
-                    )}
-                  </View>
+                    {/* Report en el medio */}
+                    <View style={{ flex: 1, alignItems: 'center' }}>
+                      {checkin && (
+                        <View style={{ alignItems: 'center' }}>
+                          <Text style={{ fontSize: 11, color: headerInfoLabelColor, fontWeight: '600', textTransform: 'uppercase' }}>Report</Text>
+                          <Text style={{ fontSize: 14, color: headerInfoValueColor, fontWeight: '700' }}>{checkin}</Text>
+                        </View>
+                      )}
+                    </View>
 
-                  {/* TTEE a la derecha */}
-                  <View style={{ flex: 1, alignItems: 'flex-end' }}>
-                    {te && (
-                      <View style={{ alignItems: 'center' }}>
-                        <Text style={{ fontSize: 11, color: headerInfoLabelColor, fontWeight: '600', textTransform: 'uppercase' }}>TTEE</Text>
-                        <Text 
-                          style={[{ fontSize: 14, fontWeight: '700', color: headerInfoValueColor }, getDynamicStyle(te, isDarkMode)]}
-                          numberOfLines={1} // Evita que el texto se divida en dos líneas
-                          adjustsFontSizeToFit // Reduce el tamaño de la fuente si no entra
-                        >{te}</Text>
-                      </View>
-                    )}
+                    {/* TTEE a la derecha */}
+                    <View style={{ flex: 1, alignItems: 'flex-end' }}>
+                      {te && (
+                        <View style={{ alignItems: 'center' }}>
+                          <Text style={{ fontSize: 11, color: headerInfoLabelColor, fontWeight: '600', textTransform: 'uppercase' }}>TTEE</Text>
+                          <Text 
+                            style={[{ fontSize: 14, fontWeight: '700', color: headerInfoValueColor }, getDynamicStyle(te, isDarkMode)]}
+                            numberOfLines={1} // Evita que el texto se divida en dos líneas
+                            adjustsFontSizeToFit // Reduce el tamaño de la fuente si no entra
+                          >{te}</Text>
+                        </View>
+                      )}
+                    </View>
                   </View>
-                </View>
+                </TouchableOpacity>
               );
             }}
           />
@@ -380,6 +397,14 @@ export default function RosterScreen({ navigation, route, isDarkMode, setIsDarkM
         setTodayColor={setTodayColor}
         initialScreen={initialScreen}
         setInitialScreen={setInitialScreen}
+      />
+
+      {/* 5. Renderizamos el nuevo modal */}
+      <DayInfoModal
+        visible={isDayInfoModalVisible}
+        onClose={() => setIsDayInfoModalVisible(false)}
+        dayData={selectedDayData}
+        isDarkMode={isDarkMode}
       />
     </SafeAreaView>
   );

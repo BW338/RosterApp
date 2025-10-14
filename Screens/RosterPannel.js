@@ -7,6 +7,7 @@ import { parseRosterText } from "../Functions/parseRosterText";
 import { pickPdfFile } from "../Functions/pickPdf";
 import PrimaryButton from "../Components/Buttons/PrimaryButton";
 import { useSubscription } from "../hooks/useSubscription"; // 1. Importar el hook
+import { AppConfig } from "../Helpers/debugConfig";
 import * as FileSystem from "expo-file-system/legacy";
 
 export default function RosterPannelScreen({ navigation, route }) { // Eliminamos isSubscribed de las props
@@ -47,11 +48,13 @@ export default function RosterPannelScreen({ navigation, route }) { // Eliminamo
     // Solo actuar si `autoPick` es true y el estado de la suscripción ya no está cargando
     if (route.params?.autoPick && !loading) {
       // 3. Verificar la suscripción ANTES de intentar abrir el picker
-      Alert.alert(
-        'Debug: Verificación de Suscripción (RosterPannel)',
-        `El estado de 'isSubscribed' es: ${isSubscribed}`,
-        [{ text: 'OK' }]
-      );
+      if (AppConfig.SHOW_SUBSCRIPTION_ALERTS) {
+        Alert.alert(
+          'Debug: Verificación de Suscripción (RosterPannel)',
+          `El estado de 'isSubscribed' es: ${isSubscribed}`,
+          [{ text: 'OK' }]
+        );
+      }
       if (isSubscribed) {
         handlePickPdf(true);
       } else {

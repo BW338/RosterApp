@@ -1,0 +1,91 @@
+import { StyleSheet } from 'react-native';
+
+export default StyleSheet.create({
+  centeredView: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+  },
+  modalView: {
+    margin: 20,
+    backgroundColor: 'white',
+    borderRadius: 20,
+    padding: 25,
+    paddingTop: 45,
+    alignItems: 'flex-start',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+    width: '90%',
+  },
+  modalViewDark: { backgroundColor: '#2C2C2E' },
+  closeButton: { position: 'absolute', top: 10, right: 10 },
+  modalTitle: { marginBottom: 20, fontSize: 22, fontWeight: 'bold', alignSelf: 'center', color: '#111', width: '100%' },
+  modalTitleDark: { color: '#FFF' },
+  routeContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
+    marginBottom: 15,
+    paddingBottom: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
+  },
+  routeContainerDark: {
+    borderBottomColor: '#3A3A3C',
+  },
+  routeText: { marginLeft: 8, fontSize: 16, fontWeight: '500', color: '#555', flexShrink: 1 },
+  routeTextDark: { color: '#AEAEB2' },
+  infoRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  infoIcon: {
+    marginRight: 10,
+  },
+  infoLabel: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#555',
+  },
+  infoLabelDark: { color: '#AEAEB2' },
+  infoValue: {
+    fontSize: 16,
+    color: '#111',
+    marginLeft: 8,
+    flexShrink: 1, // Permite que el texto se ajuste si es muy largo
+  },
+  infoValueDark: { color: '#FFF' },
+  timeRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+    marginTop: 5,
+  },
+  lastLandingContainer: {
+    marginTop: 15,
+    padding: 10,
+    backgroundColor: 'rgba(255, 99, 71, 0.1)',
+    borderRadius: 8,
+    borderLeftWidth: 4,
+    borderLeftColor: '#FF6347',
+    width: '100%',
+  },
+  lastLandingContainerDark: { backgroundColor: 'rgba(255, 160, 122, 0.15)', borderLeftColor: '#FFA07A' },
+  flexContainer: {
+    marginTop: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    backgroundColor: 'rgba(0, 122, 255, 0.1)',
+    borderRadius: 8,
+    width: '100%',
+  },
+  flexContainerDark: {
+    backgroundColor: 'rgba(10, 132, 255, 0.2)',
+  },
+});
