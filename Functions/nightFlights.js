@@ -28,7 +28,7 @@ export const detectNightFlights = (days) => {
       (f) =>
         f.type === "OP" &&
         f.flightNumber === departureLeg.flightNumber &&
-        f.destination === null
+        (f.destination === null || f.origin === null) // Hacemos la condición más flexible
     );
     if (arrivalLegIndex === -1) continue;
 
@@ -43,12 +43,17 @@ export const detectNightFlights = (days) => {
     departureLeg.arrTime = arrivalLeg.depTime; // El "depTime" del tramo de llegada es la hora de arribo real
     departureLeg.checkout = null; // El checkout ocurre en el día siguiente
 
-    // 2. Transformar el tramo de llegada para mostrar solo el arribo
-    arrivalLeg.origin = null;
-    arrivalLeg.depTime = null;
-    arrivalLeg.destination = departureLeg.destination;
-    arrivalLeg.arrTime = departureLeg.arrTime;
-    arrivalLeg.checkout = finalCheckout;
+    // 2. Si el día de llegada tiene más vuelos, eliminamos el tramo de llegada redundante.
+    //    Si no, lo transformamos en una tarjeta de "solo llegada" para que el día no quede vacío.
+    if (nextDay.flights.length > 1) {
+      nextDay.flights.splice(arrivalLegIndex, 1);
+    } else {
+      // Transformar en "solo llegada"
+      arrivalLeg.origin = null;
+      arrivalLeg.depTime = null;
+      arrivalLeg.destination = departureLeg.destination; // Aseguramos que se muestre el destino
+      arrivalLeg.checkout = finalCheckout;
+    }
 
     // 3. Mover los totales (TV, TSV) al día de aterrizaje
     nextDay.tv = currentDay.tv;

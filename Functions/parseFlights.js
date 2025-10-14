@@ -58,8 +58,11 @@ export const parseFlights = (flightTokens, fullDate, parsedDays) => {
     let depTime = null, arrTime = null, checkout = null;
     if (airportIdxs.length >= 1) depTime = rest.slice(airportIdxs[0] + 1).find(isTime) || null;
     if (airportIdxs.length >= 2) {
-      const foundTimes = rest.slice(airportIdxs[1] + 1).filter(isTime);
-      [arrTime, checkout] = [foundTimes[0] || null, foundTimes[1] || null];
+      const timesAfterDest = rest.slice(airportIdxs[1] + 1).filter(isTime);
+      [arrTime, checkout] = [timesAfterDest[0] || null, timesAfterDest[1] || null];
+    } else {
+      // Si no hay segundo aeropuerto, no hay hora de llegada en este tramo.
+      arrTime = null;
     }
 
     // Detectar avión
@@ -79,17 +82,18 @@ export const parseFlights = (flightTokens, fullDate, parsedDays) => {
         tsv = totalTimes[totalTimes.length - 1];
       }
     } else if (checkout) {
-      // Si hay checkout, puede haber Rq, TV, TSV al final
-      const timePattern = rest.join(" ");
-      const totalsMatch = timePattern.match(/(\d{1,2}:\d{2})\s+(\d{1,2}:\d{2})\s+(\d{1,2}:\d{2})\s*$/);
-      if (totalsMatch) {
-        // Heurística: si los tres últimos tiempos no son parte de dep/arr/checkout, son Rq, TV y TSV
-        const checkoutIndex = rest.lastIndexOf(checkout);
-        const rqIndex = rest.lastIndexOf(totalsMatch[1]);
-        if (rqIndex > checkoutIndex) {
-          tv = totalsMatch[2];
-          tsv = totalsMatch[3];
-        }
+      // Lógica unificada para buscar TV/TSV al final de cualquier línea de vuelo
+      const tokensAfterAircraft = aircraft ? rest.slice(rest.lastIndexOf(aircraft) + 1) : rest;
+      // Encontramos el índice del primer token que NO es un tiempo.
+      const firstNonTimeIndex = tokensAfterAircraft.findIndex(t => !isTime(t));
+      // Los totales son todos los tiempos antes de ese primer token no-tiempo.
+      const potentialTotals = (firstNonTimeIndex === -1) 
+        ? tokensAfterAircraft.filter(isTime) 
+        : tokensAfterAircraft.slice(0, firstNonTimeIndex).filter(isTime);
+      
+      if (potentialTotals.length >= 2) {
+        tv = potentialTotals[potentialTotals.length - 2];
+        tsv = potentialTotals[potentialTotals.length - 1];
       }
     }
 

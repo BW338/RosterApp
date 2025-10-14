@@ -415,5 +415,7 @@ y al mismo tiempo el bundle id de Android coincide con el de la prubea cerrada (
 
 110| FIxing Parse:
 -Se toman en cuenta los valores de TSV Y TTEE para los vuelos que aterrizan luego de las 00:00.
-*Resta ver casos que el primer tramo ateeeiza luego del las 00:00 
+-Se acomoda el parseo y visual de vuelos en los que el primer tramo ateeeiza luego del las 00:00.
+-Se ajusta timeline de nocturnos que no se mostraban en el ultimo tramo del calendar.js 
+*Resta ver TSV en casos que el primer tramo ateeeiza luego del las 00:00 
 *Resta ver casos que el vuelo esta al final del la lista.

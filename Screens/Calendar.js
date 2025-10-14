@@ -57,11 +57,6 @@ const getDayType = (day) => {
 
 // Render timeline de vuelos/guardias
 const renderTimeline = (dayData, isDarkMode) => {
-  // No mostrar timeline si no hay datos o es un día libre
-  // Tampoco mostrar si es un vuelo nocturno que solo tiene llegada (sin checkin)
-  if (!dayData || getDayType(dayData) === 'libre' || (getDayType(dayData) === 'vuelo' && !dayData.checkin)) {
-    return null;
-  }
   const type = getDayType(dayData);
   let depFirst, end;
 
@@ -73,7 +68,9 @@ const renderTimeline = (dayData, isDarkMode) => {
     case "vuelo": {
       const lastFlight = dayData.flights[dayData.flights.length - 1];
       end = lastFlight?.checkout || lastFlight?.arrTime;
-      depFirst = dayData.checkin || (dayData.flights.length > 0 ? "00:00" : null);
+      // Si hay checkin, el timeline empieza a esa hora.
+      // Si no, es un vuelo nocturno y la actividad de este día empieza a las 00:00.
+      depFirst = dayData.checkin || "00:00";
       break;
     }
     case "GUA":
