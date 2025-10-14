@@ -412,3 +412,8 @@ y al mismo tiempo el bundle id de Android coincide con el de la prubea cerrada (
 -Se ajusta diseño general del componente
 -Se llevan los estilos a DayInfoModalStyles.js
 *Se lleva la variable que maneja los Alert de debugueo a debugConfig.
+
+110| FIxing Parse:
+-Se toman en cuenta los valores de TSV Y TTEE para los vuelos que aterrizan luego de las 00:00.
+*Resta ver casos que el primer tramo ateeeiza luego del las 00:00 
+*Resta ver casos que el vuelo esta al final del la lista.

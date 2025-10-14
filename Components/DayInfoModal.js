@@ -56,7 +56,15 @@ const DayInfoModal = ({ visible, onClose, dayData, isDarkMode }) => {
   }
 
   const lastLanding = calculateLastLanding(dayData.checkin);
-  const te = dayData.tsv ? require('../Helpers/today').subtractMinutes(dayData.tsv, 30) : null;
+  
+  // Lógica mejorada para TSV:
+  // Solo buscamos en el día siguiente si el día actual es un día de vuelo.
+  let effectiveTsv = dayData.tsv;
+  if (!effectiveTsv && isFlightDay) {
+    effectiveTsv = dayData.nextDay?.tsv;
+  }
+
+  const te = effectiveTsv ? require('../Helpers/today').subtractMinutes(effectiveTsv, 30) : null;
   const flexHours = calculateFlexHours(te);
   const flexMoney = flexHours > 0 && flexValue > 0 ? flexHours * flexValue : 0;
 
@@ -95,9 +103,9 @@ const DayInfoModal = ({ visible, onClose, dayData, isDarkMode }) => {
           )}
 
           {/* Tiempos de Servicio */}
-          {(dayData.tsv || te) && (
+          {(effectiveTsv || te) && (
             <View style={styles.timeRow}>
-              <InfoRow icon="time-outline" label="TSV" value={dayData.tsv || 'N/A'} isDarkMode={isDarkMode} />
+              <InfoRow icon="time-outline" label="TSV" value={effectiveTsv || 'N/A'} isDarkMode={isDarkMode} />
               <InfoRow icon="timer-outline" label="TTEE" value={te || 'N/A'} isDarkMode={isDarkMode} />
             </View>
           )}

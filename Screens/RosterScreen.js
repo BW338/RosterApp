@@ -64,8 +64,8 @@ export default function RosterScreen({ navigation, route, isDarkMode, setIsDarkM
   }, []);
 
   // 3. Función para abrir el modal con los datos del día
-  const handleHeaderPress = (dayData) => {
-    setSelectedDayData(dayData);
+  const handleHeaderPress = (dayData, nextDayData = null) => {
+    setSelectedDayData({ ...dayData, nextDay: nextDayData });
     setIsDayInfoModalVisible(true);
   };
 
@@ -328,7 +328,14 @@ export default function RosterScreen({ navigation, route, isDarkMode, setIsDarkM
             renderSectionHeader={({ section, index }) => {
               if (!section) return null;
               const { title, fullDate, tv, tsv, checkin } = section;
-              const te = subtractMinutes(tsv, 30);
+              // Para vuelos nocturnos, el TSV puede estar en el día siguiente. Lo buscamos para calcular el TTEE.
+              // Solo hacemos esto si el día actual es un día de vuelo (tiene checkin).
+              const nextDay = sections[section.sectionIndex + 1];
+              let effectiveTsv = tsv;
+              if (!effectiveTsv && checkin) {
+                effectiveTsv = nextDay?.tsv;
+              }
+              const te = subtractMinutes(effectiveTsv, 30);
               const today = isTodayWithOffset(fullDate);
               const headerBgStyle = isDarkMode ? (index % 2 === 0 ? { backgroundColor: '#2C2C2E' } : { backgroundColor: '#1C1C1E' }) : (index % 2 === 0 ? styles.sectionHeaderEven : styles.sectionHeaderOdd);
               const todayBgStyle = today ? { backgroundColor: todayColor } : {};
@@ -339,7 +346,7 @@ export default function RosterScreen({ navigation, route, isDarkMode, setIsDarkM
               const borderStyle = isDarkMode ? { borderBottomColor: '#48484A' } : {};
               return (
                 // 4. Envolvemos el header en un TouchableOpacity
-                <TouchableOpacity activeOpacity={0.7} onPress={() => handleHeaderPress(section)}>
+                <TouchableOpacity activeOpacity={0.7} onPress={() => handleHeaderPress(section, nextDay)}>
                   <View onLayout={(e) => { handleHeaderLayout(section.sectionIndex, e.nativeEvent.layout.height); }} style={[styles.sectionHeader, headerBgStyle, todayBgStyle, borderStyle, { flexDirection: "row", alignItems: "center" }]}>
                     {/* Fecha a la izquierda */}
                     <View style={{ flex: 1 }}>
