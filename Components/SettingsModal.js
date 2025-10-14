@@ -1,7 +1,8 @@
 import React from 'react';
-import { Modal, View, Text, Switch, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
+import { Modal, View, Text, Switch, TouchableOpacity, ScrollView, Linking, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import styles from '../Styles/SettingsModalStyles';
+import { useSubscription } from '../hooks/useSubscription';
 
 const COLOR_OPTIONS = [
   '#FFD54F', // Amarillo
@@ -26,6 +27,27 @@ const SettingsModal = ({
   setInitialScreen,
   onOpenInfo,
 }) => {
+  const { isSubscribed, activeSubscription } = useSubscription();
+
+  // Función para formatear la fecha de expiración
+  const formatExpirationDate = (dateString) => {
+    if (!dateString) return 'No disponible';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('es-ES', {
+      day: '2-digit', month: 'long', year: 'numeric',
+    });
+  };
+
+  // Función para abrir la pantalla de gestión de suscripciones de la tienda
+  const handleManageSubscription = () => {
+    if (Platform.OS === 'ios') {
+      Linking.openURL('https://apps.apple.com/account/subscriptions');
+    } else if (Platform.OS === 'android') {
+      // El enlace directo puede variar, este es el más común.
+      Linking.openURL('https://play.google.com/store/account/subscriptions');
+    }
+  };
+
   return (
     <Modal visible={visible} onRequestClose={onClose} transparent={true} animationType="fade">
       <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPressOut={onClose}>
@@ -115,6 +137,30 @@ const SettingsModal = ({
                 </View>
               </View>
             )}
+
+            {/* --- Sección de Suscripción --- */}
+            <View style={styles.section}>
+              <Text style={[styles.sectionTitle, isDarkMode && styles.sectionTitleDark]}>Suscripción</Text>
+              <View style={[styles.subscriptionInfoBox, { backgroundColor: isDarkMode ? '#3A3A3C' : '#F2F2F7' }]}>
+                {isSubscribed && activeSubscription ? (
+                  <>
+                    <View style={styles.infoRow}>
+                      <Text style={[styles.infoLabel, { color: isDarkMode ? '#AEAEB2' : '#555' }]}>Estado:</Text>
+                      <Text style={[styles.infoValue, { color: '#28a745', fontWeight: 'bold' }]}>Activa</Text>
+                    </View>
+
+                 
+                    
+                    <View style={styles.infoRow}>
+                      <Text style={[styles.infoLabel, { color: isDarkMode ? '#AEAEB2' : '#555' }]}>Vence:</Text>
+                      <Text style={[styles.infoValue, { color: isDarkMode ? '#FFF' : '#111' }]}>{formatExpirationDate(activeSubscription.expirationDate)}</Text>
+                    </View>
+                  </>
+                ) : (
+                  <Text style={[styles.infoValue, { color: isDarkMode ? '#FF453A' : '#FF3B30' }]}>No tienes una suscripción activa.</Text>
+                )}
+              </View>
+            </View>
 
             {/* Section: Ayuda (condicional) */}
             {onOpenInfo && (

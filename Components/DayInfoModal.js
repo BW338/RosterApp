@@ -81,7 +81,7 @@ const DayInfoModal = ({ visible, onClose, dayData, isDarkMode }) => {
             <Ionicons name="close-circle" size={30} color="#999" />
           </TouchableOpacity>
 
-          <Text style={[styles.modalTitle, isDarkMode && styles.modalTitleDark]}>Resumen del Vuelo</Text>
+          <Text style={[styles.modalTitle, isDarkMode && styles.modalTitleDark]}>{capitalizedDate}</Text>
 
           {/* Ruta del Vuelo */}
           {flightRoute && (
@@ -91,7 +91,6 @@ const DayInfoModal = ({ visible, onClose, dayData, isDarkMode }) => {
             </View>
           )}
 
-          <InfoRow icon="calendar-outline"  value={capitalizedDate} isDarkMode={isDarkMode} />
           {dayData.checkin && <InfoRow icon="log-in-outline" label="Check-in" value={dayData.checkin} isDarkMode={isDarkMode} />}
 
           {/* Horarios de Vuelo */}

@@ -418,4 +418,8 @@ y al mismo tiempo el bundle id de Android coincide con el de la prubea cerrada (
 -Se acomoda el parseo y visual de vuelos en los que el primer tramo ateeeiza luego del las 00:00.
 -Se ajusta timeline de nocturnos que no se mostraban en el ultimo tramo del calendar.js 
 *Resta ver TSV en casos que el primer tramo ateeeiza luego del las 00:00 
-*Resta ver casos que el vuelo esta al final del la lista.
+-Resta ver casos que el vuelo esta al final del la lista. >RESULETO<
+
+111| General improvements:
+-Se setea como titulo la fecha en DayInfoModal.
+-Detalles de la suscripcion en Settings.

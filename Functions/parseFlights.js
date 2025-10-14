@@ -81,9 +81,9 @@ export const parseFlights = (flightTokens, fullDate, parsedDays) => {
         tv = totalTimes[totalTimes.length - 2];
         tsv = totalTimes[totalTimes.length - 1];
       }
-    } else if (checkout) {
+    } else if (aircraft) { // Buscamos los totales si existe un avión en la línea
       // Lógica unificada para buscar TV/TSV al final de cualquier línea de vuelo
-      const tokensAfterAircraft = aircraft ? rest.slice(rest.lastIndexOf(aircraft) + 1) : rest;
+      const tokensAfterAircraft = rest.slice(rest.lastIndexOf(aircraft) + 1);
       // Encontramos el índice del primer token que NO es un tiempo.
       const firstNonTimeIndex = tokensAfterAircraft.findIndex(t => !isTime(t));
       // Los totales son todos los tiempos antes de ese primer token no-tiempo.
