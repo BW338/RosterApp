@@ -45,9 +45,9 @@ export function useSubscription() {
       setOfferings({
         identifier: "roster_mensual",
         availablePackages: [
-          { identifier: "monthly", product: { title: "Plan Mensual", priceString: "USD$1.50" } },
-          { identifier: "six_months", product: { title: "Plan Semestral", priceString: "USD$8.00" } },
-          { identifier: "annual", product: { title: "Plan Anual", priceString: "USD$15.00" } }
+          { identifier: "monthly", product: { title: "Plan Mensual", priceString: "$1.99" } },
+          { identifier: "six_months", product: { title: "Plan Semestral", priceString: "$7.99" } },
+          { identifier: "annual", product: { title: "Plan Anual", priceString: "$14.99" } }
         ],
         activeSubscription: { productIdentifier: 'debug_plan', periodType: 'DEBUG' }
       });

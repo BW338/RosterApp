@@ -423,3 +423,9 @@ y al mismo tiempo el bundle id de Android coincide con el de la prubea cerrada (
 111| General improvements:
 -Se setea como titulo la fecha en DayInfoModal.
 -Detalles de la suscripcion en Settings.
+
+112| FORCE_SHOW_SUBSCRIPTION_PAGE_ON_IOS:
+-Se agrega a debugConfig esa variable para que en true siempre muestre el modal de suscipciones para IOS.
+Tuve que hacer esto porque Apple trabo la suscripcion y no me deja cancelarla, por lo que tuve que buscar la 
+manera de acceder a los planes a pesar de tener una suscripcion activa. 
+*Compile y previo terminar de configurar RevenueCat, las 3 suscripciones funcionan OK para IOS.

@@ -674,6 +674,12 @@ export default function CalendarScreen({ navigation, isDarkMode, setIsDarkMode }
         [{ text: 'OK' }]
       );
     }
+    // Si el flag de debug está activo en iOS, forzamos la navegación a la página de suscripción.
+    if (Platform.OS === 'ios' && AppConfig.FORCE_SHOW_SUBSCRIPTION_PAGE_ON_IOS) {
+      navigation.navigate("SubscriptionPage");
+      return;
+    }
+
     if (isSubscribed) {
       navigation.navigate("RosterPannel", { autoPick: true });
     } else {

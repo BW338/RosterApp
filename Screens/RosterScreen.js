@@ -149,6 +149,12 @@ export default function RosterScreen({ navigation, route, isDarkMode, setIsDarkM
         [{ text: 'OK' }]
       );
     }
+    // Si el flag de debug está activo en iOS, forzamos la navegación a la página de suscripción.
+    if (Platform.OS === 'ios' && AppConfig.FORCE_SHOW_SUBSCRIPTION_PAGE_ON_IOS) {
+      navigation.navigate("SubscriptionPage");
+      return;
+    }
+
     if (isSubscribed) {
       // Si está suscrito, va directo a cargar PDF
       navigation.navigate("RosterPannel", { autoPick: true });

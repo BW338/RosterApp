@@ -28,6 +28,10 @@ const DebugSettings = {
 
   // Muestra el disclaimer legal siempre.
   ALWAYS_SHOW_DISCLAIMER: false,
+
+  // En iOS, fuerza la apertura de la página de suscripción al presionar "+PDF", ignorando si ya existe una suscripción.
+  // Útil para probar la visualización de planes cuando una suscripción de Sandbox está "atascada".
+  FORCE_SHOW_SUBSCRIPTION_PAGE_ON_IOS: true,
 };
 
 // --- Lógica de exportación (No modificar) ---
